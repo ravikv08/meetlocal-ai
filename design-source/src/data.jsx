@@ -1,0 +1,388 @@
+// Mock data for meetlocal.ai prototype
+
+// Residency tiers — shown as colored badge on cards & profile
+// native: born in city · rooted: 10+ yrs · seasoned: 3-10 yrs · new: <3yr
+const LOCALS = [
+  {
+    id: 'mika',
+    name: 'Mika T.',
+    city: 'Tokyo',
+    neighborhood: 'Shimokitazawa',
+    languages: ['EN', 'JA'],
+    tagline: 'Ramen hunter & vinyl collector',
+    bio: 'Raised in Tokyo, 12 years curating late-night food crawls through Shimokita and Shibuya alleys. I know which cook is in tonight.',
+    price: 32,
+    rating: 4.97,
+    reviews: 184,
+    responseMin: 3,
+    verified: true,
+    residency: 'native', yearsInCity: 29,
+    idVerified: true, bgCheck: true, bgCheckDate: 'Mar 2026',
+    tags: ['Food', 'Nightlife', 'Music'],
+    distance: 1.2,
+    availableIn: 0.5, // hours
+    photo: 'Mika · Tokyo portrait',
+    platforms: [
+      { id: 'airbnb', label: 'Airbnb Superhost', sub: '4.96 · 312 stays', years: 6 },
+      { id: 'uber', label: 'Uber driver', sub: '4.93 · 2,140 trips', years: 4 },
+    ],
+    social: { instagram: 'mika.ramen', linkedin: 'mika-tanaka' },
+  },
+  {
+    id: 'sara',
+    name: 'Sara L.',
+    city: 'Lisbon',
+    neighborhood: 'Alfama',
+    languages: ['EN', 'PT', 'ES'],
+    tagline: 'Photographer, grandmother of two',
+    bio: 'Golden hour on the miradouros, then pastéis de nata where the line is local, not tourist.',
+    price: 28,
+    rating: 4.92,
+    reviews: 97,
+    responseMin: 7,
+    verified: true,
+    residency: 'native', yearsInCity: 62,
+    idVerified: true, bgCheck: true, bgCheckDate: 'Feb 2026',
+    tags: ['Photos', 'Walk', 'Coffee'],
+    distance: 0.4,
+    availableIn: 1.5,
+    photo: 'Sara · Lisbon',
+    platforms: [
+      { id: 'airbnb', label: 'Airbnb Superhost', sub: '4.99 · 187 stays', years: 9 },
+      { id: 'booking', label: 'Booking.com host', sub: 'Genius · 4.9', years: 7 },
+    ],
+    social: { instagram: 'sara.alfama', linkedin: 'sara-leite-photo' },
+  },
+  {
+    id: 'diego',
+    name: 'Diego R.',
+    city: 'Mexico City',
+    neighborhood: 'Roma Norte',
+    languages: ['EN', 'ES'],
+    tagline: 'Driver + mezcal scholar',
+    bio: 'CDMX born. Daily driver, knows every pothole and every mezcalería worth your time.',
+    price: 22,
+    rating: 4.88,
+    reviews: 241,
+    responseMin: 2,
+    verified: true,
+    residency: 'native', yearsInCity: 34,
+    idVerified: true, bgCheck: true, bgCheckDate: 'Jan 2026',
+    tags: ['Drive', 'Drinks', 'Markets'],
+    distance: 3.1,
+    availableIn: 0.25,
+    photo: 'Diego · CDMX',
+    platforms: [
+      { id: 'uber', label: 'Uber Pro Diamond', sub: '4.97 · 8,420 trips', years: 7 },
+      { id: 'didi', label: 'DiDi top driver', sub: '5.0 · 3,100 trips', years: 4 },
+    ],
+    social: { instagram: 'diego.cdmx', snapchat: 'diegoroma' },
+  },
+  {
+    id: 'amelie',
+    name: 'Amélie D.',
+    city: 'Paris',
+    neighborhood: 'Belleville',
+    languages: ['EN', 'FR'],
+    tagline: 'Street art walks & natural wine',
+    bio: 'Belleville is not what the guidebook says. Let me show you the real one.',
+    price: 35,
+    rating: 4.94,
+    reviews: 128,
+    responseMin: 5,
+    verified: true,
+    residency: 'rooted', yearsInCity: 14,
+    idVerified: true, bgCheck: true, bgCheckDate: 'Mar 2026',
+    tags: ['Art', 'Wine', 'Walk'],
+    distance: 2.0,
+    availableIn: 2,
+    photo: 'Amélie · Paris',
+    platforms: [
+      { id: 'airbnb', label: 'Airbnb Experience host', sub: '4.94 · 240 guests', years: 5 },
+      { id: 'opentable', label: 'OpenTable VIP', sub: 'Top 1% reviewer', years: 3 },
+    ],
+    social: { instagram: 'amelie.belleville', linkedin: 'amelie-dubois' },
+  },
+  {
+    id: 'kenji',
+    name: 'Kenji O.',
+    city: 'Tokyo',
+    neighborhood: 'Yanaka',
+    languages: ['EN', 'JA'],
+    tagline: 'Temples, cemeteries, old Tokyo',
+    bio: 'Yanaka survived the fires and the bombs. The old Tokyo is still here — I grew up in it.',
+    price: 26,
+    rating: 4.99,
+    reviews: 63,
+    responseMin: 12,
+    verified: true,
+    residency: 'native', yearsInCity: 58,
+    idVerified: true, bgCheck: true, bgCheckDate: 'Apr 2026',
+    tags: ['History', 'Walk', 'Tea'],
+    distance: 4.6,
+    availableIn: 4,
+    photo: 'Kenji · Yanaka',
+    platforms: [
+      { id: 'hotel', label: 'Park Hyatt concierge', sub: '8 yrs · senior', years: 8 },
+      { id: 'tripadvisor', label: 'TripAdvisor #2 in Tokyo', sub: '4.99 · 540 reviews', years: 6 },
+    ],
+    social: { linkedin: 'kenji-okada-tokyo' },
+  },
+  {
+    id: 'nadia',
+    name: 'Nadia K.',
+    city: 'Marrakech',
+    neighborhood: 'Medina',
+    languages: ['EN', 'FR', 'AR'],
+    tagline: 'Souk negotiator, tea pourer',
+    bio: 'I will get you the price a local pays. And tea. Always tea.',
+    price: 24,
+    rating: 4.91,
+    reviews: 156,
+    responseMin: 4,
+    verified: true,
+    residency: 'rooted', yearsInCity: 11,
+    idVerified: true, bgCheck: true, bgCheckDate: 'Feb 2026',
+    tags: ['Markets', 'Food', 'Craft'],
+    distance: 0.8,
+    availableIn: 1,
+    photo: 'Nadia · Marrakech',
+    platforms: [
+      { id: 'airbnb', label: 'Airbnb Plus host', sub: '4.97 · 410 stays', years: 8 },
+      { id: 'restaurant', label: 'Café Clock owner', sub: 'Featured · NYT 36 hours', years: 11 },
+    ],
+    social: { instagram: 'nadia.medina' },
+  },
+  {
+    id: 'elif',
+    name: 'Elif A.',
+    city: 'Istanbul',
+    neighborhood: 'Karaköy',
+    languages: ['EN', 'TR', 'FR'],
+    tagline: 'Bosphorus ferries & meze dinners',
+    bio: 'Born in Beşiktaş, grew up swimming off Kuruçeşme. I\'ll take you across the water at sunset — the Istanbul most tourists miss is 12 minutes by ferry from the Grand Bazaar.',
+    price: 26, rating: 4.96, reviews: 142, responseMin: 4, verified: true,
+    residency: 'native', yearsInCity: 31,
+    idVerified: true, bgCheck: true, bgCheckDate: 'Mar 2026',
+    tags: ['Food', 'Walk', 'Photos'],
+    distance: 1.4, availableIn: 0.5,
+    photo: 'Elif · Karaköy',
+    platforms: [
+      { id: 'airbnb', label: 'Airbnb Superhost', sub: '4.95 · 268 stays', years: 5 },
+      { id: 'booking', label: 'Booking.com Genius', sub: '9.6 · "Loved by guests"', years: 4 },
+    ],
+    social: { instagram: 'elif.karakoy', linkedin: 'elif-aydin' },
+  },
+  {
+    id: 'mehmet',
+    name: 'Mehmet Y.',
+    city: 'Istanbul',
+    neighborhood: 'Balat',
+    languages: ['EN', 'TR'],
+    tagline: 'Ottoman history & coffee alleys',
+    bio: 'Balat is five centuries of Greek, Jewish, Armenian & Turkish layered on one hill. My grandfather ran the bakery on the corner. I\'ll show you which door still opens.',
+    price: 22, rating: 4.99, reviews: 89, responseMin: 8, verified: true,
+    residency: 'native', yearsInCity: 44,
+    idVerified: true, bgCheck: true, bgCheckDate: 'Apr 2026',
+    tags: ['History', 'Walk', 'Coffee'],
+    distance: 3.8, availableIn: 2,
+    photo: 'Mehmet · Balat',
+    platforms: [
+      { id: 'tripadvisor', label: 'TripAdvisor #4 Istanbul tours', sub: '4.98 · 380 reviews', years: 9 },
+      { id: 'restaurant', label: 'Forno Balat — owner', sub: '3rd-generation bakery', years: 14 },
+    ],
+    social: { instagram: 'mehmet.balat' },
+  },
+  {
+    id: 'zeynep',
+    name: 'Zeynep D.',
+    city: 'Istanbul',
+    neighborhood: 'Kadıköy',
+    languages: ['EN', 'TR', 'DE'],
+    tagline: 'Street food & rooftop raki',
+    bio: 'Asian-side native. Fish sandwich on the ferry, then we climb three rooftops before midnight. I know every mezeci by first name.',
+    price: 24, rating: 4.94, reviews: 203, responseMin: 3, verified: true,
+    residency: 'native', yearsInCity: 28,
+    idVerified: true, bgCheck: true, bgCheckDate: 'Mar 2026',
+    tags: ['Food', 'Nightlife', 'Drinks'],
+    distance: 2.2, availableIn: 0.75,
+    photo: 'Zeynep · Kadıköy',
+    platforms: [
+      { id: 'uber', label: 'Uber Eats top courier', sub: '5.0 · 4,200 deliveries', years: 3 },
+      { id: 'airbnb', label: 'Airbnb host', sub: '4.91 · 142 stays', years: 4 },
+    ],
+    social: { instagram: 'zeynep.kadikoy', snapchat: 'zeynepd' },
+  },
+  {
+    id: 'can',
+    name: 'Can T.',
+    city: 'Istanbul',
+    neighborhood: 'Beyoğlu',
+    languages: ['EN', 'TR', 'IT'],
+    tagline: 'Vinyl shops & Turkish jazz',
+    bio: '12 years in the Beyoğlu music scene. I DJ Thursdays and know which kahvehane lets you smoke a pipe while Coltrane plays.',
+    price: 30, rating: 4.92, reviews: 68, responseMin: 6, verified: true,
+    residency: 'rooted', yearsInCity: 12,
+    idVerified: true, bgCheck: true, bgCheckDate: 'Feb 2026',
+    tags: ['Music', 'Nightlife', 'Walk'],
+    distance: 1.1, availableIn: 3,
+    photo: 'Can · Beyoğlu',
+    platforms: [
+      { id: 'restaurant', label: 'Babylon Lounge — resident DJ', sub: 'Thursdays · 6 yrs', years: 6 },
+      { id: 'opentable', label: 'OpenTable insider', sub: 'Top reviewer · Beyoğlu', years: 3 },
+    ],
+    social: { instagram: 'can.vinyl', linkedin: 'can-tezcan' },
+  },
+];
+
+// Platform credential metadata — used to render badges
+const PLATFORMS = {
+  airbnb:      { name: 'Airbnb',      color: '#FF385C', dot: '⌂' },
+  uber:        { name: 'Uber',        color: '#000000', dot: 'U' },
+  didi:        { name: 'DiDi',        color: '#FF7A00', dot: 'D' },
+  booking:     { name: 'Booking.com', color: '#003580', dot: 'B' },
+  hotel:       { name: 'Hotel',       color: '#7C5CFF', dot: 'H' },
+  restaurant:  { name: 'Restaurant',  color: '#3E8E5A', dot: 'R' },
+  tripadvisor: { name: 'TripAdvisor', color: '#34E0A1', dot: 'TA' },
+  opentable:   { name: 'OpenTable',   color: '#DA3743', dot: 'OT' },
+};
+
+const CATEGORIES = [
+  { id: 'food',     label: 'Food tours',         icon: 'food',  blurb: 'Hole-in-the-walls, family kitchens, late-night counters' },
+  { id: 'photo',    label: 'Photo spots',        icon: 'cam',   blurb: 'Golden hour, rooftops, the angle the postcards miss' },
+  { id: 'hidden',   label: 'Hidden favorites',   icon: 'compass', blurb: 'Where locals actually go on a Tuesday' },
+  { id: 'history',  label: 'History & culture',  icon: 'walk',  blurb: 'Walks led by people whose families lived it' },
+  { id: 'night',    label: 'Nightlife',          icon: 'moon',  blurb: 'Bars without signs, rooftops with views' },
+  { id: 'market',   label: 'Markets & souks',    icon: 'bag',   blurb: 'Negotiate the local price, bring an empty bag' },
+  { id: 'beach',    label: 'Beaches & water',    icon: 'pin',   blurb: 'Coves, ferries, sunset swims' },
+  { id: 'founders', label: 'Local founders',     icon: 'lightning', blurb: 'Coffee with the people building the city' },
+  { id: 'drive',    label: 'Drive & day trips',  icon: 'car',   blurb: 'Outside the city, with someone who knows the way' },
+];
+
+const REVIEWS_DATA = [
+  {
+    id: 'r1', author: 'Ana, Madrid', date: '2 weeks ago', rating: 5,
+    body: "Mika took us to a ramen counter with 8 seats and no sign. The chef remembered him. I still think about that broth.",
+    tags: ['Food', 'Hidden spots'],
+  },
+  {
+    id: 'r2', author: 'Tom, Berlin', date: '1 month ago', rating: 5,
+    body: "Landed at 11pm, Mika had a plan by 11:30. Felt like meeting an old friend, not a guide.",
+    tags: ['Nightlife', 'Chill'],
+  },
+  {
+    id: 'r3', author: 'Priya, SF', date: '2 months ago', rating: 5,
+    body: "We did the vinyl shops and then some tiny bar I can't pronounce. Mika negotiates in Japanese so you don't get the tourist menu. Worth every yen.",
+    tags: ['Music', 'Food'],
+  },
+  {
+    id: 'r4', author: 'Marco, Milan', date: '3 months ago', rating: 4,
+    body: "Great energy, knows everyone. Ran a little over time but honestly we were having too much fun.",
+    tags: ['Walk'],
+  },
+];
+
+// Sample chat
+const SEED_CHAT = [
+  { from: 'them', text: "Hey! I see you just landed in Tokyo — welcome 👋", time: '18:42' },
+  { from: 'them', text: "I'm free tonight from 9pm. Ramen crawl + 1 vinyl shop is my usual move. 3h, ¥4800 total.", time: '18:42' },
+  { from: 'me', text: "Amazing. I've never had real ramen in Tokyo. Open to anything.", time: '18:44' },
+  { from: 'them', text: "Any allergies? Fish / pork / eggs?", time: '18:44' },
+  { from: 'me', text: "None. Spice is fine.", time: '18:45' },
+  { from: 'them', text: "Perfect. I'll pick you up at Shimokita station north exit at 9. Wear shoes you can walk 4km in.", time: '18:45' },
+];
+
+const RESIDENCY = {
+  native:   { label: 'Born & raised', short: 'Native', desc: 'Born in this city', ring: '#FFD166' },
+  rooted:   { label: '10+ yrs local', short: 'Rooted', desc: '10+ years living here', ring: '#FF6A3D' },
+  seasoned: { label: '3–10 yrs here', short: 'Seasoned', desc: 'Long-term resident', ring: '#7C5CFF' },
+  newlocal: { label: 'New local', short: 'New', desc: 'Recently moved', ring: '#6B8F9E' },
+};
+
+const CITY_SUGGESTIONS = [
+  { city: 'Tokyo', country: 'Japan', locals: 47, tz: 'JST' },
+  { city: 'Lisbon', country: 'Portugal', locals: 23, tz: 'WET' },
+  { city: 'Mexico City', country: 'Mexico', locals: 61, tz: 'CST' },
+  { city: 'Paris', country: 'France', locals: 38, tz: 'CET' },
+  { city: 'Marrakech', country: 'Morocco', locals: 12, tz: 'WET' },
+  { city: 'Istanbul', country: 'Türkiye', locals: 29, tz: 'TRT' },
+  { city: 'Bangkok', country: 'Thailand', locals: 34, tz: 'ICT' },
+  { city: 'Buenos Aires', country: 'Argentina', locals: 21, tz: 'ART' },
+  { city: 'Barcelona', country: 'Spain', locals: 41, tz: 'CET' },
+  { city: 'Seoul', country: 'S. Korea', locals: 27, tz: 'KST' },
+  { city: 'New York', country: 'USA', locals: 89, tz: 'EST' },
+  { city: 'Berlin', country: 'Germany', locals: 44, tz: 'CET' },
+];
+
+// ─────────────────────────────────────────────────────────────────────
+// MEETING SPOTS — vetted public places to meet your local in person.
+// Curated per city. Each is a real, well-known, public, well-lit spot.
+// "safety" tags surface what makes it safe (staffed, busy, CCTV, etc).
+// ─────────────────────────────────────────────────────────────────────
+const SPOT_CATS = [
+  { id: 'all',      label: 'All spots' },
+  { id: 'coffee',   label: 'Coffee shops' },
+  { id: 'hotel',    label: 'Hotel lobbies' },
+  { id: 'plaza',    label: 'Public squares' },
+  { id: 'museum',   label: 'Museum cafés' },
+  { id: 'book',     label: 'Bookstores' },
+  { id: 'station',  label: 'Train stations' },
+];
+
+const MEETING_SPOTS = {
+  'Tokyo': [
+    { id: 'tk-sb-shibuya', cat: 'coffee', chain: true, name: 'Starbucks Shibuya Tsutaya',     area: 'Shibuya Crossing',  hours: '06:30 – 23:00', busy: 0.85, walk: 4,  rating: 4.4, safety: ['Staffed 18h', 'CCTV', 'Open 16+ hrs/day'], lat: 35.6595, lng: 139.7005, popular: true },
+    { id: 'tk-sb-shimo',   cat: 'coffee', chain: true, name: 'Starbucks Shimokitazawa',        area: 'Shimokitazawa',     hours: '07:00 – 22:00', busy: 0.55, walk: 3,  rating: 4.3, safety: ['Staffed', 'Busy daytime'], lat: 35.6614, lng: 139.6680 },
+    { id: 'tk-park-hyatt', cat: 'hotel',  chain: false, name: 'Park Hyatt Tokyo Lobby',         area: 'Shinjuku',          hours: '24h',           busy: 0.40, walk: 8,  rating: 4.8, safety: ['Concierge', 'CCTV', '24h security'], lat: 35.6857, lng: 139.6906 },
+    { id: 'tk-blue-bottle', cat: 'coffee', chain: true, name: 'Blue Bottle Aoyama',             area: 'Minamiaoyama',      hours: '08:00 – 19:00', busy: 0.70, walk: 5,  rating: 4.5, safety: ['Staffed', 'Glass-front'], lat: 35.6629, lng: 139.7150 },
+    { id: 'tk-tokyo-stn',   cat: 'station', chain: false, name: 'Tokyo Station · Marunouchi Side', area: 'Marunouchi',     hours: '24h',           busy: 0.95, walk: 6,  rating: 4.6, safety: ['JR Police', 'CCTV', '24h public'], lat: 35.6812, lng: 139.7671, popular: true },
+    { id: 'tk-tsutaya-dq',  cat: 'book',   chain: false, name: 'Tsutaya Books Daikanyama',       area: 'Daikanyama',        hours: '07:00 – 02:00', busy: 0.50, walk: 9,  rating: 4.7, safety: ['Staffed', 'Open until 2am'], lat: 35.6494, lng: 139.7035 },
+    { id: 'tk-mori-cafe',   cat: 'museum', chain: false, name: 'Mori Art Museum Café',           area: 'Roppongi Hills',    hours: '10:00 – 22:00', busy: 0.45, walk: 12, rating: 4.5, safety: ['Ticketed entry', 'Security'], lat: 35.6606, lng: 139.7298 },
+  ],
+  'Istanbul': [
+    { id: 'is-sb-istiklal', cat: 'coffee', chain: true, name: 'Starbucks İstiklal Caddesi',       area: 'Beyoğlu',           hours: '07:00 – 24:00', busy: 0.90, walk: 5,  rating: 4.3, safety: ['Staffed', 'High foot traffic', 'CCTV'], lat: 41.0356, lng: 28.9777, popular: true },
+    { id: 'is-pera-palace',  cat: 'hotel',  chain: false, name: 'Pera Palace Hotel Lobby',         area: 'Tepebaşı',          hours: '24h',           busy: 0.35, walk: 7,  rating: 4.9, safety: ['Concierge', '24h security'], lat: 41.0314, lng: 28.9748 },
+    { id: 'is-mandabatmaz',  cat: 'coffee', chain: false, name: 'Mandabatmaz · Turkish Coffee',    area: 'Beyoğlu',           hours: '08:00 – 23:30', busy: 0.65, walk: 4,  rating: 4.6, safety: ['Staffed', 'Famous landmark'], lat: 41.0344, lng: 28.9783 },
+    { id: 'is-galata-tower', cat: 'plaza',  chain: false, name: 'Galata Tower Square',            area: 'Galata',            hours: '24h',           busy: 0.75, walk: 6,  rating: 4.5, safety: ['Tourist police', 'CCTV', 'Lit 24h'], lat: 41.0256, lng: 28.9742 },
+    { id: 'is-istanbul-mod', cat: 'museum', chain: false, name: 'Istanbul Modern Café',           area: 'Karaköy',           hours: '10:00 – 18:00', busy: 0.40, walk: 8,  rating: 4.6, safety: ['Ticketed entry', 'Security'], lat: 41.0273, lng: 28.9764 },
+    { id: 'is-sb-kadikoy',   cat: 'coffee', chain: true, name: 'Starbucks Kadıköy Bahariye',      area: 'Kadıköy',           hours: '07:00 – 23:00', busy: 0.80, walk: 3,  rating: 4.2, safety: ['Staffed', 'Busy promenade'], lat: 40.9886, lng: 29.0276 },
+    { id: 'is-istasyon',     cat: 'station',chain: false, name: 'Sirkeci Train Station',          area: 'Eminönü',           hours: '24h',           busy: 0.70, walk: 9,  rating: 4.4, safety: ['Police post', 'CCTV', '24h public'], lat: 41.0153, lng: 28.9772 },
+  ],
+  'Lisbon': [
+    { id: 'lb-sb-chiado',    cat: 'coffee', chain: true, name: 'Starbucks Chiado',                area: 'Chiado',            hours: '07:30 – 22:00', busy: 0.75, walk: 5,  rating: 4.4, safety: ['Staffed', 'CCTV', 'Pedestrian zone'], lat: 38.7106, lng: -9.1422, popular: true },
+    { id: 'lb-brasileira',   cat: 'coffee', chain: false, name: 'A Brasileira',                    area: 'Chiado',            hours: '08:00 – 24:00', busy: 0.85, walk: 4,  rating: 4.5, safety: ['Staffed', 'Historic landmark'], lat: 38.7107, lng: -9.1417 },
+    { id: 'lb-tivoli',       cat: 'hotel',  chain: false, name: 'Tivoli Avenida Liberdade Lobby',  area: 'Avenida',           hours: '24h',           busy: 0.30, walk: 6,  rating: 4.8, safety: ['Concierge', '24h security'], lat: 38.7197, lng: -9.1454 },
+    { id: 'lb-comercio',     cat: 'plaza',  chain: false, name: 'Praça do Comércio',               area: 'Baixa',             hours: '24h',           busy: 0.80, walk: 8,  rating: 4.7, safety: ['Tourist police', 'Open square', 'CCTV'], lat: 38.7075, lng: -9.1364 },
+    { id: 'lb-bertrand',     cat: 'book',   chain: false, name: 'Bertrand Chiado · Oldest Bookstore', area: 'Chiado',         hours: '09:00 – 22:00', busy: 0.45, walk: 5,  rating: 4.6, safety: ['Staffed', 'Indoor'], lat: 38.7108, lng: -9.1418 },
+    { id: 'lb-gulbenkian',   cat: 'museum', chain: false, name: 'Gulbenkian Museum Café',          area: 'São Sebastião',     hours: '10:00 – 18:00', busy: 0.40, walk: 12, rating: 4.7, safety: ['Ticketed entry', 'Garden'], lat: 38.7372, lng: -9.1546 },
+  ],
+  'Mexico City': [
+    { id: 'mx-sb-condesa',   cat: 'coffee', chain: true, name: 'Starbucks Condesa Reforma',        area: 'Condesa',           hours: '06:30 – 23:00', busy: 0.85, walk: 4,  rating: 4.3, safety: ['Staffed', 'CCTV', 'Busy avenue'], lat: 19.4099, lng: -99.1721, popular: true },
+    { id: 'mx-cardinal',     cat: 'coffee', chain: false, name: 'Cardinal Casa de Café',           area: 'Roma Norte',        hours: '07:30 – 21:00', busy: 0.70, walk: 3,  rating: 4.7, safety: ['Staffed', 'Glass-front'], lat: 19.4144, lng: -99.1633 },
+    { id: 'mx-fourseasons',  cat: 'hotel',  chain: false, name: 'Four Seasons CDMX Lobby',         area: 'Reforma',           hours: '24h',           busy: 0.35, walk: 8,  rating: 4.9, safety: ['Concierge', '24h security'], lat: 19.4248, lng: -99.1654 },
+    { id: 'mx-bellas-artes', cat: 'plaza',  chain: false, name: 'Plaza Bellas Artes',              area: 'Centro Histórico',  hours: '24h',           busy: 0.85, walk: 9,  rating: 4.6, safety: ['Tourist police', 'CCTV', 'Open plaza'], lat: 19.4352, lng: -99.1413, popular: true },
+    { id: 'mx-soumaya',      cat: 'museum', chain: false, name: 'Museo Soumaya Café',              area: 'Polanco',           hours: '10:30 – 18:30', busy: 0.40, walk: 14, rating: 4.5, safety: ['Ticketed', 'Security'], lat: 19.4407, lng: -99.2046 },
+    { id: 'mx-fondo',        cat: 'book',   chain: false, name: 'Fondo de Cultura Económica',      area: 'Condesa',           hours: '09:00 – 21:00', busy: 0.40, walk: 6,  rating: 4.5, safety: ['Staffed', 'Indoor'], lat: 19.4115, lng: -99.1734 },
+  ],
+  'Paris': [
+    { id: 'pa-sb-opera',     cat: 'coffee', chain: true, name: 'Starbucks Opéra',                  area: 'Opéra',             hours: '07:00 – 22:00', busy: 0.85, walk: 5,  rating: 4.2, safety: ['Staffed', 'CCTV'], lat: 48.8709, lng: 2.3317, popular: true },
+    { id: 'pa-fdm',          cat: 'coffee', chain: false, name: 'Café de Flore',                   area: 'Saint-Germain',     hours: '07:30 – 01:30', busy: 0.80, walk: 4,  rating: 4.4, safety: ['Staffed', 'Historic landmark'], lat: 48.8540, lng: 2.3329 },
+    { id: 'pa-ritz',         cat: 'hotel',  chain: false, name: 'Hôtel Ritz Paris Lobby',          area: 'Place Vendôme',     hours: '24h',           busy: 0.30, walk: 7,  rating: 4.9, safety: ['Concierge', '24h security'], lat: 48.8683, lng: 2.3294 },
+    { id: 'pa-shakes',       cat: 'book',   chain: false, name: 'Shakespeare and Company',         area: 'Latin Quarter',     hours: '10:00 – 22:00', busy: 0.55, walk: 6,  rating: 4.7, safety: ['Staffed', 'Tourist landmark'], lat: 48.8527, lng: 2.3471 },
+    { id: 'pa-orsay',        cat: 'museum', chain: false, name: 'Café Campana · Musée d\u2019Orsay', area: '7e arr.',          hours: '10:30 – 17:00', busy: 0.45, walk: 9,  rating: 4.6, safety: ['Ticketed', 'Security'], lat: 48.8600, lng: 2.3266 },
+  ],
+  'Marrakech': [
+    { id: 'mk-sb-gueliz',    cat: 'coffee', chain: true, name: 'Starbucks Gueliz',                 area: 'Gueliz',            hours: '07:00 – 23:00', busy: 0.70, walk: 6,  rating: 4.2, safety: ['Staffed', 'CCTV', 'Modern district'], lat: 31.6320, lng: -8.0098, popular: true },
+    { id: 'mk-mamounia',     cat: 'hotel',  chain: false, name: 'La Mamounia Lobby',               area: 'Hivernage',         hours: '24h',           busy: 0.30, walk: 9,  rating: 4.9, safety: ['Concierge', '24h security'], lat: 31.6242, lng: -8.0008 },
+    { id: 'mk-cafefrance',   cat: 'coffee', chain: false, name: 'Café de France',                  area: 'Jemaa el-Fnaa',     hours: '06:00 – 24:00', busy: 0.95, walk: 4,  rating: 4.4, safety: ['Staffed', 'Busy plaza'], lat: 31.6258, lng: -7.9890 },
+    { id: 'mk-jemaa',        cat: 'plaza',  chain: false, name: 'Jemaa el-Fnaa Square',            area: 'Medina',            hours: '24h',           busy: 0.95, walk: 5,  rating: 4.7, safety: ['Tourist police', 'Always busy'], lat: 31.6258, lng: -7.9893, popular: true },
+  ],
+};
+
+// Pick a default spot per city — first popular Starbucks if any, else first.
+const defaultSpotFor = (city) => {
+  const list = MEETING_SPOTS[city] || [];
+  return list.find(s => s.chain && s.popular) || list.find(s => s.popular) || list[0] || null;
+};
+
+Object.assign(window, { LOCALS, CATEGORIES, REVIEWS_DATA, SEED_CHAT, RESIDENCY, CITY_SUGGESTIONS, PLATFORMS, MEETING_SPOTS, SPOT_CATS, defaultSpotFor });

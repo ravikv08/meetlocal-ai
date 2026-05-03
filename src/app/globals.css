@@ -1,26 +1,88 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: #0e0b08;
+  --color-bg-2: #181310;
+  --color-surface: #1c1713;
+  --color-surface-2: #241e19;
+  --color-line: rgba(255, 230, 200, 0.08);
+  --color-line-2: rgba(255, 230, 200, 0.14);
+  --color-text: #f6efe4;
+  --color-text-dim: rgba(246, 239, 228, 0.62);
+  --color-text-muted: rgba(246, 239, 228, 0.38);
+  --color-coral: #ff6a3d;
+  --color-magenta: #ff2e78;
+  --color-amber: #ffb84d;
+  --color-good: #4ade80;
+
+  /* Paper theme — used by /book and /spots checkout flow per prototype */
+  --color-paper: #fafaf7;
+  --color-paper-bg: #f3f2ee;
+  --color-ink: #0e0b08;
+  --color-ink-dim: #6b655d;
+  --color-ink-muted: #9a9289;
+  --color-hair: #e8e5de;
+  --color-hair-2: #d6d2c8;
+
+  --font-display: var(--font-inter-tight), -apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif;
+  --font-body: var(--font-inter), -apple-system, BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SF Mono", Menlo, monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+:root {
+  --grad-sunset: linear-gradient(135deg, #ffb84d 0%, #ff6a3d 45%, #ff2e78 100%);
+  --grad-soft: linear-gradient(135deg, rgba(255, 184, 77, 0.18), rgba(255, 46, 120, 0.18));
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+@layer utilities {
+  .grad-sunset {
+    background-image: var(--grad-sunset);
+  }
+  .grad-text {
+    background-image: var(--grad-sunset);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .scroll-hide {
+    scrollbar-width: none;
+  }
+  .scroll-hide::-webkit-scrollbar {
+    display: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes ml-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.animate-ml-pulse {
+  animation: ml-pulse 1.8s infinite;
+}
+
+@keyframes ml-fadeup {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-ml-fadeup {
+  animation: ml-fadeup 0.35s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }

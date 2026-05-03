@@ -1,0 +1,267 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Auth (NextAuth + Prisma adapter)
+// ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+
+  // role: "traveler" by default; user becomes a Local by creating a LocalProfile
+  isAdmin Boolean @default(false)
+
+  accounts          Account[]
+  sessions          Session[]
+  localProfile      LocalProfile?
+  bookingsAsTraveler Booking[]    @relation("TravelerBookings")
+  messagesSent      Message[]
+  reviewsAuthored   Review[]      @relation("ReviewAuthor")
+  reviewsReceived   Review[]      @relation("ReviewSubject")
+  stories           Story[]
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Stories — Instagram-style ephemeral photo posts. Auto-expire after 24h
+// (filtered in queries by `expiresAt > now`).
+// ─────────────────────────────────────────────────────────────────────
+
+model Story {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  imageUrl  String
+  caption   String?
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([expiresAt])
+  @@index([userId, createdAt])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Marketplace core
+// ─────────────────────────────────────────────────────────────────────
+
+enum LocalStatus {
+  pending // submitted, awaiting founder review
+  active // vetted & visible
+  paused // temporarily off the market
+  removed // banned or self-removed
+}
+
+enum Residency {
+  native // born & raised
+  rooted // 10+ yrs
+  seasoned // 3-10 yrs
+  newlocal // <3 yrs
+}
+
+model LocalProfile {
+  id           String      @id @default(cuid())
+  userId       String      @unique
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  city         String // CitySlug from src/lib/cities.ts
+  neighborhood String?
+  tagline      String
+  bio          String      @db.Text
+  // Hourly rate in USD cents (e.g. 3500 = $35/hr)
+  ratePerHour  Int
+  languages    String[]    @default(["EN"])
+  tags         String[]    @default([]) // CategoryId[]
+  residency    Residency
+  yearsInCity  Int
+  status       LocalStatus @default(pending)
+  // Stripe Connect account for payouts; populated when local completes onboarding
+  stripeAccountId  String?
+  payoutsEnabled   Boolean  @default(false)
+  // Trust signals (founder-managed for v1; AI-driven later)
+  idVerified       Boolean  @default(false)
+  bgChecked        Boolean  @default(false)
+  // Identity verification artifacts — collected on application, reviewed by
+  // founder before flipping idVerified=true. Never rendered publicly.
+  dateOfBirth      DateTime?
+  governmentIdUrl  String?
+  // Live selfie captured in-browser via getUserMedia. Founder visually
+  // matches it to governmentIdUrl during review. Stored privately.
+  selfieUrl        String?
+  // Optional photo override; falls back to user.image
+  photoUrl         String?
+  // Social verification — clickable links so travelers can check the local
+  // out before booking. Empty values just hide the icon.
+  instagramHandle  String?
+  linkedinUrl      String?
+  facebookUrl      String?
+  twitterHandle    String?
+  snapchatHandle   String?
+  lumaUrl          String?
+  websiteUrl       String?
+  // Trust + responsiveness signals (Airbnb-style)
+  responseRate        Int?    // 0-100 percentage
+  responseTimeMinutes Int?    // e.g. 60 = "within an hour"
+  yearsHosting        Int?    // total years on the platform / hosting
+  // Credentials card (photographer-card style)
+  experienceHeadline  String? // "10 years guiding"
+  experienceBlurb     String? @db.Text
+  careerHighlight     String? @db.Text
+  education           String? @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@index([city, status])
+}
+
+enum BookingStatus {
+  requested // traveler requested, local hasn't accepted
+  confirmed // local accepted, payment authorized
+  in_progress // session has started
+  completed // both parties confirmed completion; payout released
+  cancelled // either party cancelled before start
+  disputed // safety/quality issue flagged
+}
+
+model Booking {
+  id           String        @id @default(cuid())
+  travelerId   String
+  traveler     User          @relation("TravelerBookings", fields: [travelerId], references: [id])
+  localId      String
+  local        LocalProfile  @relation(fields: [localId], references: [id])
+  // Snapshot of agreed terms (so changes to LocalProfile don't rewrite history)
+  hours        Float
+  ratePerHour  Int // cents
+  totalAmount  Int // cents (hours * ratePerHour)
+  platformFee  Int // cents (22% of totalAmount)
+  currency     String        @default("USD")
+  status       BookingStatus @default(requested)
+  // Scheduled start; both parties confirm meeting point separately
+  scheduledFor DateTime?
+  meetingSpotId String?
+  meetingSpot   MeetingSpot? @relation(fields: [meetingSpotId], references: [id])
+  // Free-form initial pitch from traveler to local
+  travelerNote String?       @db.Text
+  // Stripe
+  stripePaymentIntentId String?
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  acceptedAt  DateTime?
+  startedAt   DateTime?
+  completedAt DateTime?
+
+  messages Message[]
+  reviews  Review[]
+
+  @@index([travelerId, status])
+  @@index([localId, status])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  body      String   @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([bookingId, createdAt])
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation("ReviewAuthor", fields: [authorId], references: [id])
+  subjectId String
+  subject   User     @relation("ReviewSubject", fields: [subjectId], references: [id])
+  rating    Int // 1-5
+  body      String?  @db.Text
+  // Hidden until both parties submit; flipped to true when counterpart submits
+  visible   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@unique([bookingId, authorId]) // one review per author per booking
+  @@index([subjectId, visible])
+}
+
+// Pre-vetted public meeting venues — the "Starbucks Rule" baked in as data,
+// not as a runtime AI prompt. Curated per city by the founder for v1.
+enum SpotKind {
+  coffee
+  hotel
+  plaza
+  museum
+  book
+  station
+  restaurant
+}
+
+model MeetingSpot {
+  id        String   @id @default(cuid())
+  city      String
+  name      String
+  area      String
+  kind      SpotKind
+  hours     String // free-form e.g. "06:00 - 23:00" or "24h"
+  lat       Float
+  lng       Float
+  // Why it's safe to meet here (e.g. "Staffed 18h", "CCTV", "Open 16+ hrs/day")
+  safety    String[] @default([])
+  // Surface as default suggestion in pickers
+  popular   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  bookings Booking[]
+
+  @@index([city, kind])
+}
