@@ -57,6 +57,28 @@ export function BottomNav({ isAuthed, isAdmin }: BottomNavProps) {
   ];
   if (HIDE_ON.some((prefix) => pathname.startsWith(prefix))) return null;
 
+  // Suppress on pages that already render SiteFooter — the footer's own nav
+  // row covers the same destinations, so a floating dock would duplicate it.
+  const HAS_FOOTER_NAV = [
+    "/", // home
+    "/how-it-works",
+    "/safety",
+    "/become-a-local", // also matches /become-a-local/apply, but apply is in HIDE_ON above
+    "/trips",
+    "/local/",
+    "/host",
+    "/concierge",
+    "/pulse",
+    "/plus",
+  ];
+  if (
+    HAS_FOOTER_NAV.some((prefix) =>
+      prefix === "/" ? pathname === "/" : pathname.startsWith(prefix),
+    )
+  ) {
+    return null;
+  }
+
   const itemBase =
     "flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition";
 
@@ -73,6 +95,7 @@ export function BottomNav({ isAuthed, isAdmin }: BottomNavProps) {
           <Link
             key={`${item.label}-${i}`}
             href={item.href}
+            aria-current={active ? "page" : undefined}
             className={
               active
                 ? `${itemBase} grad-sunset text-white shadow-[0_8px_20px_rgba(255,106,61,0.35)]`
@@ -96,6 +119,7 @@ export function BottomNav({ isAuthed, isAdmin }: BottomNavProps) {
       {isAdmin && (
         <Link
           href="/admin"
+          aria-current={pathname.startsWith("/admin") ? "page" : undefined}
           className={
             pathname.startsWith("/admin")
               ? `${itemBase} grad-sunset text-white shadow-[0_8px_20px_rgba(255,106,61,0.35)]`
@@ -111,6 +135,7 @@ export function BottomNav({ isAuthed, isAdmin }: BottomNavProps) {
 
       <Link
         href={isAuthed ? "/become-a-local" : "/become-a-local"}
+        aria-current={pathname.startsWith("/become-a-local") ? "page" : undefined}
         className={`${itemBase} grad-sunset text-white shadow-[0_8px_20px_rgba(255,106,61,0.35)]`}
       >
         <Heart size={16} />

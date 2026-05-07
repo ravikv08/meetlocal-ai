@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Globe } from "lucide-react";
 import { Logo } from "@/components/Logo";
+import { MainNav } from "@/components/MainNav";
 import { UserMenu } from "@/components/UserMenu";
 import { YourStory } from "@/components/YourStory";
 import { auth, signOut } from "@/auth";
@@ -14,16 +15,9 @@ export async function SiteHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-10 flex items-center gap-8 border-b border-line bg-bg/80 px-14 py-4 backdrop-blur-xl">
+    <header className="vibrancy-dark sticky top-0 z-10 flex items-center gap-8 border-b border-line px-14 py-4">
       <Logo />
-      <nav className="flex items-center gap-7 text-sm text-text-dim">
-        <Link href="/" className="font-medium text-text">
-          Discover
-        </Link>
-        <Link href="/how-it-works">How it works</Link>
-        <Link href="/become-a-local">Become a local</Link>
-        <Link href="/safety">Safety</Link>
-      </nav>
+      <MainNav />
       <div className="flex-1" />
       <div className="flex items-center gap-1.5 rounded-full border border-line-2 px-2.5 py-1.5 font-mono text-xs text-text-dim">
         <Globe size={14} /> EN · USD

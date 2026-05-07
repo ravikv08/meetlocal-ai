@@ -1,10 +1,22 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
+import {
+  Button as AriaButton,
+  DialogTrigger,
+  Selection,
+} from "react-aria-components";
 import { Search, MapPin, Calendar, Sparkles, Check } from "lucide-react";
 import { DatePicker } from "@/components/DatePicker";
 import { formatRelative } from "@/lib/date-utils";
+import {
+  ListBox,
+  ListBoxItem,
+  Popover,
+  PopoverHeading,
+} from "@/components/ui";
+import { cn } from "@/lib/utils";
 
 export interface SearchBarCity {
   slug: string;
@@ -28,10 +40,12 @@ interface SearchBarProps {
   defaultVibes: string[];
 }
 
+type OpenStep = "city" | "when" | "vibe" | null;
+
 // Three required filter pills: City · Date · Vibe. City and Date are single-
-// select with auto-advance; Vibe is multi-select (pick one or more). The
-// gradient "Find locals" button stays disabled until all three have at least
-// one value.
+// select with auto-advance; Vibe is multi-select. Now built on react-aria-
+// components — DialogTrigger handles outside-click / Esc / focus restoration,
+// ListBox provides arrow-key navigation and screen-reader announcements.
 export function SearchBar({
   cities,
   vibes,
@@ -40,34 +54,16 @@ export function SearchBar({
   defaultVibes,
 }: SearchBarProps) {
   const router = useRouter();
-  const wrapperRef = useRef<HTMLDivElement>(null);
 
   const [city, setCity] = useState<string | null>(defaultCity);
   const [when, setWhen] = useState<string | null>(defaultWhen);
   const [selectedVibes, setSelectedVibes] = useState<string[]>(defaultVibes);
-  const [open, setOpen] = useState<"city" | "when" | "vibe" | null>(null);
-
-  useEffect(() => {
-    if (!open) return;
-    const onDocClick = (e: MouseEvent) => {
-      if (!wrapperRef.current?.contains(e.target as Node)) setOpen(null);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(null);
-    };
-    document.addEventListener("mousedown", onDocClick);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDocClick);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+  const [open, setOpen] = useState<OpenStep>(null);
 
   const isComplete = !!(city && when && selectedVibes.length > 0);
 
   const submit = () => {
     if (!isComplete) {
-      // Open the first incomplete field instead of blocking silently
       if (!city) setOpen("city");
       else if (!when) setOpen("when");
       else setOpen("vibe");
@@ -97,55 +93,201 @@ export function SearchBar({
     }
     return `${selectedVibes.length} vibes`;
   })();
-  const toggleVibe = (id: string) => {
-    setSelectedVibes((curr) =>
-      curr.includes(id) ? curr.filter((x) => x !== id) : [...curr, id],
-    );
+
+  const onStepChange = (step: OpenStep) => (next: boolean) => {
+    setOpen(next ? step : null);
   };
 
   return (
-    <div ref={wrapperRef} className="relative mt-12 max-w-[820px]">
+    <div className="relative mt-12 max-w-[820px]">
       {/* Gradient border via padded wrapper. Inner div has the surface bg;
           the 1px sliver of gradient between them is the "border". */}
       <div
         className="grad-sunset rounded-3xl p-px shadow-[0_20px_60px_rgba(0,0,0,0.45),0_0_80px_rgba(255,106,61,0.22)] sm:rounded-full"
         style={{ backgroundImage: "var(--grad-sunset)" }}
       >
-        <div className="flex flex-wrap items-stretch rounded-[calc(1.5rem-1px)] bg-surface p-1.5 sm:rounded-full sm:flex-nowrap">
-          <PillField
-            step={1}
-            icon={<MapPin size={14} className="text-coral/70" />}
-            label="City"
-            value={cityLabel}
-            filled={!!city}
-            active={open === "city"}
-            onClick={() => setOpen(open === "city" ? null : "city")}
-          />
+        <div className="flex flex-wrap items-stretch rounded-[calc(1.5rem-1px)] bg-surface p-1.5 sm:flex-nowrap sm:rounded-full">
+          <DialogTrigger
+            isOpen={open === "city"}
+            onOpenChange={onStepChange("city")}
+          >
+            <PillField
+              step={1}
+              icon={<MapPin size={14} className="text-coral/70" />}
+              label="City"
+              value={cityLabel}
+              filled={!!city}
+              expanded={open === "city"}
+            />
+            <Popover placement="bottom start" className="sm:max-w-md">
+              <PopoverHeading>1 · Pick a city</PopoverHeading>
+              <ListBox
+                aria-label="City"
+                selectionMode="single"
+                disallowEmptySelection
+                selectedKeys={city ? new Set([city]) : new Set()}
+                onSelectionChange={(keys: Selection) => {
+                  if (keys === "all") return;
+                  const next = Array.from(keys)[0] as string | undefined;
+                  if (!next) return;
+                  setCity(next);
+                  setOpen("when");
+                }}
+              >
+                {cities.map((c) => (
+                  <ListBoxItem key={c.slug} id={c.slug} textValue={c.name}>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-bg-2 text-text-dim">
+                      <MapPin size={16} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">{c.name}</div>
+                      <div className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
+                        {c.state}
+                      </div>
+                    </div>
+                    {c.slug === city && (
+                      <Check size={15} className="text-coral" />
+                    )}
+                  </ListBoxItem>
+                ))}
+              </ListBox>
+            </Popover>
+          </DialogTrigger>
+
           <Divider />
-          <PillField
-            step={2}
-            icon={<Calendar size={14} className="text-coral/70" />}
-            label="Date"
-            value={whenLabel}
-            filled={!!when}
-            active={open === "when"}
-            onClick={() => setOpen(open === "when" ? null : "when")}
-          />
+
+          <DialogTrigger
+            isOpen={open === "when"}
+            onOpenChange={onStepChange("when")}
+          >
+            <PillField
+              step={2}
+              icon={<Calendar size={14} className="text-coral/70" />}
+              label="Date"
+              value={whenLabel}
+              filled={!!when}
+              expanded={open === "when"}
+            />
+            <Popover placement="bottom start" className="sm:max-w-md">
+              <PopoverHeading>2 · Pick a date</PopoverHeading>
+              <DatePicker
+                value={when}
+                onChange={(iso) => {
+                  setWhen(iso);
+                  if (iso) setOpen("vibe");
+                }}
+                variant="dark"
+              />
+            </Popover>
+          </DialogTrigger>
+
           <Divider />
-          <PillField
-            step={3}
-            icon={<Sparkles size={14} className="text-coral/70" />}
-            label="Vibe"
-            value={vibeLabel}
-            filled={selectedVibes.length > 0}
-            active={open === "vibe"}
-            onClick={() => setOpen(open === "vibe" ? null : "vibe")}
-          />
+
+          <DialogTrigger
+            isOpen={open === "vibe"}
+            onOpenChange={onStepChange("vibe")}
+          >
+            <PillField
+              step={3}
+              icon={<Sparkles size={14} className="text-coral/70" />}
+              label="Vibe"
+              value={vibeLabel}
+              filled={selectedVibes.length > 0}
+              expanded={open === "vibe"}
+            />
+            <Popover placement="bottom end" className="sm:max-w-md">
+              <PopoverHeading>
+                3 · Pick vibes{" "}
+                <span className="text-text-muted">· multi-select</span>
+              </PopoverHeading>
+              <ListBox
+                aria-label="Vibes"
+                selectionMode="multiple"
+                selectedKeys={new Set(selectedVibes)}
+                onSelectionChange={(keys: Selection) => {
+                  if (keys === "all") {
+                    setSelectedVibes(vibes.map((v) => v.id));
+                  } else {
+                    setSelectedVibes(Array.from(keys) as string[]);
+                  }
+                }}
+                className="grid gap-1.5 p-2.5 sm:grid-cols-2"
+              >
+                {vibes.map((v) => (
+                  <ListBoxItem
+                    key={v.id}
+                    id={v.id}
+                    textValue={v.label}
+                    className={({ isSelected, isFocused, isHovered }) =>
+                      cn(
+                        "flex cursor-pointer items-start gap-2.5 rounded-xl border p-3 text-left outline-none transition",
+                        isSelected
+                          ? "border-coral bg-coral/10 text-text"
+                          : "border-line bg-surface text-text",
+                        (isHovered || isFocused) &&
+                          !isSelected &&
+                          "border-line-2",
+                      )
+                    }
+                  >
+                    {({ isSelected }) => (
+                      <>
+                        <div
+                          className={cn(
+                            "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border",
+                            isSelected
+                              ? "border-coral bg-coral text-white"
+                              : "border-line-2",
+                          )}
+                        >
+                          {isSelected && <Check size={12} strokeWidth={3} />}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-medium leading-tight">
+                            {v.label}
+                          </div>
+                          <div className="mt-0.5 truncate text-xs text-text-dim">
+                            {v.blurb}
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </ListBoxItem>
+                ))}
+              </ListBox>
+              <div className="flex items-center justify-between gap-2 border-t border-line px-3 py-2.5">
+                <button
+                  type="button"
+                  onClick={() => setSelectedVibes([])}
+                  disabled={selectedVibes.length === 0}
+                  className="text-xs text-text-dim transition outline-none hover:text-text disabled:opacity-40"
+                >
+                  Clear
+                </button>
+                <button
+                  type="button"
+                  onClick={submit}
+                  disabled={!isComplete}
+                  className={
+                    "rounded-full px-4 py-2 text-xs font-semibold text-white transition outline-none " +
+                    (isComplete
+                      ? "grad-sunset"
+                      : "cursor-not-allowed bg-surface-2 text-text-muted")
+                  }
+                >
+                  {selectedVibes.length > 1
+                    ? `Find locals · ${selectedVibes.length} vibes →`
+                    : "Find locals →"}
+                </button>
+              </div>
+            </Popover>
+          </DialogTrigger>
+
           <button
             onClick={submit}
             disabled={!isComplete}
             className={
-              "ml-auto flex min-w-[140px] items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition " +
+              "ml-auto flex min-w-[140px] items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold outline-none transition " +
               (isComplete
                 ? "grad-sunset text-white shadow-[0_10px_30px_rgba(255,106,61,0.35)] hover:opacity-95"
                 : "cursor-not-allowed border border-coral/30 bg-surface-2 text-coral/60")
@@ -175,123 +317,6 @@ export function SearchBar({
           </Pip>
         </div>
       )}
-
-      {/* CITY popover */}
-      {open === "city" && (
-        <Popover>
-          <PopoverHeading>1 · Pick a city</PopoverHeading>
-          <div className="grid gap-1 p-1.5">
-            {cities.map((c) => {
-              const on = c.slug === city;
-              return (
-                <button
-                  key={c.slug}
-                  onClick={() => {
-                    setCity(c.slug);
-                    setOpen("when");
-                  }}
-                  className={
-                    "flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-left transition " +
-                    (on ? "bg-surface-2" : "hover:bg-surface-2")
-                  }
-                >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-bg-2 text-text-dim">
-                    <MapPin size={16} />
-                  </div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium">{c.name}</div>
-                    <div className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                      {c.state}
-                    </div>
-                  </div>
-                  {on && <Check size={15} className="text-coral" />}
-                </button>
-              );
-            })}
-          </div>
-        </Popover>
-      )}
-
-      {/* DATE popover */}
-      {open === "when" && (
-        <Popover wide>
-          <PopoverHeading>2 · Pick a date</PopoverHeading>
-          <DatePicker
-            value={when}
-            onChange={(iso) => {
-              setWhen(iso);
-              if (iso) setOpen("vibe");
-            }}
-            variant="dark"
-          />
-        </Popover>
-      )}
-
-      {/* VIBE popover — multi-select, pick one or more */}
-      {open === "vibe" && (
-        <Popover wide>
-          <PopoverHeading>
-            3 · Pick vibes <span className="text-text-muted">· multi-select</span>
-          </PopoverHeading>
-          <div className="grid gap-1.5 p-2.5 sm:grid-cols-2">
-            {vibes.map((v) => {
-              const on = selectedVibes.includes(v.id);
-              return (
-                <button
-                  key={v.id}
-                  onClick={() => toggleVibe(v.id)}
-                  className={
-                    "flex items-start gap-2.5 rounded-xl border p-3 text-left transition " +
-                    (on
-                      ? "border-coral bg-coral/10 text-text"
-                      : "border-line bg-surface text-text hover:border-line-2")
-                  }
-                >
-                  <div
-                    className={
-                      "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-md border " +
-                      (on ? "border-coral bg-coral text-white" : "border-line-2")
-                    }
-                  >
-                    {on && <Check size={12} strokeWidth={3} />}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-medium leading-tight">
-                      {v.label}
-                    </div>
-                    <div className="mt-0.5 truncate text-xs text-text-dim">
-                      {v.blurb}
-                    </div>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-          <div className="flex items-center justify-between gap-2 border-t border-line px-3 py-2.5">
-            <button
-              onClick={() => setSelectedVibes([])}
-              disabled={selectedVibes.length === 0}
-              className="text-xs text-text-dim transition hover:text-text disabled:opacity-40"
-            >
-              Clear
-            </button>
-            <button
-              onClick={submit}
-              disabled={!isComplete}
-              className={
-                "rounded-full px-4 py-2 text-xs font-semibold text-white transition " +
-                (isComplete
-                  ? "grad-sunset"
-                  : "cursor-not-allowed bg-surface-2 text-text-muted")
-              }
-            >
-              {selectedVibes.length > 1
-                ? `Find locals · ${selectedVibes.length} vibes →`
-                : "Find locals →"}
-            </button>
-          </div>
-        </Popover>
-      )}
     </div>
   );
 }
@@ -302,62 +327,58 @@ function PillField({
   label,
   value,
   filled,
-  active,
-  onClick,
+  expanded,
 }: {
   step: number;
   icon: React.ReactNode;
   label: string;
   value: string;
   filled: boolean;
-  active: boolean;
-  onClick: () => void;
+  expanded: boolean;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={
-        "flex flex-1 items-center gap-2.5 rounded-full px-4 py-2.5 text-left transition sm:px-5 " +
-        (active
+    <AriaButton
+      className={cn(
+        "flex flex-1 items-center gap-2.5 rounded-full px-4 py-2.5 text-left outline-none transition sm:px-5",
+        expanded
           ? "bg-surface-2 ring-1 ring-coral/50 ring-inset"
-          : "hover:bg-surface-2")
-      }
+          : "data-[hovered]:bg-surface-2",
+      )}
     >
       <div
-        className={
-          "flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-semibold transition " +
-          (filled
+        className={cn(
+          "flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-mono text-[10px] font-semibold transition",
+          filled
             ? "grad-sunset text-white shadow-[0_4px_12px_rgba(255,106,61,0.45)]"
-            : "border border-coral/50 text-coral")
-        }
+            : "border border-coral/50 text-coral",
+        )}
       >
         {filled ? "✓" : step}
       </div>
       <div className="min-w-0">
         <div
-          className={
-            "flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.12em] " +
-            (active ? "text-coral" : "text-text-muted")
-          }
+          className={cn(
+            "flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.12em]",
+            expanded ? "text-coral" : "text-text-muted",
+          )}
         >
           {icon}
           {label}
         </div>
         <div
-          className={
-            "mt-0.5 truncate text-sm " +
-            (filled
+          className={cn(
+            "mt-0.5 truncate text-sm",
+            filled
               ? "font-medium text-text"
-              : active
-              ? "text-amber"
-              : "text-text-dim")
-          }
+              : expanded
+                ? "text-amber"
+                : "text-text-dim",
+          )}
         >
           {value}
         </div>
       </div>
-    </button>
+    </AriaButton>
   );
 }
 
@@ -389,33 +410,5 @@ function Pip({
       />
       {children}
     </span>
-  );
-}
-
-function Popover({
-  children,
-  wide,
-}: {
-  children: React.ReactNode;
-  wide?: boolean;
-}) {
-  return (
-    <div
-      className={
-        "absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-line-2 shadow-[0_30px_60px_rgba(0,0,0,0.5)] " +
-        (wide ? "sm:max-w-md" : "sm:max-w-md")
-      }
-      style={{ background: "rgba(28,23,19,0.96)", backdropFilter: "blur(20px)" }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function PopoverHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <div className="border-b border-line px-4 py-2.5 font-mono text-[10px] uppercase tracking-wider text-text-dim">
-      {children}
-    </div>
   );
 }

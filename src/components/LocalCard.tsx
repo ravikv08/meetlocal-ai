@@ -30,11 +30,11 @@ export function LocalCard({
   return (
     <Link
       href={href}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-surface transition hover:border-line-2"
+      className="group flex flex-col overflow-hidden rounded-xl border border-line bg-surface transition hover:border-line-2"
     >
-      {/* Photo / placeholder */}
+      {/* Photo / placeholder — square keeps cards compact at 3-4 across */}
       <div
-        className="relative aspect-[4/5] w-full overflow-hidden"
+        className="relative aspect-square w-full overflow-hidden"
         style={{
           background:
             local.photoUrl || local.user.image
@@ -42,73 +42,62 @@ export function LocalCard({
               : "var(--grad-sunset)",
         }}
       >
-        {/* Top-left badges */}
-        <div className="absolute left-3 top-3 flex flex-wrap gap-1.5">
+        {/* Top-left trust badges */}
+        <div className="absolute left-2 top-2 flex flex-wrap gap-1">
           {local.idVerified && (
-            <span className="rounded-full bg-black/60 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-white backdrop-blur">
+            <span className="rounded-full bg-black/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-white backdrop-blur">
               ID verified
             </span>
           )}
-          <span className="rounded-full bg-black/60 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-white backdrop-blur">
+          <span className="rounded-full bg-black/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-white backdrop-blur">
             {RESIDENCY[local.residency].short} · {local.yearsInCity}y
           </span>
         </div>
-        {/* Bottom photo caption (when no real photo) */}
         {!local.photoUrl && !local.user.image && (
-          <div className="absolute bottom-3 left-3 rounded bg-black/45 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-white/80">
+          <div className="absolute bottom-2 left-2 rounded bg-black/45 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-white/80">
             {name} · {cityName}
           </div>
         )}
       </div>
 
-      {/* Body */}
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <Avatar name={name} size={28} imageUrl={local.user.image} />
+      {/* Body — tight, Airbnb-card density */}
+      <div className="flex flex-1 flex-col gap-1 p-2.5">
+        <div className="flex items-start justify-between gap-1.5">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-1.5">
+              <Avatar name={name} size={18} imageUrl={local.user.image} />
               <div className="min-w-0">
-                <div className="truncate font-display text-base font-semibold leading-tight">
+                <div className="truncate font-display text-[13px] font-semibold leading-tight">
                   {name}
                 </div>
-                <div className="truncate font-mono text-[11px] uppercase tracking-wider text-text-muted">
+                <div className="truncate font-mono text-[9px] uppercase tracking-wider text-text-muted">
                   {local.neighborhood ?? cityName}
                 </div>
               </div>
             </div>
           </div>
           {typeof local.rating === "number" && (
-            <div className="flex shrink-0 items-center gap-1 text-sm">
-              <Star size={13} className="fill-amber text-amber" />
-              <span className="font-medium">{local.rating.toFixed(2)}</span>
-              <span className="text-text-muted">({local.reviewCount ?? 0})</span>
+            <div className="flex shrink-0 items-center gap-0.5 text-[11px]">
+              <Star size={10} className="fill-amber text-amber" />
+              <span className="font-medium">{local.rating.toFixed(1)}</span>
             </div>
           )}
         </div>
 
-        <p className="line-clamp-2 text-sm text-text-dim">{local.tagline}</p>
+        <p className="line-clamp-1 text-[11px] text-text-dim">{local.tagline}</p>
 
-        <div className="flex flex-wrap gap-1.5">
-          {local.tags.slice(0, 3).map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full border border-line px-2 py-0.5 text-xs text-text-dim capitalize"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <div className="mt-auto flex items-baseline justify-between border-t border-line pt-3">
+        <div className="mt-auto flex items-baseline justify-between pt-1">
           <div>
-            <span className="font-display text-lg font-semibold">
+            <span className="font-display text-sm font-semibold">
               {formatPrice(local.ratePerHour)}
             </span>
-            <span className="ml-1 text-sm text-text-dim">/hr</span>
+            <span className="ml-0.5 text-[10px] text-text-dim">/hr</span>
           </div>
-          <div className="font-mono text-[11px] uppercase tracking-wider text-text-muted">
-            {local.languages.join(" · ")}
-          </div>
+          {local.tags.length > 0 && (
+            <span className="truncate font-mono text-[9px] uppercase tracking-wider text-text-muted">
+              {local.tags.slice(0, 1)}
+            </span>
+          )}
         </div>
       </div>
     </Link>

@@ -1,9 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useRef, useEffect } from "react";
+import { useRef } from "react";
 import { ChevronDown, User, LogOut } from "lucide-react";
+import { Button as AriaButton } from "react-aria-components";
 import { Avatar } from "@/components/Avatar";
+import {
+  Menu,
+  MenuItem,
+  MenuTrigger,
+  MenuSection,
+  MenuHeader,
+  Popover,
+} from "@/components/ui";
 
 interface UserMenuProps {
   name: string | null;
@@ -13,8 +22,10 @@ interface UserMenuProps {
   signOutAction: () => Promise<void>;
 }
 
-// Top-right account menu. Pill shows avatar + display name; opening reveals the
-// email, a Profile link, and Sign out. Outside-click / Esc closes.
+// Top-right account menu, now driven by react-aria-components MenuTrigger.
+// Aria handles outside-click, Esc, focus restoration, and arrow-key nav for
+// free. Sign-out is preserved as a hidden <form action> so the server action
+// still runs and progressive enhancement is maintained.
 export function UserMenu({
   name,
   email,
@@ -22,106 +33,72 @@ export function UserMenu({
   isAdmin,
   signOutAction,
 }: UserMenuProps) {
-  const [open, setOpen] = useState(false);
-  const wrapperRef = useRef<HTMLDivElement>(null);
   const display = name ?? email ?? "you";
-
-  useEffect(() => {
-    if (!open) return;
-    const onDoc = (e: MouseEvent) => {
-      if (!wrapperRef.current?.contains(e.target as Node)) setOpen(false);
-    };
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
-    };
-    document.addEventListener("mousedown", onDoc);
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.removeEventListener("mousedown", onDoc);
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [open]);
+  const signOutFormRef = useRef<HTMLFormElement>(null);
 
   return (
-    <div ref={wrapperRef} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className={
-          "flex items-center gap-2 rounded-full border py-1 pl-1 pr-3 transition " +
-          (open
-            ? "border-coral/50 bg-surface-2"
-            : "border-line-2 hover:bg-surface")
-        }
-      >
-        <Avatar name={display} size={28} imageUrl={image} />
-        <span className="max-w-[140px] truncate text-sm font-medium">
-          {display}
-        </span>
-        <ChevronDown
-          size={13}
-          className={"text-text-muted transition " + (open ? "rotate-180" : "")}
-        />
-      </button>
-
-      {open && (
-        <div
-          className="absolute right-0 top-full z-30 mt-2 min-w-[240px] overflow-hidden rounded-2xl border border-line-2 shadow-[0_30px_60px_rgba(0,0,0,0.5)]"
-          style={{
-            background: "rgba(28,23,19,0.96)",
-            backdropFilter: "blur(20px)",
-          }}
+    <div className="relative">
+      <MenuTrigger>
+        <AriaButton
+          className={({ isPressed, isFocused }) =>
+            "flex items-center gap-2 rounded-full border py-1 pl-1 pr-3 outline-none transition data-[pressed]:bg-surface-2 " +
+            (isFocused || isPressed
+              ? "border-coral/50 bg-surface-2"
+              : "border-line-2 hover:bg-surface")
+          }
         >
-          {/* Email row */}
-          {email && (
-            <div className="border-b border-line px-4 pb-3 pt-3.5">
-              <div className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                Signed in as
-              </div>
-              <div className="mt-0.5 truncate text-sm font-medium text-text">
-                {email}
-              </div>
-            </div>
-          )}
-
-          {/* Links */}
-          <div className="grid p-1.5">
-            <Link
-              href="/profile"
-              onClick={() => setOpen(false)}
-              className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm transition hover:bg-surface-2"
-            >
-              <User size={15} className="text-text-dim" />
-              Profile
-            </Link>
-            {isAdmin && (
-              <Link
-                href="/admin"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm text-coral transition hover:bg-surface-2"
-              >
-                <span className="font-mono text-[10px] uppercase tracking-wider">
-                  Admin
-                </span>
-              </Link>
-            )}
-          </div>
-
-          {/* Sign out */}
-          <form
-            action={signOutAction}
-            className="border-t border-line p-1.5"
+          <Avatar name={display} size={28} imageUrl={image} />
+          <span className="max-w-[140px] truncate text-sm font-medium">
+            {display}
+          </span>
+          <ChevronDown size={13} className="text-text-muted transition" />
+        </AriaButton>
+        <Popover placement="bottom end" className="min-w-[240px]">
+          {email && <MenuHeader>Signed in as · {email}</MenuHeader>}
+          <Menu
+            onAction={(key) => {
+              if (key === "signout") signOutFormRef.current?.requestSubmit();
+            }}
           >
-            <button
-              type="submit"
-              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm text-text-dim transition hover:bg-surface-2 hover:text-text"
+            <MenuItem id="profile" textValue="Profile">
+              <Link
+                href="/profile"
+                className="flex w-full items-center gap-2.5 outline-none"
+              >
+                <User size={15} className="text-text-dim" />
+                Profile
+              </Link>
+            </MenuItem>
+            {isAdmin && (
+              <MenuItem id="admin" textValue="Admin">
+                <Link
+                  href="/admin"
+                  className="flex w-full items-center gap-2.5 font-mono text-[10px] uppercase tracking-wider text-coral outline-none"
+                >
+                  Admin
+                </Link>
+              </MenuItem>
+            )}
+          </Menu>
+          <MenuSection>
+            <Menu
+              onAction={(key) => {
+                if (key === "signout") signOutFormRef.current?.requestSubmit();
+              }}
             >
-              <LogOut size={15} />
-              Sign out
-            </button>
-          </form>
-        </div>
-      )}
+              <MenuItem id="signout" textValue="Sign out" destructive>
+                <LogOut size={15} />
+                Sign out
+              </MenuItem>
+            </Menu>
+          </MenuSection>
+        </Popover>
+      </MenuTrigger>
+
+      {/* Hidden form preserves the server action for sign out. The MenuItem
+          submits this form via requestSubmit(); progressive enhancement stays
+          intact because the form would also work without JS if surfaced. */}
+      <form ref={signOutFormRef} action={signOutAction} className="hidden" />
     </div>
   );
 }

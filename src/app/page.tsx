@@ -4,6 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { LocalCard } from "@/components/LocalCard";
 import { SearchBar } from "@/components/SearchBar";
 import { StoriesRow } from "@/components/StoriesRow";
+import { HeroStoryVideo } from "@/components/HeroStoryVideo";
 import { formatRelative } from "@/lib/date-utils";
 import {
   CITIES,
@@ -59,59 +60,76 @@ export default async function Home({ searchParams }: HomeProps) {
         .join(" + ")
     : null;
 
-  return (
-    <div className="relative min-h-screen overflow-x-hidden">
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "radial-gradient(1200px 600px at 80% -10%, rgba(255,46,120,0.13), transparent 60%), radial-gradient(900px 500px at -10% 30%, rgba(255,106,61,0.10), transparent 60%)",
-        }}
+  const searchBar = (
+    <SearchBar
+      cities={CITIES.map((c) => ({ slug: c.slug, name: c.name, state: c.state }))}
+      vibes={CATEGORIES.map((c) => ({
+        id: c.id,
+        label: c.label,
+        blurb: c.blurb,
+      }))}
+      defaultCity={cityParam}
+      defaultWhen={whenParam}
+      defaultVibes={vibeParams}
+    />
+  );
+
+  const eyebrow = (
+    <div
+      className="inline-flex items-center gap-2 rounded-full border border-coral/50 px-3 py-1.5 font-mono text-xs text-coral shadow-[0_0_24px_rgba(255,106,61,0.18)]"
+      style={{
+        background:
+          "linear-gradient(135deg, rgba(255,106,61,0.18), rgba(255,46,120,0.10))",
+      }}
+    >
+      <span
+        className="animate-ml-pulse h-1.5 w-1.5 rounded-full bg-coral"
+        style={{ boxShadow: "0 0 12px var(--color-coral)" }}
       />
+      <span className="font-bold text-amber">NEW</span>
+      <span className="text-coral/70">·</span>
+      <span>Arrive on-demand. Meet in 5 hours, not 5 days.</span>
+    </div>
+  );
+
+  const subhead = (
+    <p className="max-w-[520px] text-lg leading-relaxed text-text-dim">
+      Open meetlocal.ai when you land. Within hours, you&apos;re with a vetted
+      local who knows the spots, the shortcuts, and the stories.
+    </p>
+  );
+
+  return (
+    <div className="relative overflow-x-hidden">
 
       <SiteHeader />
 
-      {/* HERO */}
+      {/* HERO — split layout: headline + search left, story video right */}
       <section className="relative px-14 pb-10 pt-20">
-        <div
-          className="mb-7 inline-flex items-center gap-2 rounded-full border border-coral/50 px-3 py-1.5 font-mono text-xs text-coral shadow-[0_0_24px_rgba(255,106,61,0.18)]"
-          style={{
-            background:
-              "linear-gradient(135deg, rgba(255,106,61,0.18), rgba(255,46,120,0.10))",
-          }}
-        >
-          <span
-            className="animate-ml-pulse h-1.5 w-1.5 rounded-full bg-coral"
-            style={{ boxShadow: "0 0 12px var(--color-coral)" }}
+        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
+          <div className="flex flex-col gap-7">
+            <div>{eyebrow}</div>
+            <h1 className="font-display text-[80px] font-bold leading-[0.94] tracking-[-2.5px]">
+              Every city
+              <br />
+              has <span className="grad-text">a friend</span>
+              <br />
+              you haven&apos;t met.
+            </h1>
+            {subhead}
+            {searchBar}
+          </div>
+          {/* Video stretches to the left column's full height: top edge
+              aligns with the eyebrow badge, bottom edge aligns with the
+              SearchBar's "Find Locals" button. Aspect ratio is only used
+              as a fallback on mobile when the grid collapses. */}
+          <HeroStoryVideo
+            src="/video/story-loop.mp4"
+            className="aspect-[4/5] w-full lg:aspect-auto lg:h-full"
           />
-          <span className="font-bold text-amber">NEW</span>
-          <span className="text-coral/70">·</span>
-          <span>Arrive on-demand. Meet in 5 hours, not 5 days.</span>
         </div>
-        <h1 className="font-display text-[92px] font-bold leading-[0.96] tracking-[-3px]">
-          Every city
-          <br />
-          has <span className="grad-text">a friend</span>
-          <br />
-          you haven&apos;t met.
-        </h1>
-        <p className="mt-7 max-w-[520px] text-lg leading-relaxed text-text-dim">
-          Open meetlocal.ai when you land. Within hours, you&apos;re with a vetted
-          local who knows the spots, the shortcuts, and the stories.
-        </p>
-
-        <SearchBar
-          cities={CITIES.map((c) => ({ slug: c.slug, name: c.name, state: c.state }))}
-          vibes={CATEGORIES.map((c) => ({
-            id: c.id,
-            label: c.label,
-            blurb: c.blurb,
-          }))}
-          defaultCity={cityParam}
-          defaultWhen={whenParam}
-          defaultVibes={vibeParams}
-        />
       </section>
+
 
       {/* Stories strip — only renders if there are unexpired stories */}
       <StoriesRow />
@@ -141,7 +159,7 @@ export default async function Home({ searchParams }: HomeProps) {
               vibeLabel={vibeLabel ?? "this vibe"}
             />
           ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
               {locals.map((local) => (
                 <LocalCard
                   key={local.id}

@@ -35,9 +35,9 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${interTight.variable} ${jetbrainsMono.variable} h-full antialiased`}
+      className={`${inter.variable} ${interTight.variable} ${jetbrainsMono.variable} antialiased`}
     >
-      <body className="min-h-full">
+      <body>
         {children}
         <BottomNav
           isAuthed={!!session?.user}
