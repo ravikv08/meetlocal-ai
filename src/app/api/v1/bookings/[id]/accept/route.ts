@@ -1,0 +1,20 @@
+import { acceptBookingByUser } from "@/lib/bookings";
+import { handleError, ok, requireUser } from "@/lib/api/respond";
+
+export async function POST(
+  _req: Request,
+  ctx: RouteContext<"/api/v1/bookings/[id]/accept">,
+) {
+  try {
+    const user = await requireUser();
+    const { id } = await ctx.params;
+    const booking = await acceptBookingByUser({
+      bookingId: id,
+      actorUserId: user.userId,
+      isAdmin: user.isAdmin,
+    });
+    return ok({ booking });
+  } catch (err) {
+    return handleError(err);
+  }
+}

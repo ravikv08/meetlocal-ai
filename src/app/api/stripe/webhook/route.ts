@@ -31,6 +31,22 @@ export async function POST(req: Request) {
     );
   }
 
+  // Idempotency: insert event id first; if it already exists the unique
+  // constraint throws (P2002) and we skip side effects. This is race-safe —
+  // two simultaneous retries can both pass a "findUnique" check, but only one
+  // can win the create. Stripe also retries up to 5x with exponential
+  // backoff, so this gate is load-bearing.
+  try {
+    await prisma.webhookEvent.create({
+      data: { id: event.id, type: event.type },
+    });
+  } catch (err) {
+    if ((err as { code?: string }).code === "P2002") {
+      return NextResponse.json({ received: true, replay: true });
+    }
+    throw err;
+  }
+
   switch (event.type) {
     case "checkout.session.completed":
       await handleCheckoutCompleted(event.data.object as Stripe.Checkout.Session);

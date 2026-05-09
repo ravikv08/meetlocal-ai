@@ -99,7 +99,7 @@ export function SearchBar({
   };
 
   return (
-    <div className="relative mt-12 max-w-[820px]">
+    <div className="relative max-w-[820px]">
       {/* Gradient border via padded wrapper. Inner div has the surface bg;
           the 1px sliver of gradient between them is the "border". */}
       <div
@@ -119,7 +119,7 @@ export function SearchBar({
               filled={!!city}
               expanded={open === "city"}
             />
-            <Popover placement="bottom start" className="sm:max-w-md">
+            <Popover placement="bottom start" shouldFlip={false} className="sm:max-w-md">
               <PopoverHeading>1 · Pick a city</PopoverHeading>
               <ListBox
                 aria-label="City"
@@ -168,7 +168,7 @@ export function SearchBar({
               filled={!!when}
               expanded={open === "when"}
             />
-            <Popover placement="bottom start" className="sm:max-w-md">
+            <Popover placement="bottom start" shouldFlip={false} className="sm:max-w-md">
               <PopoverHeading>2 · Pick a date</PopoverHeading>
               <DatePicker
                 value={when}
@@ -195,7 +195,7 @@ export function SearchBar({
               filled={selectedVibes.length > 0}
               expanded={open === "vibe"}
             />
-            <Popover placement="bottom end" className="sm:max-w-md">
+            <Popover placement="bottom end" shouldFlip={false} className="sm:max-w-md">
               <PopoverHeading>
                 3 · Pick vibes{" "}
                 <span className="text-text-muted">· multi-select</span>

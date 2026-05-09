@@ -110,12 +110,24 @@ export default async function SignInPage({
         </form>
 
         <p className="mt-8 text-xs leading-relaxed text-text-muted">
-          By continuing you agree to meetlocal&rsquo;s{" "}
-          <Link href="/safety" className="underline">
-            Trust &amp; Safety
+          By continuing, you agree to meetlocal&rsquo;s{" "}
+          <Link href="/terms" className="underline hover:text-text">
+            Terms of Service
           </Link>{" "}
-          standards. First meetings always happen at a public, vetted spot &mdash;
-          that&rsquo;s the Starbucks Rule.
+          and{" "}
+          <Link href="/refund" className="underline hover:text-text">
+            Refund Policy
+          </Link>
+          , and acknowledge our{" "}
+          <Link href="/privacy" className="underline hover:text-text">
+            Privacy Policy
+          </Link>
+          . First meetings always happen at a public, vetted spot &mdash;
+          that&rsquo;s our{" "}
+          <Link href="/safety" className="underline hover:text-text">
+            Starbucks Rule
+          </Link>
+          .
         </p>
       </main>
     </div>

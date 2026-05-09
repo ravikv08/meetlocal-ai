@@ -35,10 +35,14 @@ export function MainNav() {
             href={item.href}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "outline-none transition",
+              // Coral hover/active matches the grad-sunset CTAs in the header
+              // so the whole interactive surface feels brand-consistent. The
+              // active item gets a small glowing coral dot below as a subtle
+              // anchor without competing with the CTA buttons.
+              "relative outline-none transition",
               isActive
-                ? "font-medium text-text"
-                : "hover:text-text",
+                ? "font-medium text-coral after:absolute after:-bottom-1.5 after:left-0 after:right-0 after:mx-auto after:h-1 after:w-1 after:rounded-full after:bg-coral after:shadow-[0_0_8px_rgba(255,106,61,0.7)]"
+                : "hover:text-coral",
             )}
           >
             {item.label}

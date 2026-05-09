@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PhotoUpload } from "@/components/PhotoUpload";
 import { LiveSelfieCapture } from "@/components/LiveSelfieCapture";
@@ -35,6 +36,7 @@ function maxDobToday(): string {
 export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
   const [pickedTags, setPickedTags] = useState<string[]>([]);
   const [pickedLangs, setPickedLangs] = useState<string[]>(["EN"]);
+  const [agreedIC, setAgreedIC] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -44,10 +46,17 @@ export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
       setError("Pick at least one thing you'd show a traveler.");
       return;
     }
+    if (!agreedIC) {
+      setError(
+        "Please review and accept the Local Independent Contractor Agreement to continue.",
+      );
+      return;
+    }
     setError(null);
     const fd = new FormData(e.currentTarget);
     pickedTags.forEach((t) => fd.append("tags", t));
     pickedLangs.forEach((l) => fd.append("languages", l));
+    fd.set("agreedIC", "1");
     startTransition(async () => {
       const res = await submitApplication(fd);
       if (res?.error) setError(res.error);
@@ -341,6 +350,57 @@ export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
         </div>
       </Section>
 
+      {/* Legal acceptance — required before submit. The Independent Contractor
+          Agreement is what protects worker classification, so we surface it
+          explicitly with its own checkbox (Airbnb host-flow pattern). Terms
+          and Privacy are accepted implicitly via the prose below. */}
+      <Section num="11" title="Agreements">
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-line-2 bg-surface p-4 transition hover:border-coral/40">
+          <input
+            type="checkbox"
+            checked={agreedIC}
+            onChange={(e) => setAgreedIC(e.target.checked)}
+            className="mt-0.5 h-5 w-5 shrink-0 cursor-pointer accent-coral"
+            aria-required
+          />
+          <span className="text-sm leading-relaxed text-text-dim">
+            I have read and agree to the{" "}
+            <Link
+              href="/ic-agreement"
+              target="_blank"
+              rel="noopener"
+              className="font-semibold text-coral underline underline-offset-2 hover:opacity-90"
+            >
+              Local Independent Contractor Agreement
+            </Link>
+            . I understand I am applying as an{" "}
+            <strong className="text-text">independent contractor</strong>, not
+            an employee, and that I set my own rates, schedule, and meet
+            conduct.
+          </span>
+        </label>
+        <p className="mt-3 text-xs leading-relaxed text-text-muted">
+          By submitting this application, you also agree to meetlocal&rsquo;s{" "}
+          <Link href="/terms" target="_blank" rel="noopener" className="underline hover:text-text-dim">
+            Terms of Service
+          </Link>
+          ,{" "}
+          <Link href="/refund" target="_blank" rel="noopener" className="underline hover:text-text-dim">
+            Refund Policy
+          </Link>
+          , and{" "}
+          <Link href="/acceptable-use" target="_blank" rel="noopener" className="underline hover:text-text-dim">
+            Acceptable Use Policy
+          </Link>
+          , and acknowledge our{" "}
+          <Link href="/privacy" target="_blank" rel="noopener" className="underline hover:text-text-dim">
+            Privacy Policy
+          </Link>
+          . You also consent to a background check via our verification partner
+          under the Fair Credit Reporting Act.
+        </p>
+      </Section>
+
       {error && (
         <div className="rounded-xl border border-magenta/40 bg-magenta/10 p-4 text-sm text-magenta">
           {error}
@@ -349,7 +409,7 @@ export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
 
       <button
         type="submit"
-        disabled={isPending}
+        disabled={isPending || !agreedIC}
         className="grad-sunset flex w-full items-center justify-center gap-2 rounded-2xl px-6 py-4 text-base font-semibold text-white shadow-[0_20px_60px_rgba(255,106,61,0.27)] transition hover:opacity-95 disabled:opacity-60"
       >
         {isPending ? "Submitting…" : "Submit application"}

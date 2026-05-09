@@ -1,11 +1,16 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { Check, X } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { SiteHeader } from "@/components/SiteHeader";
 import { Avatar } from "@/components/Avatar";
 import { CITIES } from "@/lib/cities";
 import { formatPrice } from "@/lib/utils";
+import {
+  acceptBooking,
+  declineBooking,
+} from "@/lib/booking-actions";
 
 export default async function AdminPage() {
   const session = await auth();
@@ -123,12 +128,46 @@ export default async function AdminPage() {
                           {formatPrice(b.totalAmount)}
                         </td>
                         <td className="px-5 py-3 align-middle text-right">
-                          <Link
-                            href={`/messages/${b.id}`}
-                            className="text-text-dim transition hover:text-text"
-                          >
-                            Open →
-                          </Link>
+                          <div className="flex items-center justify-end gap-2">
+                            {b.status === "requested" && (
+                              <>
+                                <form action={acceptBooking}>
+                                  <input
+                                    type="hidden"
+                                    name="bookingId"
+                                    value={b.id}
+                                  />
+                                  <button
+                                    type="submit"
+                                    title="Accept on behalf of local"
+                                    className="grad-sunset flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold text-white"
+                                  >
+                                    <Check size={11} /> Accept
+                                  </button>
+                                </form>
+                                <form action={declineBooking}>
+                                  <input
+                                    type="hidden"
+                                    name="bookingId"
+                                    value={b.id}
+                                  />
+                                  <button
+                                    type="submit"
+                                    title="Decline on behalf of local"
+                                    className="flex items-center gap-1 rounded-full border border-line-2 px-2.5 py-1 text-xs text-text-dim transition hover:text-text"
+                                  >
+                                    <X size={11} /> Decline
+                                  </button>
+                                </form>
+                              </>
+                            )}
+                            <Link
+                              href={`/messages/${b.id}`}
+                              className="text-text-dim transition hover:text-text"
+                            >
+                              Open →
+                            </Link>
+                          </div>
                         </td>
                       </tr>
                     );

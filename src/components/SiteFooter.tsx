@@ -15,8 +15,11 @@ const NAV_ITEMS = [
 const LEGAL_LINKS = [
   { href: "/safety", label: "Trust & safety" },
   { href: "/help", label: "Help" },
-  { href: "/press", label: "Press" },
-  { href: "/careers", label: "Careers" },
+  { href: "/terms", label: "Terms" },
+  { href: "/privacy", label: "Privacy" },
+  { href: "/refund", label: "Refund policy" },
+  { href: "/cookie-policy", label: "Cookies" },
+  { href: "/ic-agreement", label: "Local agreement" },
 ];
 
 export function SiteFooter({ liveCount }: SiteFooterProps) {

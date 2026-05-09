@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { LocalCard } from "@/components/LocalCard";
 import { SearchBar } from "@/components/SearchBar";
+import { StickySearch } from "@/components/StickySearch";
 import { StoriesRow } from "@/components/StoriesRow";
 import { HeroStoryVideo } from "@/components/HeroStoryVideo";
 import { formatRelative } from "@/lib/date-utils";
@@ -104,8 +105,15 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <SiteHeader />
 
-      {/* HERO — split layout: headline + search left, story video right */}
-      <section className="relative px-14 pb-10 pt-20">
+      {/* Search bar — Airbnb pattern: pulled up, left-aligned right below the
+          header. StickySearch keeps it pinned to the top of the viewport on
+          scroll with a soft drop-shadow once the hero is out of view. */}
+      <StickySearch>
+        {searchBar}
+      </StickySearch>
+
+      {/* HERO — split layout: headline left, story video right */}
+      <section className="relative px-14 pb-10 pt-8">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
           <div className="flex flex-col gap-7">
             <div>{eyebrow}</div>
@@ -117,7 +125,6 @@ export default async function Home({ searchParams }: HomeProps) {
               you haven&apos;t met.
             </h1>
             {subhead}
-            {searchBar}
           </div>
           {/* Video stretches to the left column's full height: top edge
               aligns with the eyebrow badge, bottom edge aligns with the

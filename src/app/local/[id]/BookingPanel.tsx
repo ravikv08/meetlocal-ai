@@ -347,6 +347,22 @@ export function BookingPanel({
           <Trust>Two-way reviews after every session</Trust>
           <Trust>Free cancellation up to 12 hours before</Trust>
         </ul>
+
+        <p className="text-[11px] leading-relaxed text-text-muted">
+          By sending this request, you agree to meetlocal&rsquo;s{" "}
+          <a href="/terms" target="_blank" rel="noopener" className="underline hover:text-text-dim">
+            Terms
+          </a>
+          ,{" "}
+          <a href="/refund" target="_blank" rel="noopener" className="underline hover:text-text-dim">
+            Refund Policy
+          </a>
+          , and acknowledge our{" "}
+          <a href="/privacy" target="_blank" rel="noopener" className="underline hover:text-text-dim">
+            Privacy Policy
+          </a>
+          .
+        </p>
       </div>
     </div>
   );
