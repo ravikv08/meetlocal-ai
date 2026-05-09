@@ -34,7 +34,9 @@ export function StickySearch({ children }: { children: React.ReactNode }) {
       <div
         className={
           "sticky top-[64px] z-[5] transition-all duration-300 px-14 " +
-          (scrolled ? "py-3 backdrop-blur-md" : "py-4")
+          // More breathable at rest, tightens on scroll for the floating-pill
+          // feel (Airbnb does the same — relaxed at top, compressed when stuck).
+          (scrolled ? "py-3 backdrop-blur-md" : "py-6")
         }
         style={{
           background: scrolled

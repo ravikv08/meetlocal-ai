@@ -1,5 +1,17 @@
 import Link from "next/link";
-import { MapPin, User, MessageCircle, ShieldCheck, Star, Check, Wallet, ArrowRight } from "lucide-react";
+import {
+  MapPin,
+  User,
+  MessageCircle,
+  ShieldCheck,
+  Star,
+  Check,
+  Wallet,
+  ArrowRight,
+  IdCard,
+  Coffee,
+  Hourglass,
+} from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -7,35 +19,40 @@ interface HowItWorksProps {
   searchParams: Promise<{ side?: string }>;
 }
 
+// Every claim on this page must be defensibly true at v1. Anything still
+// in the roadmap (background-check vendor, live trip tracking, Stripe
+// Connect Express, tipping) is named in the "what's coming next" callout
+// at the bottom — never asserted as a current feature.
+
 const TRAVELER_STEPS = [
   {
     n: "01",
     t: "Tell us where you're landing",
-    d: "Tap the city, dates, and what you're into — food, music, photos, nothing in particular. Takes 15 seconds.",
+    d: "Tap your city, your date, and the vibe — food, culture, music, hidden spots, day trips. Takes about 15 seconds. We'll surface vetted locals available for a 1:1 meet.",
     icon: MapPin,
   },
   {
     n: "02",
     t: "Pick a local from the grid",
-    d: "Every profile shows a Born-&-raised / Rooted / Seasoned badge, verified ID, background-check date, and reviews from past travelers.",
+    d: "Each profile shows hourly rate, languages, neighborhood, residency badge (Native, Rooted, Seasoned, Newcomer), and the local's bio. Every profile is hand-reviewed by the founder before it goes live.",
     icon: User,
   },
   {
     n: "03",
-    t: "Chat first, or instant-book",
-    d: "Message to feel out the vibe, or book directly — they have 14 minutes to accept before we auto-match you with the next-best local.",
-    icon: MessageCircle,
+    t: "Send a request — you're not charged yet",
+    d: "Pick a start time and how many hours (1–6). Your card is authorized but not charged. Your local has 14 minutes to accept. If they decline or don't respond, the hold is released and you can request another local.",
+    icon: Hourglass,
   },
   {
     n: "04",
-    t: "Meet up — we track the trip",
-    d: "Live map shows their ETA. Trip tracking shares with one trusted contact. SOS is one tap.",
-    icon: ShieldCheck,
+    t: "Meet at a public, vetted spot",
+    d: "Every first meet happens at a curated café, park, or museum — we call it the Starbucks Rule. Use in-platform chat to coordinate. Anything feels off, one tap to report and the founder responds personally within hours.",
+    icon: Coffee,
   },
   {
     n: "05",
-    t: "Review, tip, remember",
-    d: "100% of tips go to your local. Reviews publish only after both sides submit — no retaliation possible.",
+    t: "Two-way reviews close it out",
+    d: "After your meet, both sides leave a review independently. Neither sees the other's until both submit — no retaliation, no rating-hostage. Both reviews publish to the local's profile simultaneously.",
     icon: Star,
   },
 ];
@@ -44,43 +61,46 @@ const LOCAL_STEPS = [
   {
     n: "01",
     t: "Apply in 10 minutes",
-    d: "Tell us who you are, where you're from, what you'd love to show people. Set your own rate.",
+    d: "Tell us who you are, where you're from, your hourly rate (min $15/hr), languages, and what you'd love to show travelers. Most applications take 8–10 minutes end-to-end.",
     icon: User,
   },
   {
     n: "02",
-    t: "Verify your identity",
-    d: "Government ID + liveness selfie via Persona. Most applicants clear in 90 seconds.",
-    icon: ShieldCheck,
+    t: "Submit ID + a live selfie",
+    d: "Government-issued ID, a live selfie that must visually match the ID, and your date of birth (must be 18+). At least one verifiable social profile. The founder reviews every application personally — typically within 24 hours.",
+    icon: IdCard,
   },
   {
     n: "03",
-    t: "Prove your roots",
-    d: 'Utility bill, lease, or birth record unlocks your residency badge. 10+ years → "Rooted". Born here → "Native" (highest trust signal, highest rate).',
+    t: "Pick your residency",
+    d: 'Self-declare your tie to the city: Native (born here), Rooted (10+ years), Seasoned (3–10 years), or Newcomer (recent move). Travelers see this badge directly. Document-based "Native" verification ships in v2.',
     icon: MapPin,
   },
   {
     n: "04",
-    t: "Clear a background check",
-    d: "Criminal + watchlist check via Checkr (US) or Sterling (intl). Same standard as Uber & Airbnb. 24h turnaround.",
-    icon: Check,
+    t: "Get founder approval",
+    d: "Every application gets a personal review — bio, photos, residency, social profiles. We hand-curate slowly because the marketplace lives or dies on supply quality. Vendor-based background checks (Persona / Checkr) are rolling out before public launch.",
+    icon: ShieldCheck,
   },
   {
     n: "05",
-    t: "Connect Stripe, go live",
-    d: "Bank account via Stripe Connect. Weekly payouts on Monday. You keep 80% of every booking.",
+    t: "Receive bookings, set your schedule",
+    d: "Once active, you appear in city searches and receive requests. You decide which to accept. You keep 78% of every booking (we take 22% platform fee). For v1, payouts are processed manually by the founder; Stripe Connect Express ships before public launch for automated weekly payouts.",
     icon: Wallet,
   },
 ];
 
+// Defensible at v1 only — no speculative ratings or unmeasured durations.
 const STATS = [
   { k: "4", v: "launch cities" },
-  { k: "10+", v: "vetted locals" },
-  { k: "4.9★", v: "target rating" },
-  { k: "<5h", v: "match-to-meet" },
+  { k: "1:1", v: "every meet" },
+  { k: "14 min", v: "accept window" },
+  { k: "Two-way", v: "reviews" },
 ];
 
-export default async function HowItWorksPage({ searchParams }: HowItWorksProps) {
+export default async function HowItWorksPage({
+  searchParams,
+}: HowItWorksProps) {
   const sp = await searchParams;
   const side = sp.side === "local" ? "local" : "traveler";
   const steps = side === "traveler" ? TRAVELER_STEPS : LOCAL_STEPS;
@@ -143,7 +163,9 @@ export default async function HowItWorksPage({ searchParams }: HowItWorksProps) 
                   (i === 0 ? "" : "border-t border-line")
                 }
               >
-                <div className="font-mono text-sm tracking-wider text-coral">{s.n}</div>
+                <div className="font-mono text-sm tracking-wider text-coral">
+                  {s.n}
+                </div>
                 <div>
                   <h3 className="font-display text-3xl font-semibold tracking-tight lg:text-4xl">
                     {s.t}
@@ -175,6 +197,62 @@ export default async function HowItWorksPage({ searchParams }: HowItWorksProps) 
         </div>
       </section>
 
+      {/* What's coming next — moves any speculative claim out of the steps
+          above into a clearly-aspirational section. Mirrors the Trust &
+          safety page roadmap so the two pages tell one coherent story. */}
+      <section className="relative px-14 py-16">
+        <div className="mx-auto max-w-5xl">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
+            <div>
+              <div className="font-mono text-xs uppercase tracking-[0.1em] text-text-dim">
+                Roadmap
+              </div>
+              <h2 className="mt-2 font-display text-3xl font-semibold tracking-tight">
+                What&rsquo;s shipping next
+              </h2>
+            </div>
+            <Link
+              href="/safety#roadmap"
+              className="text-sm text-text-dim transition hover:text-text"
+            >
+              Full safety roadmap <ArrowRight size={13} className="inline" />
+            </Link>
+          </div>
+          <p className="mt-3 max-w-2xl text-text-dim">
+            We won&rsquo;t claim a feature we haven&rsquo;t built. Here&rsquo;s
+            what&rsquo;s in flight before public launch — so you know the
+            gap between the v1 you&rsquo;re using and where we&rsquo;re
+            heading.
+          </p>
+          <div className="mt-7 grid gap-3 md:grid-cols-3">
+            <RoadmapCard
+              t="Background-check integration"
+              d="Persona or Checkr automated checks on every applicant — sex offender registry, violent felony, watchlists."
+            />
+            <RoadmapCard
+              t="Stripe Connect Express"
+              d="Automated weekly payouts to locals + 1099-NEC issuance. Replaces the v1 manual founder payouts."
+            />
+            <RoadmapCard
+              t="Auto-rematch on timeout"
+              d="If the requested local doesn&rsquo;t accept within 14 min, surface other available locals in the same city automatically."
+            />
+            <RoadmapCard
+              t="Live trip tracking"
+              d="Opt-in location share with up to 3 emergency contacts during a meet. Auto-off when the booking marks complete."
+            />
+            <RoadmapCard
+              t="Document-verified residency"
+              d="Utility bill / lease / birth record uploads to unlock the highest-trust Native badge."
+            />
+            <RoadmapCard
+              t="In-app tipping"
+              d="Optional 0–25% tip after the meet. 100% goes to the local. Currently locals can&rsquo;t accept tips through the platform."
+            />
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="relative px-14 py-20 text-center">
         <h2 className="font-display text-5xl font-bold tracking-tight">
@@ -197,6 +275,20 @@ export default async function HowItWorksPage({ searchParams }: HowItWorksProps) 
       </section>
 
       <SiteFooter />
+    </div>
+  );
+}
+
+function RoadmapCard({ t, d }: { t: string; d: string }) {
+  return (
+    <div className="rounded-2xl border border-line bg-surface p-5">
+      <div className="font-mono text-[11px] uppercase tracking-wider text-amber">
+        ● Coming
+      </div>
+      <h4 className="mt-2 font-display text-lg font-semibold tracking-tight text-text">
+        {t}
+      </h4>
+      <p className="mt-1.5 text-sm leading-relaxed text-text-dim">{d}</p>
     </div>
   );
 }

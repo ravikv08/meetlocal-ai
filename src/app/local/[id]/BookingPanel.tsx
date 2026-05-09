@@ -18,15 +18,21 @@ import { formatRelative, formatISODate, startOfDay } from "@/lib/date-utils";
 import { formatPrice } from "@/lib/utils";
 import { createBooking } from "@/app/book/[localId]/actions";
 
-const TIME_SLOTS = [
-  "09:00",
-  "12:00",
-  "15:00",
-  "18:00",
-  "20:00",
-  "21:00",
-] as const;
+// Hourly start slots from 7 AM to 7 PM. Locals work daytime hours; the meet
+// itself can run up to 6 hours so a 7 PM start is still a 1 AM finish at
+// max duration. To extend a successful meet, traveler books another session
+// after this one completes.
+const TIME_SLOTS = Array.from({ length: 13 }, (_, i) =>
+  `${String(7 + i).padStart(2, "0")}:00`,
+);
 const HOURS_OPTIONS = [1, 2, 3, 4, 5, 6] as const;
+
+// Adds N hours to an HH:mm string, returns HH:mm (wrapping past midnight).
+function addHoursToSlot(slot: string, hours: number): string {
+  const [h, m] = slot.split(":").map(Number);
+  const total = (h + hours) % 24;
+  return `${String(total).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
 
 interface Spot {
   id: string;
@@ -62,8 +68,9 @@ export function BookingPanel({
 }: BookingPanelProps) {
   const todayISO = formatISODate(startOfDay(new Date()));
   const [date, setDate] = useState<string>(initialDate ?? todayISO);
-  const [slot, setSlot] = useState<string>("20:00");
+  const [slot, setSlot] = useState<string>("10:00");
   const [hours, setHours] = useState<number>(3);
+  const endTime = addHoursToSlot(slot, hours);
   const defaultSpot = spots.find((s) => s.popular) ?? spots[0] ?? null;
   const [spotId, setSpotId] = useState<string | null>(defaultSpot?.id ?? null);
   const [note, setNote] = useState("");
@@ -167,35 +174,53 @@ export function BookingPanel({
       </div>
 
       {/* Time + hours */}
-      <div className="grid grid-cols-2 gap-4 border-b border-line p-4">
-        <div>
-          <Label icon={<Clock size={13} />}>Start time</Label>
-          <select
-            value={slot}
-            onChange={(e) => setSlot(e.target.value)}
-            className="mt-2 w-full rounded-xl border border-line-2 bg-bg-2 px-3 py-2.5 text-sm font-medium outline-none transition hover:border-coral/40"
-          >
-            {TIME_SLOTS.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
+      <div className="border-b border-line p-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label icon={<Clock size={13} />}>Start time</Label>
+            <select
+              value={slot}
+              onChange={(e) => setSlot(e.target.value)}
+              className="mt-2 w-full rounded-xl border border-line-2 bg-bg-2 px-3 py-2.5 text-sm font-medium outline-none transition hover:border-coral/40"
+            >
+              {TIME_SLOTS.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label icon={<Hourglass size={13} />}>Hours</Label>
+            <select
+              value={hours}
+              onChange={(e) => setHours(Number(e.target.value))}
+              className="mt-2 w-full rounded-xl border border-line-2 bg-bg-2 px-3 py-2.5 text-sm font-medium outline-none transition hover:border-coral/40"
+            >
+              {HOURS_OPTIONS.map((h) => (
+                <option key={h} value={h}>
+                  {h}h
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-        <div>
-          <Label icon={<Hourglass size={13} />}>Hours</Label>
-          <select
-            value={hours}
-            onChange={(e) => setHours(Number(e.target.value))}
-            className="mt-2 w-full rounded-xl border border-line-2 bg-bg-2 px-3 py-2.5 text-sm font-medium outline-none transition hover:border-coral/40"
-          >
-            {HOURS_OPTIONS.map((h) => (
-              <option key={h} value={h}>
-                {h}h
-              </option>
-            ))}
-          </select>
+        {/* Computed end time — updates live as start/hours change. Useful so
+            the traveler doesn't have to math the end of their meet, and so
+            the local can plan their day around the wrap time. */}
+        <div className="mt-3 flex items-center justify-between rounded-xl border border-dashed border-line-2 bg-bg-2/40 px-3.5 py-2.5">
+          <span className="font-mono text-[11px] uppercase tracking-wider text-text-muted">
+            Meet runs
+          </span>
+          <span className="font-mono text-sm text-text">
+            {slot}
+            <span className="mx-1.5 text-text-muted">→</span>
+            {endTime}
+          </span>
         </div>
+        <p className="mt-2 text-[11px] leading-relaxed text-text-muted">
+          Want to extend? After this meet completes, you can book {localFirstName} again as a new session.
+        </p>
       </div>
 
       {/* Meeting spot — Starbucks Rule */}

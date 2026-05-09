@@ -11,10 +11,12 @@ interface NavItem {
   match?: (pathname: string) => boolean;
 }
 
+// "Become a local" is intentionally NOT here — it has its own coral CTA
+// in the top-right of SiteHeader. Three entry points (header CTA + footer
+// pill + AuthMenu dropdown) is enough; six was overkill.
 const ITEMS: NavItem[] = [
   { href: "/", label: "Discover", match: (p) => p === "/" },
   { href: "/how-it-works", label: "How it works" },
-  { href: "/become-a-local", label: "Become a local" },
   { href: "/safety", label: "Safety" },
 ];
 

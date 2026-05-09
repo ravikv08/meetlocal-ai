@@ -1,4 +1,15 @@
 import Link from "next/link";
+import {
+  ShieldCheck,
+  Coffee,
+  Wallet,
+  Star,
+  Search,
+  Hourglass,
+  Handshake,
+  ArrowRight,
+  MapPin,
+} from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { LocalCard } from "@/components/LocalCard";
@@ -14,6 +25,7 @@ import {
   type CategoryId,
 } from "@/lib/cities";
 import { listActiveLocals } from "@/lib/queries";
+import { prisma } from "@/lib/prisma";
 
 interface HomeProps {
   searchParams: Promise<{
@@ -51,6 +63,25 @@ export default async function Home({ searchParams }: HomeProps) {
       })
     : [];
 
+  // Pre-search browse experience: show 6 active locals from across all cities
+  // so first-time visitors see real supply quality before committing to a
+  // search. Skipped when a search is active to keep the results focused.
+  const featuredLocals = isReady ? [] : (await listActiveLocals()).slice(0, 6);
+
+  // Per-city counts for the city showcase. Real numbers, not aspirational.
+  const cityCountsRaw = isReady
+    ? []
+    : await prisma.localProfile.groupBy({
+        by: ["city"],
+        where: { status: "active" },
+        _count: true,
+      });
+  const cityCounts = new Map(cityCountsRaw.map((r) => [r.city, r._count]));
+  const totalActiveLocals = Array.from(cityCounts.values()).reduce(
+    (a, b) => a + b,
+    0,
+  );
+
   const activeCity = cityParam
     ? CITIES.find((c) => c.slug === cityParam)
     : null;
@@ -75,48 +106,32 @@ export default async function Home({ searchParams }: HomeProps) {
     />
   );
 
-  const eyebrow = (
-    <div
-      className="inline-flex items-center gap-2 rounded-full border border-coral/50 px-3 py-1.5 font-mono text-xs text-coral shadow-[0_0_24px_rgba(255,106,61,0.18)]"
-      style={{
-        background:
-          "linear-gradient(135deg, rgba(255,106,61,0.18), rgba(255,46,120,0.10))",
-      }}
-    >
-      <span
-        className="animate-ml-pulse h-1.5 w-1.5 rounded-full bg-coral"
-        style={{ boxShadow: "0 0 12px var(--color-coral)" }}
-      />
-      <span className="font-bold text-amber">NEW</span>
-      <span className="text-coral/70">·</span>
-      <span>Arrive on-demand. Meet in 5 hours, not 5 days.</span>
-    </div>
-  );
-
   const subhead = (
-    <p className="max-w-[520px] text-lg leading-relaxed text-text-dim">
-      Open meetlocal.ai when you land. Within hours, you&apos;re with a vetted
-      local who knows the spots, the shortcuts, and the stories.
-    </p>
+    <div className="max-w-[560px] space-y-3">
+      <p className="font-display text-2xl font-semibold leading-tight tracking-tight text-text">
+        Land in a new city. Leave with a friend in it.
+      </p>
+      <p className="text-lg leading-relaxed text-text-dim">
+        Within hours, a vetted local opens doors no guidebook can — the
+        spots, the shortcuts, and the stories that make a city{" "}
+        <em className="grad-text not-italic font-semibold">yours</em>.
+      </p>
+    </div>
   );
 
   return (
     <div className="relative overflow-x-hidden">
-
       <SiteHeader />
 
       {/* Search bar — Airbnb pattern: pulled up, left-aligned right below the
           header. StickySearch keeps it pinned to the top of the viewport on
           scroll with a soft drop-shadow once the hero is out of view. */}
-      <StickySearch>
-        {searchBar}
-      </StickySearch>
+      <StickySearch>{searchBar}</StickySearch>
 
-      {/* HERO — split layout: headline left, story video right */}
+      {/* HERO — split layout: headline left, story video right. */}
       <section className="relative px-14 pb-10 pt-8">
         <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
           <div className="flex flex-col gap-7">
-            <div>{eyebrow}</div>
             <h1 className="font-display text-[80px] font-bold leading-[0.94] tracking-[-2.5px]">
               Every city
               <br />
@@ -126,10 +141,6 @@ export default async function Home({ searchParams }: HomeProps) {
             </h1>
             {subhead}
           </div>
-          {/* Video stretches to the left column's full height: top edge
-              aligns with the eyebrow badge, bottom edge aligns with the
-              SearchBar's "Find Locals" button. Aspect ratio is only used
-              as a fallback on mobile when the grid collapses. */}
           <HeroStoryVideo
             src="/video/story-loop.mp4"
             className="aspect-[4/5] w-full lg:aspect-auto lg:h-full"
@@ -137,9 +148,55 @@ export default async function Home({ searchParams }: HomeProps) {
         </div>
       </section>
 
+      {/* Trust strip — 4 quick promises, always visible. Answers the
+          "can I trust this?" question before any other content. Each badge
+          maps to a real shipped feature; nothing here is aspirational. */}
+      <TrustStrip />
 
       {/* Stories strip — only renders if there are unexpired stories */}
       <StoriesRow />
+
+      {/* City discovery — 4 launch cities with real local counts. Lets
+          first-timers browse without committing to all 3 filters. */}
+      {!isReady && cityCounts.size > 0 && (
+        <CityShowcase cityCounts={cityCounts} />
+      )}
+
+      {/* Pre-search browse experience: featured locals + how-it-works.
+          Hidden once the user has all 3 filters set so they get a clean
+          results view. */}
+      {!isReady && featuredLocals.length > 0 && (
+        <section className="relative px-14 pb-12 pt-4">
+          <div className="mb-5 flex items-baseline justify-between">
+            <div>
+              <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
+                Hand-vetted · {featuredLocals.length}+ locals across 4 cities
+              </div>
+              <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">
+                Meet a few of our locals
+              </h2>
+            </div>
+            <div className="font-mono text-xs uppercase tracking-wider text-text-dim">
+              Use the search above to filter by city, date &amp; vibe
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            {featuredLocals.map((local) => (
+              <LocalCard
+                key={local.id}
+                local={local}
+                whenParam={whenParam ?? undefined}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {!isReady && <HowItWorksSlim />}
+
+      {!isReady && totalActiveLocals > 0 && (
+        <StatsBand totalLocals={totalActiveLocals} />
+      )}
 
       {/* Results — only render once all three filters are set */}
       {isReady && (
@@ -179,8 +236,187 @@ export default async function Home({ searchParams }: HomeProps) {
         </section>
       )}
 
-      <SiteFooter liveCount={locals.length} />
+      <SiteFooter liveCount={isReady ? locals.length : featuredLocals.length} />
     </div>
+  );
+}
+
+// ── Sub-sections ───────────────────────────────────────────────────────────
+
+function TrustStrip() {
+  const items = [
+    { icon: ShieldCheck, label: "Hand-vetted locals" },
+    { icon: Coffee, label: "Public-spot first meets" },
+    { icon: Wallet, label: "Pay only when accepted" },
+    { icon: Star, label: "Two-way reviews" },
+  ];
+  return (
+    <section className="relative border-y border-line bg-bg-2/50 px-14 py-5">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-8 gap-y-3">
+        {items.map(({ icon: Icon, label }) => (
+          <div key={label} className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface text-coral">
+              <Icon size={15} />
+            </div>
+            <span className="text-sm font-medium text-text">{label}</span>
+          </div>
+        ))}
+        <Link
+          href="/safety"
+          className="ml-auto inline-flex items-center gap-1 font-mono text-xs uppercase tracking-wider text-text-dim transition hover:text-text"
+        >
+          How we keep you safe <ArrowRight size={12} />
+        </Link>
+      </div>
+    </section>
+  );
+}
+
+function HowItWorksSlim() {
+  const steps = [
+    {
+      icon: Search,
+      n: "01",
+      t: "Tell us where you're landing",
+      d: "City, date, and a vibe — food, music, history, hidden spots. 15 seconds.",
+    },
+    {
+      icon: Hourglass,
+      n: "02",
+      t: "Send a request",
+      d: "Your card is authorized but not charged. Your local has 14 minutes to accept.",
+    },
+    {
+      icon: Handshake,
+      n: "03",
+      t: "Meet at a public, vetted spot",
+      d: "Our Starbucks Rule. Wrap up with a two-way review when you're done.",
+    },
+  ];
+  return (
+    <section className="relative px-14 py-14">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
+              How it works
+            </div>
+            <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">
+              Three steps. About sixty seconds.
+            </h2>
+          </div>
+          <Link
+            href="/how-it-works"
+            className="inline-flex items-center gap-1 text-sm text-text-dim transition hover:text-text"
+          >
+            See full walkthrough <ArrowRight size={13} />
+          </Link>
+        </div>
+        <div className="mt-7 grid gap-4 md:grid-cols-3">
+          {steps.map((s) => {
+            const Icon = s.icon;
+            return (
+              <div
+                key={s.n}
+                className="rounded-2xl border border-line bg-surface p-6"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="grad-sunset flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-[0_10px_24px_rgba(255,106,61,0.25)]">
+                    <Icon size={18} />
+                  </div>
+                  <div className="font-mono text-xs tracking-wider text-text-muted">
+                    {s.n}
+                  </div>
+                </div>
+                <h3 className="mt-4 font-display text-lg font-semibold tracking-tight">
+                  {s.t}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-text-dim">
+                  {s.d}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CityShowcase({ cityCounts }: { cityCounts: Map<string, number> }) {
+  return (
+    <section className="relative px-14 pt-10 pb-2">
+      <div className="mx-auto max-w-6xl">
+        <div className="flex flex-wrap items-baseline justify-between gap-3">
+          <div>
+            <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
+              Browse by city
+            </div>
+            <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">
+              Pick a place to start
+            </h2>
+          </div>
+          <div className="font-mono text-xs uppercase tracking-wider text-text-dim">
+            4 launch cities · more coming soon
+          </div>
+        </div>
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {CITIES.map((c) => {
+            const count = cityCounts.get(c.slug) ?? 0;
+            return (
+              <Link
+                key={c.slug}
+                href={`/?city=${c.slug}`}
+                className="group flex items-center gap-4 rounded-2xl border border-line bg-surface p-5 transition hover:border-coral/40 hover:bg-surface-2"
+              >
+                <div className="grad-sunset flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-[0_8px_20px_rgba(255,106,61,0.25)]">
+                  <MapPin size={18} />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="font-display text-lg font-semibold tracking-tight text-text">
+                    {c.name}
+                    <span className="ml-1.5 font-mono text-xs font-normal text-text-muted">
+                      {c.state}
+                    </span>
+                  </div>
+                  <div className="font-mono text-xs uppercase tracking-wider text-text-dim">
+                    {count} {count === 1 ? "vetted local" : "vetted locals"}
+                  </div>
+                </div>
+                <ArrowRight
+                  size={15}
+                  className="shrink-0 text-text-muted transition group-hover:text-coral"
+                />
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function StatsBand({ totalLocals }: { totalLocals: number }) {
+  // Defensible numbers only — every figure here is currently true.
+  const stats = [
+    { k: "4", v: "launch cities" },
+    { k: `${totalLocals}+`, v: "vetted locals" },
+    { k: "1:1", v: "every meet" },
+    { k: "14 min", v: "accept window" },
+  ];
+  return (
+    <section className="relative border-t border-line bg-bg-2 px-14 py-14">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 md:grid-cols-4">
+        {stats.map((s) => (
+          <div key={s.v}>
+            <div className="grad-text font-display text-5xl font-bold tracking-tight">
+              {s.k}
+            </div>
+            <div className="mt-1 text-sm text-text-dim">{s.v}</div>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 

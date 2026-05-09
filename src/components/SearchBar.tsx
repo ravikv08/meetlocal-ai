@@ -303,18 +303,18 @@ export function SearchBar({
         </div>
       </div>
 
-      {/* Helper line */}
-      {!isComplete && (
+      {/* Helper line — only shown to first-timers (no pill yet filled).
+          Once the user starts interacting, the pills themselves carry the
+          completion state, so the helper just adds noise. */}
+      {!city && !when && selectedVibes.length === 0 && (
         <div className="mt-3 flex flex-wrap items-center gap-1.5 px-2 font-mono text-[11px] uppercase tracking-[0.14em]">
           <span className="font-semibold text-coral">Required</span>
           <span className="text-text-muted">·</span>
-          <Pip filled={!!city}>City</Pip>
+          <Pip filled={false}>City</Pip>
           <span className="text-text-muted">·</span>
-          <Pip filled={!!when}>Date</Pip>
+          <Pip filled={false}>Date</Pip>
           <span className="text-text-muted">·</span>
-          <Pip filled={selectedVibes.length > 0}>
-            Vibe{selectedVibes.length > 1 ? `s · ${selectedVibes.length}` : ""}
-          </Pip>
+          <Pip filled={false}>Vibe</Pip>
         </div>
       )}
     </div>
