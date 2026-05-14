@@ -83,7 +83,10 @@ export function BookingActionBar({
           </strong>
           <p className="mt-1 text-sm text-text-dim">
             {role === "local"
-              ? "Mark this complete after the meetup so we can release the payout."
+              ? // Pre-meet nudge for local — moves 5★ → 7★ per Chesky's
+                // 11-star analysis. The personalized note before arrival is
+                // the single biggest perception lift in the journey.
+                "Tip: drop a short “what to expect” note here — what to wear, where exactly to meet, anything to prep. Mark this complete after the meet wraps."
               : "Mark this complete after you and your local wrap up — both sides get a review prompt."}
           </p>
         </div>
@@ -100,15 +103,19 @@ export function BookingActionBar({
     );
   }
 
-  // Completed → review prompt
+  // Completed → review prompt (+ recap nudge for local)
   if (status === "completed") {
     return (
       <Banner tone="good">
         <div className="flex-1">
           <strong className="text-text">Session complete</strong>
           <p className="mt-1 text-sm text-text-dim">
-            Leave a review — both sides see each other&rsquo;s only after both
-            submit.
+            {role === "local"
+              ? // Post-meet nudge for local — keeps the relationship alive
+                // and prompts the soft-content that fuels Instagram /
+                // word-of-mouth (per GROWTH_PLAYBOOK § 3).
+                "Suggested: drop a recap to your traveler — photos + one place to try next time. Then leave your review when ready."
+              : "Leave a review — both sides see each other’s only after both submit."}
           </p>
         </div>
         <Link

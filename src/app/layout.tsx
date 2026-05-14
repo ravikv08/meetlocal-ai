@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Inter, Inter_Tight, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { auth } from "@/auth";
@@ -32,6 +33,10 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const session = await auth();
+  // Plausible analytics — privacy-respecting, no cookies, free for
+  // <10K visits/mo. Loads only when NEXT_PUBLIC_PLAUSIBLE_DOMAIN is set
+  // (so dev / preview builds don't pollute prod stats).
+  const plausibleDomain = process.env.NEXT_PUBLIC_PLAUSIBLE_DOMAIN;
   return (
     <html
       lang="en"
@@ -43,6 +48,13 @@ export default async function RootLayout({
           isAuthed={!!session?.user}
           isAdmin={session?.user?.isAdmin ?? false}
         />
+        {plausibleDomain && (
+          <Script
+            strategy="afterInteractive"
+            data-domain={plausibleDomain}
+            src="https://plausible.io/js/script.js"
+          />
+        )}
       </body>
     </html>
   );

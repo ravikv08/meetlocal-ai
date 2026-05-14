@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { ArrowLeft, Send, Plus, MapPin } from "lucide-react";
 import { Avatar } from "@/components/Avatar";
+import { ReportUserButton } from "@/components/ReportUserButton";
+import { PmfSurveyCard } from "@/components/PmfSurveyCard";
 import { getSupabaseBrowser, channelForBooking } from "@/lib/supabase";
 import { formatPrice } from "@/lib/utils";
 import type { BookingStatus } from "@prisma/client";
@@ -144,7 +146,7 @@ export function ChatRoom(props: ChatRoomProps) {
           <ArrowLeft size={15} />
         </Link>
         <Avatar name={counterpart.name} size={40} imageUrl={counterpart.image} ring />
-        <div className="flex-1">
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 text-sm font-semibold">
             {counterpart.name}
             <span className="h-1.5 w-1.5 rounded-full bg-good" />
@@ -153,6 +155,12 @@ export function ChatRoom(props: ChatRoomProps) {
             {role === "traveler" ? "Your local" : "Your traveler"}
           </div>
         </div>
+        {/* Safety report button — opens an inline modal that emails safety inbox */}
+        <ReportUserButton
+          reportedUserId={counterpart.id}
+          reportedUserName={counterpart.name}
+          bookingId={bookingId}
+        />
       </div>
 
       {/* Booking summary card */}
@@ -174,6 +182,13 @@ export function ChatRoom(props: ChatRoomProps) {
 
       {/* Action bar (Accept / Decline / Mark complete / Review) */}
       {actionBar}
+
+      {/* Sean Ellis PMF survey — shown to traveler once after a completed
+          booking. Self-dismisses + the server action is idempotent (one
+          per user) so re-renders won't spam the user. */}
+      {role === "traveler" && bookingStatus === "completed" && (
+        <PmfSurveyCard bookingId={bookingId} />
+      )}
 
       {/* Messages */}
       <div ref={scrollRef} className="scroll-hide flex-1 space-y-1.5 overflow-y-auto px-6 py-5">

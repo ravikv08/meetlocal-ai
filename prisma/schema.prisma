@@ -277,3 +277,20 @@ model WebhookEvent {
 
   @@index([processedAt])
 }
+
+// Generic feedback / survey table — Sean Ellis PMF survey ("how would you
+// feel if meetlocal disappeared"), free-text feedback, and report-a-user
+// submissions all land here. `kind` discriminates; `data` holds the
+// payload as JSON for flexibility.
+model Feedback {
+  id        String   @id @default(cuid())
+  kind      String   // "pmf_survey" | "general" | "report_user"
+  userId    String?  // submitter (null if anonymous)
+  bookingId String?  // related booking, if any
+  data      Json     // { answer: "very"|"somewhat"|"not", note?: "...", reportedUserId?: "..." }
+  createdAt DateTime @default(now())
+
+  @@index([kind, createdAt])
+  @@index([userId])
+  @@index([bookingId])
+}
