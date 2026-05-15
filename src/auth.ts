@@ -15,7 +15,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(prisma),
   session: { strategy: "database" },
   providers: [
-    Google,
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    }),
     // Email magic link. Uses our shared sendEmail() wrapper so when RESEND_API_KEY
     // isn't set, the link is logged to the dev console (copy/paste to sign in).
     Resend({

@@ -1,8 +1,13 @@
+import path from "node:path";
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Pin the workspace root so Turbopack doesn't pick up a stray
+  // package-lock.json in a parent directory (e.g. ~/package-lock.json).
+  turbopack: {
+    root: path.resolve("."),
+  },
 };
 
 // Sentry wraps the build to upload source maps + create releases. The wrapper
