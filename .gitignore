@@ -45,9 +45,10 @@ next-env.d.ts
 
 /src/generated/prisma
 
-# Raw video sources (the compressed web version lives at public/video/)
+# Raw video sources (compressed web versions live at public/video/ + public/reels/)
 /meetlocal/
 /meetlocalai/
+/reels/
 *.mov
 
 # Notes that don't belong in the repo

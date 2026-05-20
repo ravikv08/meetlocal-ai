@@ -17,13 +17,14 @@ export default async function ReelsPage() {
     orderBy: { updatedAt: "desc" },
   });
 
-  // Curated story photos to vary the gradient backdrops — looped, deterministic.
-  const palettes = [
-    { from: "#FF6A3D", via: "#FF2E78", to: "#7C5CFF" },
-    { from: "#FFB84D", via: "#FF6A3D", to: "#FF2E78" },
-    { from: "#3BD4C4", via: "#7C5CFF", to: "#FF4DA6" },
-    { from: "#7C5CFF", via: "#FF2E78", to: "#FFB84D" },
-    { from: "#FF2E78", via: "#FF6A3D", to: "#FFB84D" },
+  // Video backdrops — cycle through 3 placeholder reels for now. Each scroll-
+  // snap section uses one as a muted, autoplaying, looping background so users
+  // get the "feel" of the reels feed before locals have their own clips.
+  // Fallback gradients ride behind the video for legibility while it loads.
+  const videos = [
+    { src: "/reels/reel-burrito.mp4",   palette: { from: "#FF6A3D", via: "#FF2E78", to: "#7C5CFF" } },
+    { src: "/reels/reel-fisherman.mp4", palette: { from: "#FFB84D", via: "#FF6A3D", to: "#FF2E78" } },
+    { src: "/reels/reel-traveler.mp4",  palette: { from: "#3BD4C4", via: "#7C5CFF", to: "#FF4DA6" } },
   ];
 
   if (locals.length === 0) {
@@ -44,7 +45,7 @@ export default async function ReelsPage() {
         style={{ height: "calc(100vh - 65px)" }}
       >
         {locals.map((local, i) => {
-          const p = palettes[i % palettes.length];
+          const v = videos[i % videos.length];
           const cityName =
             CITIES.find((c) => c.slug === local.city)?.name ?? local.city;
           const name = local.user.name ?? "Local";
@@ -62,7 +63,8 @@ export default async function ReelsPage() {
               residencyShort={residency.short}
               yearsInCity={local.yearsInCity}
               avatarUrl={local.user.image ?? local.photoUrl}
-              palette={p}
+              videoSrc={v.src}
+              palette={v.palette}
             />
           );
         })}
@@ -82,6 +84,7 @@ function Reel({
   residencyShort,
   yearsInCity,
   avatarUrl,
+  videoSrc,
   palette,
 }: {
   localId: string;
@@ -94,6 +97,7 @@ function Reel({
   residencyShort: string;
   yearsInCity: number;
   avatarUrl: string | null;
+  videoSrc: string;
   palette: { from: string; via: string; to: string };
 }) {
   return (
@@ -101,14 +105,27 @@ function Reel({
       className="relative flex snap-start items-stretch justify-center overflow-hidden"
       style={{ height: "calc(100vh - 65px)" }}
     >
-      {/* Backdrop */}
+      {/* Gradient fallback — shows while video loads + sits behind it as a
+          color floor in case the video fails to load. */}
       <div
         className="absolute inset-0"
         style={{
           background: `linear-gradient(155deg, ${palette.from} 0%, ${palette.via} 50%, ${palette.to} 100%)`,
         }}
       />
-      {/* Subtle texture */}
+      {/* Video backdrop — muted + playsInline so mobile browsers will autoplay.
+          object-cover fills the section without distorting the 9:16 source. */}
+      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+      <video
+        src={videoSrc}
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      {/* Subtle texture overlay */}
       <div
         className="pointer-events-none absolute inset-0"
         style={{
