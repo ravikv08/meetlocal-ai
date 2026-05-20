@@ -3,7 +3,8 @@
   "crons": [
     {
       "path": "/api/cron/cancel-stale",
-      "schedule": "* * * * *"
+      "schedule": "0 0 * * *"
     }
   ]
 }
+
