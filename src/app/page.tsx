@@ -128,11 +128,12 @@ export default async function Home({ searchParams }: HomeProps) {
           scroll with a soft drop-shadow once the hero is out of view. */}
       <StickySearch>{searchBar}</StickySearch>
 
-      {/* HERO — split layout: headline left, story video right. */}
-      <section className="relative px-14 pb-10 pt-8">
-        <div className="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch">
-          <div className="flex flex-col gap-7">
-            <h1 className="font-display text-[80px] font-bold leading-[0.94] tracking-[-2.5px]">
+      {/* HERO — split layout: headline left, story video right.
+          Mobile: stack with smaller padding + headline that fits on iPhone. */}
+      <section className="relative px-5 pb-8 pt-6 sm:px-10 sm:pb-10 sm:pt-8 lg:px-14">
+        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch lg:gap-12">
+          <div className="flex flex-col gap-5 sm:gap-7">
+            <h1 className="font-display text-[40px] font-bold leading-[1.02] tracking-tight sm:text-6xl sm:leading-[0.98] lg:text-[80px] lg:leading-[0.94] lg:tracking-[-2.5px]">
               Every city
               <br />
               has <span className="grad-text">a friend</span>
@@ -166,7 +167,7 @@ export default async function Home({ searchParams }: HomeProps) {
           Hidden once the user has all 3 filters set so they get a clean
           results view. */}
       {!isReady && featuredLocals.length > 0 && (
-        <section className="relative px-14 pb-12 pt-4">
+        <section className="relative px-5 pb-10 pt-4 sm:px-10 sm:pb-12 lg:px-14">
           <div className="mb-5 flex items-baseline justify-between">
             <div>
               <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
@@ -200,7 +201,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
       {/* Results — only render once all three filters are set */}
       {isReady && (
-        <section className="px-14 pb-14 pt-6">
+        <section className="px-5 pb-10 pt-6 sm:px-10 sm:pb-14 lg:px-14">
           <div className="mb-6 flex items-baseline justify-between">
             <div>
               <h2 className="font-display text-4xl font-semibold tracking-tight">
@@ -251,7 +252,7 @@ function TrustStrip() {
     { icon: Star, label: "Two-way reviews" },
   ];
   return (
-    <section className="relative border-y border-line bg-bg-2/50 px-14 py-5">
+    <section className="relative border-y border-line bg-bg-2/50 px-5 py-5 sm:px-10 lg:px-14">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-x-8 gap-y-3">
         {items.map(({ icon: Icon, label }) => (
           <div key={label} className="flex items-center gap-2.5">
@@ -294,7 +295,7 @@ function HowItWorksSlim() {
     },
   ];
   return (
-    <section className="relative px-14 py-14">
+    <section className="relative px-5 py-10 sm:px-10 sm:py-14 lg:px-14">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <div>
@@ -345,7 +346,7 @@ function HowItWorksSlim() {
 
 function CityShowcase({ cityCounts }: { cityCounts: Map<string, number> }) {
   return (
-    <section className="relative px-14 pt-10 pb-2">
+    <section className="relative px-5 pt-8 pb-2 sm:px-10 sm:pt-10 lg:px-14">
       <div className="mx-auto max-w-6xl">
         <div className="flex flex-wrap items-baseline justify-between gap-3">
           <div>

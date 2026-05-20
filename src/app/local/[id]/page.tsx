@@ -43,7 +43,7 @@ export default async function LocalPage({ params, searchParams }: LocalPageProps
     <div className="relative min-h-screen overflow-x-hidden">
       <SiteHeader />
 
-      <main className="mx-auto grid max-w-6xl gap-12 px-14 py-14 lg:grid-cols-[2fr_1fr]">
+      <main className="mx-auto grid max-w-6xl gap-8 px-5 py-8 sm:gap-12 sm:px-10 sm:py-12 lg:grid-cols-[2fr_1fr] lg:px-14 lg:py-14">
         {/* LEFT: profile detail */}
         <div className="space-y-12">
           {/* Meet your Local — single hero card with everything */}

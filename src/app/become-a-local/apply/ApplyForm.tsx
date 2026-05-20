@@ -64,7 +64,7 @@ export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
   };
 
   return (
-    <form onSubmit={onSubmit} className="relative mx-auto max-w-2xl space-y-10 px-10 py-14">
+    <form onSubmit={onSubmit} className="relative mx-auto max-w-2xl space-y-8 px-5 py-8 sm:space-y-10 sm:px-10 sm:py-14">
       <header>
         <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
           ● Application
