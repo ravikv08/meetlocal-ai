@@ -32,13 +32,16 @@ export function LocalCard({
       href={href}
       className="group flex flex-col overflow-hidden rounded-xl border border-line bg-surface transition hover:border-line-2"
     >
-      {/* Photo / placeholder — square keeps cards compact at 3-4 across */}
+      {/* Photo / placeholder — square keeps cards compact at 3-4 across.
+          background-position is biased toward the top (25% from top) because
+          most portrait selfies put the face in the upper third — a pure
+          50%/50% center crop chops the head and shows the chest. */}
       <div
         className="relative aspect-square w-full overflow-hidden"
         style={{
           background:
             local.photoUrl || local.user.image
-              ? `center / cover no-repeat url(${local.photoUrl ?? local.user.image})`
+              ? `center 25% / cover no-repeat url(${local.photoUrl ?? local.user.image})`
               : "var(--grad-sunset)",
         }}
       >

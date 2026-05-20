@@ -74,17 +74,19 @@ export function PhotoUpload({
       >
         {label}
       </div>
-      <div className="mt-2 flex items-center gap-4">
+      <div className="mt-2 flex items-start gap-4">
+        {/* Preview matches the LocalCard square + `center 25%` crop so what
+            you see here is exactly how travelers will see you on the card. */}
         {url ? (
           <div className="relative">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={url}
               alt="upload preview"
-              width={88}
-              height={88}
-              className="h-22 w-22 rounded-2xl object-cover"
-              style={{ width: 88, height: 88 }}
+              width={112}
+              height={112}
+              className="rounded-2xl object-cover"
+              style={{ width: 112, height: 112, objectPosition: "center 25%" }}
             />
             <AriaButton
               onPress={() => setUrl(null)}
@@ -97,13 +99,13 @@ export function PhotoUpload({
         ) : (
           <div
             className={cn(
-              "flex h-22 w-22 items-center justify-center rounded-2xl border border-dashed",
+              "flex items-center justify-center rounded-2xl border border-dashed",
               placeholderBg,
             )}
-            style={{ width: 88, height: 88 }}
+            style={{ width: 112, height: 112 }}
           >
             <Camera
-              size={22}
+              size={28}
               className={isPaper ? "text-ink-muted" : "text-text-muted"}
             />
           </div>
@@ -130,7 +132,17 @@ export function PhotoUpload({
           </FileTrigger>
           <p
             className={cn(
-              "text-xs",
+              "max-w-[260px] text-xs leading-snug",
+              isPaper ? "text-ink-muted" : "text-text-muted",
+            )}
+          >
+            <b className={isPaper ? "text-ink" : "text-text"}>Daylight, face centered, real smile.</b>{" "}
+            Shoulders-up works best. Avoid sunglasses + group shots — travelers
+            book the human, not the vibe shot.
+          </p>
+          <p
+            className={cn(
+              "text-[11px]",
               isPaper ? "text-ink-muted" : "text-text-muted",
             )}
           >
