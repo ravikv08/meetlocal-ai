@@ -44,3 +44,11 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# Raw video sources (the compressed web version lives at public/video/)
+/meetlocal/
+/meetlocalai/
+*.mov
+
+# Notes that don't belong in the repo
+MIAMI_HERO_VIDEO.md

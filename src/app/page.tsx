@@ -143,7 +143,7 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
           <HeroStoryVideo
             src="/video/story-loop.mp4"
-            className="aspect-[4/5] w-full lg:aspect-auto lg:h-full"
+            className="aspect-video w-full lg:self-center"
           />
         </div>
       </section>

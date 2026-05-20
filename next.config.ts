@@ -8,6 +8,17 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve("."),
   },
+  // Force the Prisma query engine into every serverless function bundle.
+  // Without this, `vercel deploy --prebuilt` ships only the macOS engine
+  // (since `prisma generate` runs on the dev host) and prod crashes with
+  // PrismaClientInitializationError. Including all engines keeps both dev
+  // and prod working from the same build.
+  outputFileTracingIncludes: {
+    "*": [
+      "./node_modules/.prisma/client/libquery_engine-*",
+      "./node_modules/@prisma/client/**",
+    ],
+  },
 };
 
 // Sentry wraps the build to upload source maps + create releases. The wrapper
