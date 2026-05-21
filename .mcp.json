@@ -3,6 +3,11 @@
     "supabase": {
       "type": "http",
       "url": "https://mcp.supabase.com/mcp?project_ref=mbzyeuztkoaskqwimkmm&read_only=true&features=account%2Cdatabase%2Cdebugging%2Cdevelopment%2Cfunctions%2Cbranching%2Cstorage%2Cdocs"
+    },
+    "code-review-graph": {
+      "type": "stdio",
+      "command": "code-review-graph",
+      "args": ["mcp"]
     }
   }
 }
