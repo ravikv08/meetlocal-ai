@@ -14,8 +14,13 @@
 //                                                   # active seed everywhere
 
 import { PrismaClient } from "@prisma/client";
+import { CITIES } from "../src/lib/cities";
 
 const prisma = new PrismaClient();
+// Set<string> rather than Set<CitySlug>: the DB stores raw city strings
+// (including deprecated slugs like "tampa") and we want `.has()` to accept
+// any string to check membership.
+const ACTIVE_CITIES = new Set<string>(CITIES.map((c) => c.slug));
 
 async function main() {
   const commit = process.argv.includes("--commit");
@@ -43,14 +48,18 @@ async function main() {
   console.log("\nPer-city active-locals breakdown:\n");
   for (const [city, b] of [...byCity.entries()].sort()) {
     const hasReal = b.reals.length > 0;
-    const willPause = force || hasReal;
+    const deprecated = !ACTIVE_CITIES.has(city);
+    // Three reasons to pause: --force, real coverage exists, or the city has
+    // been removed from CITIES entirely (deprecated; should never surface).
+    const willPause = force || hasReal || deprecated;
+    const reason = deprecated
+      ? "→ pause seeds (city no longer in CITIES)"
+      : willPause
+        ? "→ pause seeds"
+        : "→ keep seeds (no real coverage yet)";
     console.log(
       `  ${city.padEnd(14)} seeds=${b.seeds.length}  real=${b.reals.length}  ${
-        b.seeds.length === 0
-          ? "(nothing to pause)"
-          : willPause
-            ? "→ pause seeds"
-            : "→ keep seeds (no real coverage yet)"
+        b.seeds.length === 0 ? "(nothing to pause)" : reason
       }`,
     );
     if (willPause && b.seeds.length > 0) toPause.push(...b.seeds);

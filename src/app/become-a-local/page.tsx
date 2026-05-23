@@ -7,8 +7,8 @@ import { prisma } from "@/lib/prisma";
 
 // Three aspirational "Real locals" testimonials. International on purpose —
 // the page is a recruiting CTA, not a launch-city directory. If/when we have
-// real testimonials from Miami / Tampa / Bay Area / Portland (ME) hosts, swap
-// these for live ones from the DB.
+// real testimonials from Miami / Bay Area hosts, swap these for live ones
+// from the DB.
 const REAL_LOCALS = [
   {
     initials: "EL",

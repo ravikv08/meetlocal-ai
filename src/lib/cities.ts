@@ -1,10 +1,12 @@
 // v1 launch markets — founder's network lives here.
 // Order matters: this is the order surfaced in city pickers.
+// Scoped down 2026-05-23 to Miami + Bay Area only; Tampa & Portland (ME)
+// deferred until real local coverage exists. Seed data for those two cities
+// still exists in prisma/seed.ts and the DB, but is paused so it never
+// surfaces in discovery / reels / city pages.
 export const CITIES = [
   { slug: "miami", name: "Miami", state: "FL", tz: "America/New_York" },
-  { slug: "tampa", name: "Tampa", state: "FL", tz: "America/New_York" },
   { slug: "bay-area", name: "Bay Area", state: "CA", tz: "America/Los_Angeles" },
-  { slug: "portland-me", name: "Portland", state: "ME", tz: "America/New_York" },
 ] as const;
 
 export type CitySlug = (typeof CITIES)[number]["slug"];

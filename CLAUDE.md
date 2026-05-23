@@ -3,8 +3,9 @@
 ## meetlocal.ai — context for Claude Code
 
 A marketplace connecting solo travelers with vetted locals for 1–4 hour
-real-time experiences. **Web-first MVP** for the v1 launch in Miami,
-Tampa, the Bay Area, and Portland (ME). The full product story —
+real-time experiences. **Web-first MVP** for the v1 launch in Miami
+and the Bay Area (Tampa + Portland, ME deferred until real local
+coverage exists). The full product story —
 end-to-end loop, routes, email triggers, decisions worth knowing — is in
 [README.md](README.md). Read it once at session start; this file
 captures only the rules you can't derive from reading the code.
