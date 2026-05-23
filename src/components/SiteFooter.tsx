@@ -14,7 +14,6 @@ const NAV_ITEMS = [
 
 const LEGAL_LINKS = [
   { href: "/safety", label: "Trust & safety" },
-  { href: "/help", label: "Help" },
   { href: "/terms", label: "Terms" },
   { href: "/privacy", label: "Privacy" },
   { href: "/refund", label: "Refund policy" },

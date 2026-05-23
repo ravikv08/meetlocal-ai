@@ -37,8 +37,11 @@ export default async function MessagesPage({ params }: MessagesPageProps) {
   const me = session.user.id;
   const isTraveler = booking.travelerId === me;
   const isLocal = booking.local.userId === me;
-  if (!isTraveler && !isLocal) notFound();
+  const isAdminViewing = !isTraveler && !isLocal && !!session.user.isAdmin;
+  if (!isTraveler && !isLocal && !isAdminViewing) notFound();
 
+  // Admins observe the traveler→local conversation; their "counterpart" is the
+  // local so the header reads like the local's view of the thread.
   const counterpart = isTraveler ? booking.local.user : booking.traveler;
 
   return (
@@ -57,7 +60,8 @@ export default async function MessagesPage({ params }: MessagesPageProps) {
         name: counterpart.name ?? "Local",
         image: counterpart.image,
       }}
-      role={isTraveler ? "traveler" : "local"}
+      role={isAdminViewing ? "admin" : isTraveler ? "traveler" : "local"}
+      readOnly={isAdminViewing}
       initialMessages={booking.messages.map((m) => ({
         id: m.id,
         body: m.body,
@@ -67,12 +71,14 @@ export default async function MessagesPage({ params }: MessagesPageProps) {
         createdAt: m.createdAt.toISOString(),
       }))}
       actionBar={
-        <BookingActionBar
-          bookingId={booking.id}
-          status={booking.status}
-          role={isTraveler ? "traveler" : "local"}
-          hasStripePayment={!!booking.stripePaymentIntentId}
-        />
+        isAdminViewing ? null : (
+          <BookingActionBar
+            bookingId={booking.id}
+            status={booking.status}
+            role={isTraveler ? "traveler" : "local"}
+            hasStripePayment={!!booking.stripePaymentIntentId}
+          />
+        )
       }
     />
   );
