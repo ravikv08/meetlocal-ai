@@ -132,6 +132,11 @@ model LocalProfile {
   // Trust signals (founder-managed for v1; AI-driven later)
   idVerified       Boolean  @default(false)
   bgChecked        Boolean  @default(false)
+  // Founding 100 program — first ~100 approved locals per city keep 90% of
+  // each booking (vs the 78% standard cut) and get a Founding badge. Founder
+  // flips this manually during /admin review for now; auto-set logic (count
+  // active locals in city < 100) can come later.
+  isFounding       Boolean  @default(false)
   // Identity verification artifacts — collected on application, reviewed by
   // founder before flipping idVerified=true. Never rendered publicly.
   dateOfBirth      DateTime?

@@ -163,6 +163,16 @@ export default async function AdminLocalReviewPage({ params }: ReviewPageProps) 
               onLabel="✓ Mark background checked"
               offLabel="Unmark background"
             />
+            {/* Founding 100 program — flip to give this local 90% take rate
+                (vs 78% standard) on future bookings. Snapshotted per booking
+                at creation, so historical bookings keep their original cut. */}
+            <FlagToggleForm
+              id={local.id}
+              flag="isFounding"
+              currentlyOn={local.isFounding}
+              onLabel="★ Mark as Founding 100 (90% cut)"
+              offLabel="Remove Founding (back to 78%)"
+            />
           </div>
           <p className="mt-3 text-xs text-text-muted">
             Compare the selfie against the photo on the ID. Confirm the DOB on
@@ -382,7 +392,7 @@ function FlagToggleForm({
   offLabel,
 }: {
   id: string;
-  flag: "idVerified" | "bgChecked";
+  flag: "idVerified" | "bgChecked" | "isFounding";
   currentlyOn: boolean;
   onLabel: string;
   offLabel: string;

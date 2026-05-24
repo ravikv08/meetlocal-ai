@@ -29,7 +29,14 @@ export const LOCAL_STATUS_VALUES = [
 ] as const;
 export type LocalStatusLiteral = (typeof LOCAL_STATUS_VALUES)[number];
 
-export const VERIFICATION_FLAG_VALUES = ["idVerified", "bgChecked"] as const;
+// "Flags" the founder can flip on a LocalProfile from the admin review page.
+// isFounding is a program toggle (90% take rate) rather than a verification
+// signal — grouped here only because they share the same toggle plumbing.
+export const VERIFICATION_FLAG_VALUES = [
+  "idVerified",
+  "bgChecked",
+  "isFounding",
+] as const;
 export type VerificationFlag = (typeof VERIFICATION_FLAG_VALUES)[number];
 
 // Shared "core" fields between the apply flow and admin-create. Money is in

@@ -77,11 +77,7 @@ export default async function HostPage() {
   const [
     incoming,
     upcoming,
-    earningsRows,
-    weekCompleted,
-    lastWeekCompleted,
-    lifetimeCompleted,
-    last30Completed,
+    allCompleted,
     recentPayouts,
     bookingHistory,
     myReviews,
@@ -104,50 +100,18 @@ export default async function HostPage() {
       orderBy: { scheduledFor: "asc" },
       take: 5,
     }),
-    // For sparkline: completed bookings per day for last 7 days
+    // All completed bookings — we slice by window in code so we can compute
+    // takes from each booking's snapshot (ratePerHour * hours - platformFee).
+    // Aggregates can't express that math because subtotal isn't a stored column.
     prisma.booking.findMany({
-      where: {
-        local: { userId: me },
-        status: "completed",
-        completedAt: { gte: sevenDaysAgo },
-      },
-      select: { totalAmount: true, completedAt: true },
-    }),
-    prisma.booking.aggregate({
-      where: {
-        local: { userId: me },
-        status: "completed",
-        completedAt: { gte: sevenDaysAgo },
-      },
-      _sum: { totalAmount: true },
-      _count: true,
-    }),
-    prisma.booking.aggregate({
-      where: {
-        local: { userId: me },
-        status: "completed",
-        completedAt: {
-          gte: new Date(Date.now() - 14 * 86400_000),
-          lt: sevenDaysAgo,
-        },
-      },
-      _sum: { totalAmount: true },
-    }),
-    // Lifetime earnings (gross — we apply the 78% cut on display).
-    prisma.booking.aggregate({
       where: { local: { userId: me }, status: "completed" },
-      _sum: { totalAmount: true },
-      _count: true,
-    }),
-    // Last 30 days summary card.
-    prisma.booking.aggregate({
-      where: {
-        local: { userId: me },
-        status: "completed",
-        completedAt: { gte: thirtyDaysAgo },
+      select: {
+        ratePerHour: true,
+        hours: true,
+        platformFee: true,
+        completedAt: true,
       },
-      _sum: { totalAmount: true },
-      _count: true,
+      orderBy: { completedAt: "desc" },
     }),
     // Most recent 10 completed bookings — surfaced as "payouts" until Stripe
     // Connect onboarding lands. Each completed booking = one manual payout.
@@ -185,12 +149,43 @@ export default async function HostPage() {
     }),
   ]);
 
-  // Local keeps 78% per playbook (we take 22%)
-  const localCut = (cents: number) => Math.round(cents * 0.78);
-  const thisWeekEarnings = localCut(weekCompleted._sum.totalAmount ?? 0);
-  const lastWeekEarnings = localCut(lastWeekCompleted._sum.totalAmount ?? 0);
-  const lifetimeEarnings = localCut(lifetimeCompleted._sum.totalAmount ?? 0);
-  const last30Earnings = localCut(last30Completed._sum.totalAmount ?? 0);
+  // Founding 100 locals keep 90% of subtotal; standard locals keep 78%.
+  // Per-booking displays use the snapshot from b.platformFee so historical
+  // earnings stay correct even if the local later gets bumped to/from Founding:
+  //   take = (b.ratePerHour * b.hours) - b.platformFee
+  // The metric cards (lifetime / 30d / this week) sum those takes manually
+  // since Prisma aggregate can't express the subtotal-minus-fee math.
+  const cutPct = profile.isFounding ? 90 : 78;
+  const takeFor = (b: {
+    ratePerHour: number;
+    hours: number;
+    platformFee: number;
+  }) => Math.round(b.ratePerHour * b.hours) - b.platformFee;
+  const sumTakes = (bs: { ratePerHour: number; hours: number; platformFee: number }[]) =>
+    bs.reduce((n, b) => n + takeFor(b), 0);
+  // Window slices from the single allCompleted query — avoids 4 round-trips
+  // and lets us sum takes (subtotal - platformFee) per booking honestly.
+  const lastWeekStart = new Date(Date.now() - 14 * 86400_000);
+  const thisWeekRows = allCompleted.filter(
+    (b) => b.completedAt && b.completedAt >= sevenDaysAgo,
+  );
+  const lastWeekRows = allCompleted.filter(
+    (b) =>
+      b.completedAt &&
+      b.completedAt >= lastWeekStart &&
+      b.completedAt < sevenDaysAgo,
+  );
+  const last30Rows = allCompleted.filter(
+    (b) => b.completedAt && b.completedAt >= thirtyDaysAgo,
+  );
+
+  const thisWeekEarnings = sumTakes(thisWeekRows);
+  const lastWeekEarnings = sumTakes(lastWeekRows);
+  const lifetimeEarnings = sumTakes(allCompleted);
+  const last30Earnings = sumTakes(last30Rows);
+  const lifetimeCount = allCompleted.length;
+  const last30Count = last30Rows.length;
+  const thisWeekCount = thisWeekRows.length;
   const avgRating = ratingAgg._avg.rating ?? null;
   const reviewCount = ratingAgg._count ?? 0;
   const wowDelta =
@@ -200,14 +195,14 @@ export default async function HostPage() {
   const dollars = (thisWeekEarnings / 100).toFixed(2);
   const [dollarsInt, dollarsFrac] = dollars.split(".");
 
-  // Build a 7-bucket sparkline of cents-per-day
+  // Build a 7-bucket sparkline of take-per-day for the past week.
   const buckets = Array.from({ length: 7 }).map(() => 0);
-  for (const r of earningsRows) {
+  for (const r of thisWeekRows) {
     if (!r.completedAt) continue;
     const days = Math.floor(
       (Date.now() - new Date(r.completedAt).getTime()) / 86400_000,
     );
-    if (days >= 0 && days < 7) buckets[6 - days] += r.totalAmount;
+    if (days >= 0 && days < 7) buckets[6 - days] += takeFor(r);
   }
   const sparkPath = buildSparklinePath(buckets);
 
@@ -348,7 +343,7 @@ export default async function HostPage() {
                       </Tag>
                       <Tag icon={<Wallet size={12} />}>
                         {formatPrice(b.totalAmount)} ·{" "}
-                        you keep {formatPrice(localCut(b.totalAmount))}
+                        you keep {formatPrice(takeFor(b))}
                       </Tag>
                     </div>
 
@@ -407,7 +402,7 @@ export default async function HostPage() {
             )}
             <span>·</span>
             <span>
-              {weekCompleted._count} {weekCompleted._count === 1 ? "meetup" : "meetups"}
+              {thisWeekCount} {thisWeekCount === 1 ? "meetup" : "meetups"}
             </span>
           </div>
 
@@ -466,7 +461,7 @@ export default async function HostPage() {
                       </div>
                     </div>
                     <div className="font-mono text-sm font-semibold">
-                      {formatPrice(localCut(b.totalAmount))}
+                      {formatPrice(takeFor(b))}
                     </div>
                   </Link>
                 ))}
@@ -499,7 +494,12 @@ export default async function HostPage() {
               <MapPin size={13} /> View your public profile
             </Link>
             <span className="inline-flex items-center gap-2">
-              <Wallet size={13} /> {formatPrice(profile.ratePerHour)}/hr · you keep 78%
+              <Wallet size={13} /> {formatPrice(profile.ratePerHour)}/hr · you keep {cutPct}%
+              {profile.isFounding && (
+                <span className="ml-1.5 rounded-full bg-coral/15 px-2 py-0.5 font-mono text-[10px] uppercase tracking-wider text-coral">
+                  Founding
+                </span>
+              )}
             </span>
           </div>
         </section>
@@ -547,13 +547,13 @@ export default async function HostPage() {
             <MetricCard
               label="Lifetime earnings"
               value={formatPrice(lifetimeEarnings)}
-              sub={`${lifetimeCompleted._count ?? 0} meetup${(lifetimeCompleted._count ?? 0) === 1 ? "" : "s"} completed`}
+              sub={`${lifetimeCount} meetup${lifetimeCount === 1 ? "" : "s"} completed`}
               icon={<Wallet size={14} />}
             />
             <MetricCard
               label="Last 30 days"
               value={formatPrice(last30Earnings)}
-              sub={`${last30Completed._count ?? 0} meetup${(last30Completed._count ?? 0) === 1 ? "" : "s"}`}
+              sub={`${last30Count} meetup${last30Count === 1 ? "" : "s"}`}
               icon={<Banknote size={14} />}
             />
             <MetricCard
@@ -626,7 +626,7 @@ export default async function HostPage() {
                           {formatPrice(b.totalAmount)}
                         </td>
                         <td className="px-5 py-3 text-right align-middle font-mono font-semibold">
-                          {formatPrice(localCut(b.totalAmount))}
+                          {formatPrice(takeFor(b))}
                         </td>
                       </tr>
                     ))}
@@ -757,7 +757,7 @@ export default async function HostPage() {
                       </td>
                       <td className="px-5 py-3 text-right align-middle font-mono">
                         {b.status === "completed"
-                          ? formatPrice(localCut(b.totalAmount))
+                          ? formatPrice(takeFor(b))
                           : "—"}
                       </td>
                       <td className="px-5 py-3 align-middle text-right">

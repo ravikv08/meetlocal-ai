@@ -51,7 +51,11 @@ export async function createBookingForTraveler(
   const serviceFee = Math.round(subtotal * 0.08);
   const taxes = Math.round(subtotal * 0.03);
   const totalAmount = subtotal + serviceFee + taxes;
-  const platformFee = Math.round(subtotal * 0.22); // 22% take rate per playbook
+  // Founding 100 locals pay 10% platform fee (keep 90%); standard pay 22%
+  // (keep 78%). Snapshot at booking creation so a later flip of isFounding
+  // doesn't retroactively change historical bookings.
+  const platformFeeRate = local.isFounding ? 0.1 : 0.22;
+  const platformFee = Math.round(subtotal * platformFeeRate);
 
   const scheduledFor = resolveScheduledFor(input.when, input.slot);
 
