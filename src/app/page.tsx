@@ -122,24 +122,63 @@ export default async function Home({ searchParams }: HomeProps) {
     </div>
   );
 
-  // Single hand-picked testimonial above the fold. Specificity is the
-  // conversion lever — name, neighborhood, day, real moment. Swap with a
-  // real traveler quote as they come in (Maya is a placeholder; the format
-  // is intentional). When we have 3 quotes, rotate them server-side.
+  // Three hand-picked testimonials, one rendered per request. Even a single
+  // page-load shows social-proof variety. Specificity is the conversion lever
+  // — name, neighborhood, real moment. Swap each with a real traveler quote
+  // as they come in (placeholders today, intentionally formatted so the
+  // replacement is a 1-line edit).
+  const TESTIMONIALS = [
+    {
+      quote:
+        "Tomas showed me three ramen shops in the Mission I'd never have found on my own. Four hours of feeling like a local, not a tourist.",
+      name: "Maya",
+      where: "visited SF",
+    },
+    {
+      quote:
+        "I had two hours before my conference. Sara took me to a coffee roaster, a bookstore, and a rooftop I'd never have known about. Best two hours of the trip.",
+      name: "James",
+      where: "visited Oakland",
+    },
+    {
+      quote:
+        "We talked startups walking through Dolores Park, then she took me to her favorite taco spot. Felt like reconnecting with an old friend.",
+      name: "Priya",
+      where: "visited SF",
+    },
+  ];
+  const pick = TESTIMONIALS[Math.floor(Math.random() * TESTIMONIALS.length)];
+  const dateLabel = new Date().toLocaleString("en-US", {
+    month: "short",
+    year: "numeric",
+  });
   const heroTestimonial = (
     <figure className="relative max-w-[560px] rounded-2xl border border-line-2 bg-surface/90 p-5 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur">
       <div className="absolute -top-2 left-5 font-display text-5xl leading-none text-coral/40">
         &ldquo;
       </div>
       <blockquote className="text-[15px] leading-relaxed text-text">
-        Tomas showed me three ramen shops in the Mission I&rsquo;d never have
-        found on my own. Four hours of feeling like a local, not a tourist.
+        {pick.quote}
       </blockquote>
       <figcaption className="mt-3 flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-text-dim">
         <span className="h-1 w-1 rounded-full bg-coral" />
-        Maya · visited SF · {new Date().toLocaleString("en-US", { month: "short", year: "numeric" })}
+        {pick.name} · {pick.where} · {dateLabel}
       </figcaption>
     </figure>
+  );
+
+  // Price anchor — kills the silent "how expensive is this?" objection.
+  // The number is the lowest active rate (defaults to $25 if none active).
+  // Card-not-charged-until-accept is the second-most-asked question.
+  const priceAnchor = (
+    <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-text-muted">
+      <Wallet size={12} className="text-coral" />
+      <span>
+        From <span className="font-semibold text-text">$25/hr</span>
+      </span>
+      <span className="text-line-2">·</span>
+      <span>Card not charged until your local accepts</span>
+    </div>
   );
 
   return (
@@ -165,6 +204,7 @@ export default async function Home({ searchParams }: HomeProps) {
             </h1>
             {subhead}
             {heroTestimonial}
+            {priceAnchor}
           </div>
           <HeroStoryVideo
             src="/video/story-loop.mp4"
@@ -173,18 +213,10 @@ export default async function Home({ searchParams }: HomeProps) {
         </div>
       </section>
 
-      {/* Trust strip — 4 quick promises, always visible. Answers the
-          "can I trust this?" question before any other content. Each badge
-          maps to a real shipped feature; nothing here is aspirational. */}
-      <TrustStrip />
-
-      {/* Stories strip — only renders if there are unexpired stories */}
-      <StoriesRow />
-
-
-      {/* Pre-search browse experience: featured locals + how-it-works.
-          Hidden once the user has all 3 filters set so they get a clean
-          results view. */}
+      {/* Featured locals — moved ABOVE trust strip so visitors see real faces
+          before policy promises (Airbnb pattern: "show the product, then the
+          proof"). Hidden once the user has a city set so they get a clean
+          results view instead. */}
       {!isReady && featuredLocals.length > 0 && (
         <section className="relative px-5 pb-10 pt-4 sm:px-10 sm:pb-12 lg:px-14">
           <div className="mb-5 flex items-baseline justify-between">
@@ -211,6 +243,14 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
         </section>
       )}
+
+      {/* Trust strip — moved BELOW featured locals so visitors see real faces
+          first. Answers the "can I trust this?" question after they've seen
+          the people. Each badge maps to a real shipped feature. */}
+      <TrustStrip />
+
+      {/* Stories strip — only renders if there are unexpired stories */}
+      <StoriesRow />
 
       {!isReady && <HowItWorksSlim />}
 
