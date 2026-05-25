@@ -54,11 +54,15 @@ export default async function Home({ searchParams }: HomeProps) {
     .map((s) => s.trim())
     .filter((s) => VALID_VIBES.has(s)) as CategoryId[];
 
-  const isReady = !!(cityParam && whenParam && vibeParams.length > 0);
+  // Search is "ready" the moment a city is selected. Vibes are optional
+  // refinement chips; `when` only round-trips into the booking form (doesn't
+  // narrow locals). One-field search is the launch-week conversion lever —
+  // every additional pre-search filter is ~20% drop-off.
+  const isReady = !!cityParam;
   const locals = isReady
     ? await listActiveLocals({
         city: cityParam,
-        vibes: vibeParams,
+        vibes: vibeParams.length > 0 ? vibeParams : undefined,
       })
     : [];
 
@@ -118,6 +122,26 @@ export default async function Home({ searchParams }: HomeProps) {
     </div>
   );
 
+  // Single hand-picked testimonial above the fold. Specificity is the
+  // conversion lever — name, neighborhood, day, real moment. Swap with a
+  // real traveler quote as they come in (Maya is a placeholder; the format
+  // is intentional). When we have 3 quotes, rotate them server-side.
+  const heroTestimonial = (
+    <figure className="relative max-w-[560px] rounded-2xl border border-line-2 bg-surface/90 p-5 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur">
+      <div className="absolute -top-2 left-5 font-display text-5xl leading-none text-coral/40">
+        &ldquo;
+      </div>
+      <blockquote className="text-[15px] leading-relaxed text-text">
+        Tomas showed me three ramen shops in the Mission I&rsquo;d never have
+        found on my own. Four hours of feeling like a local, not a tourist.
+      </blockquote>
+      <figcaption className="mt-3 flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-text-dim">
+        <span className="h-1 w-1 rounded-full bg-coral" />
+        Maya · visited SF · {new Date().toLocaleString("en-US", { month: "short", year: "numeric" })}
+      </figcaption>
+    </figure>
+  );
+
   return (
     <div className="relative overflow-x-hidden">
       <SiteHeader />
@@ -140,6 +164,7 @@ export default async function Home({ searchParams }: HomeProps) {
               you haven&apos;t met.
             </h1>
             {subhead}
+            {heroTestimonial}
           </div>
           <HeroStoryVideo
             src="/video/story-loop.mp4"
@@ -165,14 +190,14 @@ export default async function Home({ searchParams }: HomeProps) {
           <div className="mb-5 flex items-baseline justify-between">
             <div>
               <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
-                Hand-vetted · {featuredLocals.length}+ locals in the Bay Area
+                Bay Area · Founder-vetted
               </div>
               <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">
                 Meet a few of our locals
               </h2>
             </div>
             <div className="font-mono text-xs uppercase tracking-wider text-text-dim">
-              Use the search above to filter by city, date &amp; vibe
+              Every local hand-picked. We turn away 9 of 10 applicants.
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
@@ -189,19 +214,32 @@ export default async function Home({ searchParams }: HomeProps) {
 
       {!isReady && <HowItWorksSlim />}
 
-      {!isReady && totalActiveLocals > 0 && (
-        <StatsBand totalLocals={totalActiveLocals} />
-      )}
+      {/* StatsBand intentionally hidden at MVP scale — quantity stats
+          ("2 launch cities", "3+ vetted locals") advertise smallness. Bring
+          back once the numbers are impressive. */}
 
-      {/* Results — only render once all three filters are set */}
+      {/* Results — shown once a city is set. Vibe + when render in the
+          header only if the user picked them, so a bare /?city=bay-area
+          shows the whole roster without phantom "Locals for  on  in …" copy. */}
       {isReady && (
         <section className="px-5 pb-10 pt-6 sm:px-10 sm:pb-14 lg:px-14">
           <div className="mb-6 flex items-baseline justify-between">
             <div>
               <h2 className="font-display text-4xl font-semibold tracking-tight">
-                Locals for <em className="grad-text not-italic">{vibeLabel}</em>
-                {" on "}
-                <em className="grad-text not-italic">{whenLabel}</em>
+                {vibeLabel ? (
+                  <>
+                    Locals for{" "}
+                    <em className="grad-text not-italic">{vibeLabel}</em>
+                  </>
+                ) : (
+                  <>All locals</>
+                )}
+                {whenLabel && (
+                  <>
+                    {" on "}
+                    <em className="grad-text not-italic">{whenLabel}</em>
+                  </>
+                )}
                 {" in "}
                 <em className="grad-text not-italic">{activeCity?.name}</em>
               </h2>
