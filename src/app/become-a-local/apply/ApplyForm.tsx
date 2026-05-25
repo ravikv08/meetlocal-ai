@@ -11,6 +11,9 @@ interface ApplyFormProps {
   cities: { slug: string; name: string }[];
   categories: { id: string; label: string }[];
   currentName: string;
+  /** When true, hide the selfie + ID upload UI — those will be captured
+   *  post-submit via Stripe Identity instead. */
+  useStripeIdentity?: boolean;
 }
 
 const RESIDENCY_OPTIONS = [
@@ -33,7 +36,12 @@ function maxDobToday(): string {
   return d.toISOString().slice(0, 10);
 }
 
-export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
+export function ApplyForm({
+  cities,
+  categories,
+  currentName,
+  useStripeIdentity = false,
+}: ApplyFormProps) {
   const [pickedTags, setPickedTags] = useState<string[]>([]);
   const [pickedLangs, setPickedLangs] = useState<string[]>(["EN"]);
   const [agreedIC, setAgreedIC] = useState(false);
@@ -219,11 +227,9 @@ export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
       {/* 04. Identity & age verification */}
       <Section num="04" title="Verify your identity">
         <p className="-mt-2 mb-4 text-sm text-text-dim">
-          Two-step verification, like Uber. We compare your live selfie
-          against the ID you upload to confirm you&rsquo;re a real person.
-          Both photos are reviewed privately and never appear on your public
-          profile — travelers only see a green &ldquo;ID verified&rdquo; badge
-          once we&rsquo;ve checked.
+          {useStripeIdentity
+            ? "We use Stripe Identity (the same service Coinbase and DoorDash use) to confirm your ID. You'll do this after submitting the form — takes about 2 minutes, all on stripe.com, your photos never touch our servers."
+            : "Two-step verification, like Uber. We compare your live selfie against the ID you upload to confirm you're a real person. Both photos are reviewed privately and never appear on your public profile — travelers only see a green “ID verified” badge once we've checked."}
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Date of birth">
@@ -244,21 +250,25 @@ export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
             />
           </Field>
         </div>
-        <div className="mt-6">
-          <LiveSelfieCapture name="selfieUrl" />
-        </div>
-        <div className="mt-6">
-          <PhotoUpload
-            name="governmentIdUrl"
-            label="Government-issued ID (passport, driver's license)"
-            variant="dark"
-          />
-          <p className="mt-2 text-xs text-text-muted">
-            Take a clear photo of the front of your ID. Cover any sensitive
-            numbers if you&rsquo;d like — we only need name, photo, and date
-            of birth visible.
-          </p>
-        </div>
+        {!useStripeIdentity && (
+          <>
+            <div className="mt-6">
+              <LiveSelfieCapture name="selfieUrl" />
+            </div>
+            <div className="mt-6">
+              <PhotoUpload
+                name="governmentIdUrl"
+                label="Government-issued ID (passport, driver's license)"
+                variant="dark"
+              />
+              <p className="mt-2 text-xs text-text-muted">
+                Take a clear photo of the front of your ID. Cover any
+                sensitive numbers if you&rsquo;d like — we only need name,
+                photo, and date of birth visible.
+              </p>
+            </div>
+          </>
+        )}
       </Section>
 
       {/* 05. Pricing */}

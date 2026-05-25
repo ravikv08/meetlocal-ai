@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShieldCheck } from "lucide-react";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Logo } from "@/components/Logo";
 import { CITIES, CATEGORIES } from "@/lib/cities";
+import { isStripeConfigured } from "@/lib/stripe";
+import { IdentityVerificationButton } from "@/components/IdentityVerificationButton";
 import { ApplyForm } from "./ApplyForm";
 
 export default async function ApplyPage() {
@@ -13,9 +15,13 @@ export default async function ApplyPage() {
     redirect("/signin?from=/become-a-local/apply");
   }
 
+  // When Stripe is configured, the apply form hides the manual upload UI;
+  // identity is collected post-submit via Stripe Identity hosted flow.
+  const useStripeIdentity = isStripeConfigured();
+
   const existing = await prisma.localProfile.findUnique({
     where: { userId: session.user.id },
-    select: { id: true, status: true },
+    select: { id: true, status: true, idVerified: true },
   });
 
   if (existing) {
@@ -33,6 +39,36 @@ export default async function ApplyPage() {
               ". The founder will email you within 24h."}
             {existing.status === "active" && ". Your profile is live."}
           </p>
+
+          {/* Identity verification CTA. Shown when the local hasn't done it
+              yet AND Stripe Identity is configured. Webhook flips idVerified
+              automatically on success. */}
+          {useStripeIdentity && !existing.idVerified && (
+            <div className="mt-10 flex flex-col items-center gap-3 rounded-2xl border border-line-2 bg-surface/80 p-6">
+              <div className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-coral">
+                <ShieldCheck size={13} />
+                One last step
+              </div>
+              <h2 className="font-display text-2xl font-semibold tracking-tight">
+                Verify your identity
+              </h2>
+              <p className="max-w-md text-sm text-text-dim">
+                We use Stripe Identity to confirm your government ID matches
+                your selfie. Takes about 2 minutes, happens entirely on
+                stripe.com — your photos never touch our servers.
+              </p>
+              <div className="mt-2">
+                <IdentityVerificationButton localProfileId={existing.id} />
+              </div>
+            </div>
+          )}
+
+          {useStripeIdentity && existing.idVerified && (
+            <div className="mt-10 inline-flex items-center gap-2 rounded-full border border-good/40 bg-good/10 px-4 py-2 text-sm text-good">
+              <ShieldCheck size={14} /> Identity verified
+            </div>
+          )}
+
           <div className="mt-8 flex justify-center gap-3">
             {existing.status === "active" && (
               <Link
@@ -62,6 +98,7 @@ export default async function ApplyPage() {
         cities={CITIES.map((c) => ({ slug: c.slug, name: `${c.name}, ${c.state}` }))}
         categories={CATEGORIES.map((c) => ({ id: c.id, label: c.label }))}
         currentName={session.user.name ?? ""}
+        useStripeIdentity={useStripeIdentity}
       />
     </div>
   );

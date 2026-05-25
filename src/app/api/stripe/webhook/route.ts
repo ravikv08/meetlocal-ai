@@ -55,6 +55,16 @@ export async function POST(req: Request) {
     case "checkout.session.async_payment_failed":
       await handleCheckoutCancelled(event.data.object as Stripe.Checkout.Session);
       break;
+    case "identity.verification_session.verified":
+      await handleIdentityVerified(
+        event.data.object as Stripe.Identity.VerificationSession,
+      );
+      break;
+    case "identity.verification_session.requires_input":
+      // Stripe surfaces this when the document was unreadable, the selfie
+      // didn't match, etc. Leave idVerified=false; user can re-try from the
+      // apply page (the same session is reusable for a while).
+      break;
     default:
       break;
   }
@@ -104,4 +114,30 @@ async function handleCheckoutCancelled(cs: Stripe.Checkout.Session) {
     where: { id: bookingId },
     data: { status: "cancelled" },
   });
+}
+
+async function handleIdentityVerified(vs: Stripe.Identity.VerificationSession) {
+  // Two ways to locate the profile (in priority order): metadata we attached
+  // at creation, then a fallback lookup by the stored session id. The
+  // metadata path covers the normal case; the fallback covers the rare case
+  // where metadata got dropped (e.g., manual session creation from dashboard).
+  const localProfileId = vs.metadata?.localProfileId ?? undefined;
+
+  const updated = localProfileId
+    ? await prisma.localProfile.updateMany({
+        where: { id: localProfileId, idVerified: false },
+        data: {
+          idVerified: true,
+          stripeIdentityVerificationId: vs.id,
+        },
+      })
+    : await prisma.localProfile.updateMany({
+        where: { stripeIdentityVerificationId: vs.id, idVerified: false },
+        data: { idVerified: true },
+      });
+
+  // If updated.count is 0 the profile was either already verified (idempotent
+  // re-fire) or genuinely not findable (orphan session). Either way, nothing
+  // to do — webhook still acks 200 so Stripe doesn't keep retrying.
+  void updated;
 }

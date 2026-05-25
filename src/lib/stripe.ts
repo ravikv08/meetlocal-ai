@@ -84,3 +84,40 @@ export async function createCheckoutSessionForBooking({
   if (!checkout.url) throw new Error("stripe returned no checkout url");
   return checkout.url;
 }
+
+// ─── Stripe Identity ────────────────────────────────────────────────────────
+// Replaces the manual "upload selfie + government ID, founder eyeballs them"
+// flow with Stripe's hosted verification ($1.50/check, includes document
+// authenticity + biometric face-match + DOB extraction). The webhook in
+// /api/stripe/webhook flips LocalProfile.idVerified=true on success.
+
+interface CreateIdentityInput {
+  localProfileId: string;
+  /** Where to send the user after they finish (or quit) the Stripe flow. */
+  returnUrl: string;
+}
+
+export async function createIdentityVerificationSession({
+  localProfileId,
+  returnUrl,
+}: CreateIdentityInput): Promise<{ url: string; sessionId: string }> {
+  if (!stripe) throw new Error("stripe not configured");
+
+  const session = await stripe.identity.verificationSessions.create({
+    type: "document",
+    // Require a live selfie matched against the ID photo. This is the layer
+    // that replaces our manual founder-side selfie-to-ID comparison.
+    options: {
+      document: {
+        require_matching_selfie: true,
+        require_live_capture: true,
+        require_id_number: false,
+      },
+    },
+    metadata: { localProfileId },
+    return_url: returnUrl,
+  });
+
+  if (!session.url) throw new Error("stripe returned no identity session url");
+  return { url: session.url, sessionId: session.id };
+}

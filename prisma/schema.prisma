@@ -129,6 +129,11 @@ model LocalProfile {
   // Stripe Connect account for payouts; populated when local completes onboarding
   stripeAccountId  String?
   payoutsEnabled   Boolean  @default(false)
+  // Stripe Identity verification session id. Populated when the local
+  // starts identity verification via the hosted flow. The webhook handler
+  // looks up LocalProfile by this id when `identity.verification_session.
+  // verified` fires and flips idVerified=true.
+  stripeIdentityVerificationId String? @unique
   // Trust signals (founder-managed for v1; AI-driven later)
   idVerified       Boolean  @default(false)
   bgChecked        Boolean  @default(false)
