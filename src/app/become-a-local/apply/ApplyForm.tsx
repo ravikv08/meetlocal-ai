@@ -294,22 +294,25 @@ export function ApplyForm({
         </Field>
       </Section>
 
-      {/* 06. Social links — public, shown on profile so travelers can verify */}
+      {/* 06. Social links — public, shown on profile so travelers can verify.
+          All fields are full profile URLs (no more @handle pickers) so what
+          the local pastes is exactly what travelers click. */}
       <Section num="06" title="Verify yourself on the open web">
         <p className="-mt-2 mb-4 text-sm text-text-dim">
-          Optional but strongly recommended. Travelers see these as clickable
-          links on your profile so they can confirm you&rsquo;re a real person
-          before booking.
+          Optional but strongly recommended. Paste the full URL to your public
+          profile. Travelers click these on your profile to confirm
+          you&rsquo;re a real person before booking.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Instagram handle">
+          <Field label="Instagram profile URL">
             <input
               name="instagramHandle"
-              placeholder="@yourhandle"
+              type="url"
+              placeholder="https://instagram.com/yourhandle"
               className={inputClass}
             />
           </Field>
-          <Field label="Facebook URL">
+          <Field label="Facebook profile URL">
             <input
               name="facebookUrl"
               type="url"
@@ -317,14 +320,15 @@ export function ApplyForm({
               className={inputClass}
             />
           </Field>
-          <Field label="X / Twitter handle">
+          <Field label="X / Twitter profile URL">
             <input
               name="twitterHandle"
-              placeholder="@yourhandle"
+              type="url"
+              placeholder="https://x.com/yourhandle"
               className={inputClass}
             />
           </Field>
-          <Field label="LinkedIn URL">
+          <Field label="LinkedIn profile URL">
             <input
               name="linkedinUrl"
               type="url"
@@ -332,14 +336,15 @@ export function ApplyForm({
               className={inputClass}
             />
           </Field>
-          <Field label="Snapchat handle">
+          <Field label="Snapchat profile URL">
             <input
               name="snapchatHandle"
-              placeholder="@yourhandle"
+              type="url"
+              placeholder="https://snapchat.com/add/yourhandle"
               className={inputClass}
             />
           </Field>
-          <Field label="Luma URL">
+          <Field label="Luma profile URL">
             <input
               name="lumaUrl"
               type="url"

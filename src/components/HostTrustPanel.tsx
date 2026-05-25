@@ -224,12 +224,15 @@ interface SocialRow {
 
 function buildSocialRows(social: HostTrustPanelProps["social"]): SocialRow[] {
   const rows: SocialRow[] = [];
+  // The instagramHandle / twitterHandle / snapchatHandle columns now store
+  // full URLs (apply form was switched to URL inputs). Older rows in the DB
+  // may still have bare handles — `socialEntry` normalizes both formats.
   if (social.instagramHandle) {
-    const h = social.instagramHandle.replace(/^@/, "");
+    const e = socialEntry(social.instagramHandle, "https://instagram.com/");
     rows.push({
       label: "Instagram",
-      href: `https://instagram.com/${h}`,
-      preview: `@${h}`,
+      href: e.href,
+      preview: e.preview,
       color: "#E1306C",
       Icon: InstagramGlyph,
     });
@@ -253,21 +256,21 @@ function buildSocialRows(social: HostTrustPanelProps["social"]): SocialRow[] {
     });
   }
   if (social.twitterHandle) {
-    const h = social.twitterHandle.replace(/^@/, "");
+    const e = socialEntry(social.twitterHandle, "https://x.com/");
     rows.push({
       label: "X",
-      href: `https://x.com/${h}`,
-      preview: `@${h}`,
+      href: e.href,
+      preview: e.preview,
       color: "#FFFFFF",
       Icon: XGlyph,
     });
   }
   if (social.snapchatHandle) {
-    const h = social.snapchatHandle.replace(/^@/, "");
+    const e = socialEntry(social.snapchatHandle, "https://www.snapchat.com/add/");
     rows.push({
       label: "Snapchat",
-      href: `https://www.snapchat.com/add/${h}`,
-      preview: `@${h}`,
+      href: e.href,
+      preview: e.preview,
       color: "#FFFC00",
       Icon: SnapchatGlyph,
     });
@@ -291,6 +294,21 @@ function buildSocialRows(social: HostTrustPanelProps["social"]): SocialRow[] {
     });
   }
   return rows;
+}
+
+// Normalize a social-platform value that might be either a full URL or a
+// bare @handle. Returns href (always a URL) and preview (always a handle-
+// looking string for compact display).
+function socialEntry(value: string, prefix: string) {
+  const isUrl = /^https?:\/\//i.test(value);
+  if (isUrl) {
+    const stripped = stripHttp(value);
+    // Last path segment is the handle, e.g. instagram.com/maya → "maya".
+    const handle = stripped.split("/").filter(Boolean).pop() ?? stripped;
+    return { href: value, preview: `@${handle}` };
+  }
+  const h = value.replace(/^@/, "");
+  return { href: `${prefix}${h}`, preview: `@${h}` };
 }
 
 function stripHttp(url: string) {
