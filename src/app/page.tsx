@@ -8,7 +8,6 @@ import {
   Hourglass,
   Handshake,
   ArrowRight,
-  MapPin,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -157,11 +156,6 @@ export default async function Home({ searchParams }: HomeProps) {
       {/* Stories strip — only renders if there are unexpired stories */}
       <StoriesRow />
 
-      {/* City discovery — 4 launch cities with real local counts. Lets
-          first-timers browse without committing to all 3 filters. */}
-      {!isReady && cityCounts.size > 0 && (
-        <CityShowcase cityCounts={cityCounts} />
-      )}
 
       {/* Pre-search browse experience: featured locals + how-it-works.
           Hidden once the user has all 3 filters set so they get a clean
@@ -344,63 +338,10 @@ function HowItWorksSlim() {
   );
 }
 
-function CityShowcase({ cityCounts }: { cityCounts: Map<string, number> }) {
-  return (
-    <section className="relative px-5 pt-8 pb-2 sm:px-10 sm:pt-10 lg:px-14">
-      <div className="mx-auto max-w-6xl">
-        <div className="flex flex-wrap items-baseline justify-between gap-3">
-          <div>
-            <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
-              Browse by city
-            </div>
-            <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">
-              Pick a place to start
-            </h2>
-          </div>
-          <div className="font-mono text-xs uppercase tracking-wider text-text-dim">
-            4 launch cities · more coming soon
-          </div>
-        </div>
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {CITIES.map((c) => {
-            const count = cityCounts.get(c.slug) ?? 0;
-            return (
-              <Link
-                key={c.slug}
-                href={`/?city=${c.slug}`}
-                className="group flex items-center gap-4 rounded-2xl border border-line bg-surface p-5 transition hover:border-coral/40 hover:bg-surface-2"
-              >
-                <div className="grad-sunset flex h-12 w-12 shrink-0 items-center justify-center rounded-xl text-white shadow-[0_8px_20px_rgba(255,106,61,0.25)]">
-                  <MapPin size={18} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="font-display text-lg font-semibold tracking-tight text-text">
-                    {c.name}
-                    <span className="ml-1.5 font-mono text-xs font-normal text-text-muted">
-                      {c.state}
-                    </span>
-                  </div>
-                  <div className="font-mono text-xs uppercase tracking-wider text-text-dim">
-                    {count} {count === 1 ? "vetted local" : "vetted locals"}
-                  </div>
-                </div>
-                <ArrowRight
-                  size={15}
-                  className="shrink-0 text-text-muted transition group-hover:text-coral"
-                />
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function StatsBand({ totalLocals }: { totalLocals: number }) {
   // Defensible numbers only — every figure here is currently true.
   const stats = [
-    { k: "4", v: "launch cities" },
+    { k: "2", v: "launch cities" },
     { k: `${totalLocals}+`, v: "vetted locals" },
     { k: "1:1", v: "every meet" },
     { k: "14 min", v: "accept window" },
