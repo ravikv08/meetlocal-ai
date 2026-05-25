@@ -72,7 +72,7 @@ export function bookingRequestedTemplate(args: {
         ${args.hours}-hour meetup. Total: <strong>${formatPrice(args.totalCents)}</strong>.
       </p>
       <p style="font-size:16px;color:#6b655d;margin:0 0 28px">
-        You have <strong style="color:#0e0b08">14 minutes</strong> to accept before we
+        You have <strong style="color:#0e0b08">30 minutes</strong> to accept before we
         re-route to the next local.
       </p>
       <a href="${url}" style="display:inline-block;background:#0e0b08;color:#fafaf7;padding:14px 22px;border-radius:14px;font-weight:600;text-decoration:none">Open the chat →</a>

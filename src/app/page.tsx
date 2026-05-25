@@ -165,7 +165,7 @@ export default async function Home({ searchParams }: HomeProps) {
           <div className="mb-5 flex items-baseline justify-between">
             <div>
               <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
-                Hand-vetted · {featuredLocals.length}+ locals across 4 cities
+                Hand-vetted · {featuredLocals.length}+ locals in the Bay Area
               </div>
               <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">
                 Meet a few of our locals
@@ -279,7 +279,7 @@ function HowItWorksSlim() {
       icon: Hourglass,
       n: "02",
       t: "Send a request",
-      d: "Your card is authorized but not charged. Your local has 14 minutes to accept.",
+      d: "Your card is authorized but not charged. Your local has 30 minutes to accept.",
     },
     {
       icon: Handshake,
@@ -344,7 +344,7 @@ function StatsBand({ totalLocals }: { totalLocals: number }) {
     { k: "2", v: "launch cities" },
     { k: `${totalLocals}+`, v: "vetted locals" },
     { k: "1:1", v: "every meet" },
-    { k: "14 min", v: "accept window" },
+    { k: "30 min", v: "accept window" },
   ];
   return (
     <section className="relative border-t border-line bg-bg-2 px-14 py-14">

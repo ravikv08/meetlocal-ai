@@ -73,8 +73,16 @@ export default async function LocalPage({ params, searchParams }: LocalPageProps
             }}
           />
 
-          {/* Trust badges (residency + verifications) */}
+          {/* Trust badges (residency + verifications + Founding) */}
           <div className="-mt-6 flex flex-wrap gap-2">
+            {local.isFounding && (
+              <span
+                className="grad-sunset inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-white shadow-[0_8px_20px_rgba(255,106,61,0.35)]"
+                title="Founding 100 local — among the first vetted hosts in this city"
+              >
+                ★ Founding local
+              </span>
+            )}
             <Badge>
               <ShieldCheck size={13} /> {residency.label}
               <span className="text-text-muted">· {local.yearsInCity}y in {cityName}</span>

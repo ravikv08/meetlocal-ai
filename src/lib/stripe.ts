@@ -73,7 +73,7 @@ export async function createCheckoutSessionForBooking({
     // the traveler isn't surprised when no charge shows up immediately.
     custom_text: {
       submit: {
-        message: `We authorize your card now and only capture once ${localFirstName} accepts within 14 minutes. If they don't, the hold drops off automatically.`,
+        message: `We authorize your card now and only capture once ${localFirstName} accepts within 30 minutes. If they don't, the hold drops off automatically.`,
       },
     },
     metadata: { bookingId: booking.id },

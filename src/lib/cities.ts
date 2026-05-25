@@ -1,11 +1,13 @@
-// v1 launch markets — founder's network lives here.
-// Order matters: this is the order surfaced in city pickers.
-// Scoped down 2026-05-23 to Miami + Bay Area only; Tampa & Portland (ME)
-// deferred until real local coverage exists. Seed data for those two cities
-// still exists in prisma/seed.ts and the DB, but is paused so it never
-// surfaces in discovery / reels / city pages.
+// v1 launch market — Bay Area only.
+// Scoped down 2026-05-24 to a single city: founder lives in SFO, has 10
+// friends as recruitable locals, and one-city focus is the right MVP
+// posture (Airbnb did SF, Uber did SF; you only spread once a beachhead
+// is at ~20 active locals + 200 completed meetups). Miami is V2 (Akhil
+// is the planned beachhead there; he stays in 'pending' until V2 ships).
+// Tampa + Portland (ME) deferred indefinitely until demand signals.
+// Seed data for all deprecated cities still lives in prisma/seed.ts and
+// the DB, but is paused — never surfaces in discovery / reels / city pages.
 export const CITIES = [
-  { slug: "miami", name: "Miami", state: "FL", tz: "America/New_York" },
   { slug: "bay-area", name: "Bay Area", state: "CA", tz: "America/Los_Angeles" },
 ] as const;
 

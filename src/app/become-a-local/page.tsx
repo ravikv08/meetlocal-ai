@@ -239,7 +239,7 @@ export default async function BecomeALocalPage() {
           </Step>
           <Step n="3" title="Go live">
             Profile goes live in your city. We email you the moment a request
-            lands. You have 14 minutes to accept.
+            lands. You have 30 minutes to accept.
           </Step>
         </ol>
 

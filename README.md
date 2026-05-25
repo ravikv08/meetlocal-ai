@@ -1,7 +1,7 @@
 # meetlocal.ai
 
 Marketplace connecting solo travelers with vetted locals for 1–4 hour real-time
-experiences. Web-first MVP for the v1 launch in **Miami · Bay Area**.
+experiences. Web-first MVP for the v1 launch in the **Bay Area** (Miami is V2; founder geography dictates SFO first).
 
 UI is ported faithfully from the original [Claude Web Prototype](./design-source/Web%20Prototype.html)
 (the source files live under [`design-source/`](./design-source/) — they're not built or

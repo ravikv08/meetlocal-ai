@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { expireStaleRequestedBookings } from "@/lib/bookings-cron";
 
 // Cron endpoint — Vercel Cron Jobs hits this every minute. Cancels any
-// booking that's been in `requested` state >14 min and releases the
+// booking that's been in `requested` state >30 min and releases the
 // Stripe auth. See vercel.json for the schedule.
 //
 // Secured via CRON_SECRET — Vercel sends `Authorization: Bearer <secret>`

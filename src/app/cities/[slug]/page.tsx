@@ -38,7 +38,7 @@ export async function generateMetadata({
   const city = CITIES.find((c) => c.slug === slug);
   if (!city) return { title: "City · meetlocal.ai" };
   const title = `Meet a local in ${city.name} · meetlocal.ai`;
-  const description = `Vetted ${city.name} locals who show you the spots, the shortcuts, and the stories no guidebook can. 1:1 meets in 14 minutes. First meets at public, vetted spots.`;
+  const description = `Vetted ${city.name} locals who show you the spots, the shortcuts, and the stories no guidebook can. 1:1 meets in 30 minutes. First meets at public, vetted spots.`;
   return {
     title,
     description,
@@ -82,7 +82,7 @@ export default async function CityPage({ params }: CityPageProps) {
         </h1>
         <p className="mt-7 max-w-2xl text-lg leading-relaxed text-text-dim">
           Vetted {city.name} locals who show you the spots, the shortcuts,
-          and the stories no guidebook can. 1:1 meets in 14 minutes.
+          and the stories no guidebook can. 1:1 meets in 30 minutes.
           First meets at public, vetted spots.
         </p>
 

@@ -47,6 +47,14 @@ export function LocalCard({
       >
         {/* Top-left trust badges */}
         <div className="absolute left-2 top-2 flex flex-wrap gap-1">
+          {local.isFounding && (
+            <span
+              className="grad-sunset rounded-full px-1.5 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-white shadow-[0_4px_12px_rgba(255,106,61,0.45)]"
+              title="Founding 100 local — keeps 90% of every booking"
+            >
+              ★ Founding
+            </span>
+          )}
           {local.idVerified && (
             <span className="rounded-full bg-black/60 px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-wider text-white backdrop-blur">
               ID verified

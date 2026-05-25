@@ -863,7 +863,7 @@ function EmptyIncoming({ localFirst }: { localFirst: string }) {
       </h1>
       <p className="mt-5 max-w-md text-text-dim">
         No incoming requests right now. We&rsquo;ll ping you the moment a traveler
-        wants to meet — you&rsquo;ll have 14 minutes to lock the slot.
+        wants to meet — you&rsquo;ll have 30 minutes to lock the slot.
       </p>
       <div className="mt-7 grid gap-3">
         <Tip>
@@ -908,7 +908,7 @@ function PendingHostPlaceholder({ eyebrow }: { eyebrow: string }) {
       eyebrow={eyebrow}
       title="A dashboard for"
       emphasis="locals who host travelers."
-      description="Once you're an approved local, this becomes your home base: incoming requests with a 14-minute accept window, weekly earnings, upcoming meetups, and the panic button at all times."
+      description="Once you're an approved local, this becomes your home base: incoming requests with a 30-minute accept window, weekly earnings, upcoming meetups, and the panic button at all times."
       icon={ShieldCheck}
       features={[
         {
