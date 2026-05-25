@@ -164,7 +164,16 @@ export default async function AdminLocalReviewPage({ params }: ReviewPageProps) 
                 )}
               </div>
               <a
-                href={`https://dashboard.stripe.com/identity/verification-sessions/${local.stripeIdentityVerificationId}`}
+                href={(() => {
+                  // Mode-aware: test sessions live under /test/, live under /.
+                  // If STRIPE_SECRET_KEY isn't set, fall back to /test/ since
+                  // that's the only place a test-mode session id (vs_1T…)
+                  // resolves; in live mode the same id 404s.
+                  const isTest =
+                    !process.env.STRIPE_SECRET_KEY ||
+                    process.env.STRIPE_SECRET_KEY.startsWith("sk_test_");
+                  return `https://dashboard.stripe.com/${isTest ? "test/" : ""}identity/verification-sessions/${local.stripeIdentityVerificationId}`;
+                })()}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-full border border-line-2 bg-surface px-4 py-2 text-sm font-medium transition hover:bg-surface-2"
