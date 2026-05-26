@@ -17,7 +17,7 @@ function makeUploadRequest(file: File) {
 
 describe('POST /api/upload', () => {
   it('returns 401 when not authenticated', async () => {
-    vi.mocked(auth).mockResolvedValue(null)
+    vi.mocked(auth).mockResolvedValue(null as never)
     const file = new File(['data'], 'photo.jpg', { type: 'image/jpeg' })
     const res = await POST(makeUploadRequest(file))
     expect(res.status).toBe(401)

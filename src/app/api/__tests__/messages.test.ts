@@ -46,7 +46,7 @@ const createdMessage = {
 
 describe('POST /api/messages', () => {
   it('returns 401 when not authenticated', async () => {
-    vi.mocked(auth).mockResolvedValue(null)
+    vi.mocked(auth).mockResolvedValue(null as never)
     const res = await POST(makeRequest({ bookingId: 'b-1', body: 'hi' }))
     expect(res.status).toBe(401)
   })

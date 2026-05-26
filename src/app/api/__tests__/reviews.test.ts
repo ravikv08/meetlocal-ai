@@ -32,7 +32,7 @@ const booking = {
 
 describe('POST /api/reviews', () => {
   it('returns 401 when not authenticated', async () => {
-    vi.mocked(auth).mockResolvedValue(null)
+    vi.mocked(auth).mockResolvedValue(null as never)
     const res = await POST(makeReviewRequest({ bookingId: 'b-1', subjectId: 'u-2', rating: 5 }))
     expect(res.status).toBe(401)
   })

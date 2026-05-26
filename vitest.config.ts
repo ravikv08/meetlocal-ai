@@ -6,6 +6,7 @@ export default defineConfig({
     environment: 'node',
     globals: true,
     setupFiles: ['src/lib/__tests__/setup.ts'],
+    exclude: ['node_modules', 'tests/e2e/**'],
     coverage: {
       provider: 'v8',
       include: ['src/lib/**', 'src/app/api/**'],
