@@ -149,7 +149,7 @@ export default async function CityPage({ params }: CityPageProps) {
                 Browse all {allLocals.length} <ArrowRight size={13} />
               </Link>
             </div>
-            <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {sampleLocals.map((local) => (
                 <LocalCard key={local.id} local={local} />
               ))}
