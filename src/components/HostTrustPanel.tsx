@@ -21,6 +21,8 @@ interface HostTrustPanelProps {
   rating: number | null;
   yearsHosting: number | null;
   yearsInCity: number;
+  /** Hourly rate in cents — surfaced in the stat strip. */
+  ratePerHour: number;
   responseRate: number | null;
   responseTimeMinutes: number | null;
   idVerified: boolean;
@@ -53,6 +55,7 @@ export function HostTrustPanel({
   rating,
   yearsHosting,
   yearsInCity,
+  ratePerHour,
   responseRate,
   responseTimeMinutes,
   idVerified,
@@ -111,18 +114,26 @@ export function HostTrustPanel({
           </div>
         </div>
 
-        {/* Stat row */}
+        {/* Stat row — matches the v2 host-card template (Years / Rate /
+            Rating). All 3 numbers coral now per the new brand treatment;
+            the rating cell gets a star next to the number for "social proof
+            at a glance". */}
         <div className="grid grid-cols-3 border-t border-line">
-          <Stat n={reviewCount.toString()} label="Reviews" />
           <Stat
-            n={typeof rating === "number" ? rating.toFixed(1) : "—"}
-            label="Rating"
-            accent
+            n={(yearsHosting ?? yearsInCity).toString()}
+            unit="y"
+            label={yearsHosting ? "Hosting" : "In SF"}
+          />
+          <Stat
+            n={`$${Math.round(ratePerHour / 100)}`}
+            unit="/hr"
+            label="From"
             withSeparators
           />
           <Stat
-            n={(yearsHosting ?? yearsInCity).toString()}
-            label={yearsHosting ? "Years hosting" : "Years local"}
+            n={typeof rating === "number" ? rating.toFixed(1) : "new"}
+            label="Rating"
+            withStar={typeof rating === "number"}
           />
         </div>
 
@@ -174,23 +185,21 @@ export function HostTrustPanel({
                   const Icon = row.Icon;
                   return (
                     <li key={row.label}>
+                      {/* Coral-tinted across all platforms now — used to use
+                          per-platform brand colors but the user asked for
+                          consistent orange highlighting so the social
+                          verification row reads as one trust signal. */}
                       <a
                         href={row.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group flex items-center gap-3 rounded-xl border border-line bg-bg-2 px-3.5 py-2.5 transition hover:border-coral/50 hover:bg-surface-2"
+                        className="group flex items-center gap-3 rounded-xl border border-coral/30 bg-coral/[0.04] px-3.5 py-2.5 transition hover:border-coral/70 hover:bg-coral/[0.08]"
                       >
-                        <span
-                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-text"
-                          style={{
-                            background: `linear-gradient(135deg, ${row.color}33, ${row.color}1a)`,
-                            color: row.color,
-                          }}
-                        >
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-coral/15 text-coral">
                           <Icon size={15} />
                         </span>
                         <div className="min-w-0 flex-1">
-                          <div className="text-sm font-medium text-text">
+                          <div className="text-sm font-semibold text-coral">
                             {row.label}
                           </div>
                           <div className="truncate font-mono text-xs text-text-dim">
@@ -199,7 +208,7 @@ export function HostTrustPanel({
                         </div>
                         <ExternalLink
                           size={14}
-                          className="shrink-0 text-text-muted transition group-hover:text-coral"
+                          className="shrink-0 text-coral/70 transition group-hover:text-coral"
                         />
                       </a>
                     </li>
@@ -376,13 +385,16 @@ function GlobeGlyph({ size }: { size: number }) {
 
 function Stat({
   n,
+  unit,
   label,
-  accent,
+  withStar,
   withSeparators,
 }: {
   n: string;
+  /** Tiny dim unit appended after the number, e.g. "y" or "/hr". */
+  unit?: string;
   label: string;
-  accent?: boolean;
+  withStar?: boolean;
   withSeparators?: boolean;
 }) {
   return (
@@ -392,14 +404,11 @@ function Stat({
         (withSeparators ? "border-x border-line" : "")
       }
     >
-      <div
-        className={
-          "flex items-baseline justify-center gap-1 font-display text-3xl font-bold leading-none tracking-tight " +
-          (accent ? "grad-text" : "text-text")
-        }
-      >
+      {/* All stat numbers coral per the v2 brand treatment. */}
+      <div className="flex items-baseline justify-center gap-1 font-display text-3xl font-bold leading-none tracking-tight text-coral">
+        {withStar && <Star size={14} className="fill-coral text-coral" />}
         {n}
-        {accent && <Star size={14} className="fill-amber text-amber" />}
+        {unit && <span className="text-base font-medium text-text-dim">{unit}</span>}
       </div>
       <div className="mt-1.5 font-mono text-[10px] uppercase tracking-wider text-text-muted">
         {label}

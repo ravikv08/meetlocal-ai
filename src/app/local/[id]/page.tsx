@@ -58,6 +58,7 @@ export default async function LocalPage({ params, searchParams }: LocalPageProps
             rating={local.rating ?? null}
             yearsHosting={local.yearsHosting}
             yearsInCity={local.yearsInCity}
+            ratePerHour={local.ratePerHour}
             responseRate={local.responseRate}
             responseTimeMinutes={local.responseTimeMinutes}
             idVerified={local.idVerified}
