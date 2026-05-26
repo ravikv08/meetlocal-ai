@@ -15,6 +15,7 @@ import { LocalCard } from "@/components/LocalCard";
 import { SearchBar } from "@/components/SearchBar";
 import { StoriesRow } from "@/components/StoriesRow";
 import { HeroStoryVideo } from "@/components/HeroStoryVideo";
+import { ExitIntentEmailCapture } from "@/components/ExitIntentEmailCapture";
 import { formatRelative } from "@/lib/date-utils";
 import {
   CITIES,
@@ -342,6 +343,14 @@ export default async function Home({ searchParams }: HomeProps) {
       )}
 
       <SiteFooter liveCount={isReady ? locals.length : featuredLocals.length} />
+
+      {/* Exit-intent email capture — desktop only, fires once per session
+          when the cursor leaves the viewport from the top. Captures into the
+          Lead table for the "first locals go live this week" waitlist. */}
+      <ExitIntentEmailCapture
+        source="exit-intent-home"
+        city={CITIES[0]?.slug}
+      />
     </div>
   );
 }

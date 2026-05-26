@@ -295,6 +295,29 @@ model WebhookEvent {
   @@index([processedAt])
 }
 
+// Email leads captured from the homepage (exit-intent modal, "notify me"
+// CTAs on coming-soon empty states, etc.). One row per submission — same
+// email submitting twice creates two rows so we can see frequency. Sync
+// to Resend audience or export to CSV when the list is worth nurturing.
+model Lead {
+  id          String   @id @default(cuid())
+  email       String
+  // Free-text source label so we can A/B which capture surfaces work.
+  // Examples: "exit-intent-home", "waitlist-empty-state", "footer-newsletter".
+  source      String?
+  // Marketing attribution at the moment of capture (cookie-stored UTMs).
+  utmSource   String?
+  utmCampaign String?
+  utmMedium   String?
+  // City the lead expressed interest in (auto-set from a city picker, or
+  // inferred from CITIES[0] when there's only one launch market).
+  city        String?
+  createdAt   DateTime @default(now())
+
+  @@index([email])
+  @@index([createdAt])
+}
+
 // Generic feedback / survey table — Sean Ellis PMF survey ("how would you
 // feel if meetlocal disappeared"), free-text feedback, and report-a-user
 // submissions all land here. `kind` discriminates; `data` holds the
