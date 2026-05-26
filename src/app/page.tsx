@@ -13,7 +13,6 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { LocalCard } from "@/components/LocalCard";
 import { SearchBar } from "@/components/SearchBar";
-import { StickySearch } from "@/components/StickySearch";
 import { StoriesRow } from "@/components/StoriesRow";
 import { HeroStoryVideo } from "@/components/HeroStoryVideo";
 import { formatRelative } from "@/lib/date-utils";
@@ -195,14 +194,13 @@ export default async function Home({ searchParams }: HomeProps) {
     <div className="relative overflow-x-hidden">
       <SiteHeader />
 
-      {/* Search bar — Airbnb pattern: pulled up, left-aligned right below the
-          header. StickySearch keeps it pinned to the top of the viewport on
-          scroll with a soft drop-shadow once the hero is out of view. */}
-      <StickySearch>{searchBar}</StickySearch>
-
-      {/* HERO — split layout: headline left, story video right.
-          Mobile: stack with smaller padding + headline that fits on iPhone. */}
-      <section className="relative px-5 pb-8 pt-6 sm:px-10 sm:pb-10 sm:pt-8 lg:px-14">
+      {/* HERO — calm, confident inspiration moment. NO search bar here on
+          purpose: the Apple/Stanford-design rhythm is inspiration first, intent
+          second, action third. The search lives below the trust strip so a
+          first-time visitor reads the value prop and the safety promises BEFORE
+          being asked to commit to filters. The user can still jump straight to
+          search by scrolling — but the page invites them to read first. */}
+      <section className="relative px-5 pb-8 pt-12 sm:px-10 sm:pb-10 sm:pt-16 lg:px-14 lg:pt-20">
         <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch lg:gap-12">
           <div className="flex flex-col gap-5 sm:gap-7">
             <h1 className="font-display text-[40px] font-bold leading-[1.02] tracking-tight sm:text-6xl sm:leading-[0.98] lg:text-[80px] lg:leading-[0.94] lg:tracking-[-2.5px]">
@@ -223,16 +221,34 @@ export default async function Home({ searchParams }: HomeProps) {
         </div>
       </section>
 
-      {/* Trust strip — moved BACK ABOVE featured locals on the senior-designer
-          review (2026-05-25). For a trust-category MVP the four policy
-          promises seal the deal "at intent moment" right under the search bar,
-          before a visitor scrolls into faces. Once we have 20+ real photo'd
-          locals, "product before proof" wins; pre-launch, proof-before-product
-          beats a thin grid. */}
+      {/* Trust strip — sits between the inspirational hero and the action
+          (search). Four policy promises seal the "can I trust this?" question
+          before the visitor commits to filters. */}
       <TrustStrip />
 
       {/* Stories strip — only renders if there are unexpired stories */}
       <StoriesRow />
+
+      {/* SEARCH — the "intent" moment. Anchored mid-page, centered, with a
+          clear label so it reads as the call-to-action, not chrome. Results
+          (or featured-locals / coming-soon) render directly below this. */}
+      <section
+        id="find"
+        className="relative px-5 pt-10 sm:px-10 sm:pt-14 lg:px-14"
+      >
+        <div className="mx-auto max-w-3xl text-center">
+          <div className="font-mono text-xs uppercase tracking-[0.18em] text-coral">
+            ◆ Find your local
+          </div>
+          <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
+            Pick a vibe and a date.{" "}
+            <span className="text-text-dim">
+              We&rsquo;ll match you with someone who knows the city.
+            </span>
+          </h2>
+        </div>
+        <div className="mt-7 flex justify-center">{searchBar}</div>
+      </section>
 
       {/* Featured locals — shows the actual roster (photo'd, in-CITIES) once
           we have at least 2. With fewer than 2 we hide the grid entirely and
