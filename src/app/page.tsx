@@ -220,13 +220,12 @@ export default async function Home({ searchParams }: HomeProps) {
         <div className="relative mx-auto flex max-w-4xl flex-col items-center gap-7 text-center">
           {livePill}
 
-          {/* Original 3-line typography — restored per user request. Three
-              line-breaks give the headline its monumental "Apple-keynote"
-              presence; collapsing to a single flowing line lost the rhythm. */}
-          <h1 className="font-display text-[42px] font-bold leading-[1.02] tracking-tight sm:text-6xl sm:leading-[0.98] lg:text-[80px] lg:leading-[0.94] lg:tracking-[-2.5px]">
-            Every city
-            <br />
-            has <span className="grad-text">a friend</span>
+          {/* Two-line headline. "Every city has a friend" lands on line 1 so
+              the gradient "a friend" sits where the eye first travels;
+              "you haven't met." is the period-anchored payoff on line 2.
+              On narrow viewports the first line wraps naturally — that's fine. */}
+          <h1 className="font-display text-[42px] font-bold leading-[1.02] tracking-tight sm:text-6xl sm:leading-[0.98] lg:text-[78px] lg:leading-[0.95] lg:tracking-[-2.5px]">
+            Every city has <span className="grad-text">a friend</span>
             <br />
             you haven&apos;t met.
           </h1>
@@ -244,9 +243,11 @@ export default async function Home({ searchParams }: HomeProps) {
             </p>
           </div>
 
-          {/* Search bar — anchored directly under the value prop so the
-              "intent" moment is part of the hero, not a separate section. */}
-          <div className="mt-3 w-full">{searchBar}</div>
+          {/* Search bar — direct child of the items-center flex column so it
+              centers without needing a wrapper. (The wrapper's w-full was
+              forcing the bar to left-align within a 4xl parent — same trap as
+              when SearchBar's own max-w-[820px] doesn't have mx-auto.) */}
+          {searchBar}
 
           {heroTrustStrip}
         </div>
