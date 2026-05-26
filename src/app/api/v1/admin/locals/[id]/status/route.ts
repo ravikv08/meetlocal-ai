@@ -9,7 +9,7 @@ const Body = z.object({
 
 export async function PATCH(
   req: Request,
-  ctx: RouteContext<"/api/v1/admin/locals/[id]/status">,
+  ctx: { params: Promise<{ id: string }> },
 ) {
   try {
     await requireAdmin();

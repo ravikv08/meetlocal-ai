@@ -3,7 +3,7 @@ import { handleError, ok, requireUser } from "@/lib/api/respond";
 
 export async function POST(
   _req: Request,
-  ctx: RouteContext<"/api/v1/bookings/[id]/decline">,
+  ctx: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireUser();
