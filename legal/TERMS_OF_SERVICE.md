@@ -62,7 +62,7 @@ charge) on their selected payment method via our payment processor,
 Stripe.
 
 ### 4.2 Local accept window
-The Local has a window (currently **fourteen (14) minutes**, subject to
+The Local has a window (currently **thirty (30) minutes**, subject to
 change) to accept or decline the booking request. If the Local accepts,
 the payment is captured and the booking is confirmed. If the Local
 declines or fails to respond, the payment hold is released and the
@@ -203,6 +203,51 @@ A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
 WE DO NOT WARRANT THAT THE PLATFORM WILL BE UNINTERRUPTED, SECURE, OR
 ERROR-FREE, OR THAT ANY MEETING WILL OCCUR AS DESCRIBED. WE ARE NOT A
 PARTY TO ANY MEETING BETWEEN A TRAVELER AND A LOCAL.
+
+### 14.1 Locals are not licensed tour guides
+
+**Locals on the Platform are not licensed tour guides, professional
+guides, travel agents, or commercial tour operators.** They are private
+individuals offering informal social meetups in their home cities —
+analogous to a friend showing you around.
+
+The Platform is not a "tour guide service," "guide service," "travel
+service," or "commercial tour" within the meaning of any state, city,
+or municipal licensing or regulatory regime, including (without
+limitation) jurisdictions that license tour guides such as New York
+City, New Orleans, Charleston, Savannah, Washington D.C., and certain
+National Park Service sites. Locals do not represent that they hold any
+guide license, certification, or accreditation, and the Company makes
+no such representation on their behalf.
+
+Locals do not (and may not):
+- Hold themselves out as licensed, certified, official, or accredited
+  guides of any kind, or use language such as "official tour" or
+  "licensed guide" in their Platform profile or communications;
+- Provide commercial transportation services (driving Travelers in
+  exchange for payment in a regulated rideshare or for-hire vehicle
+  capacity);
+- Sell or arrange travel, lodging, or transportation that would require
+  a seller-of-travel registration in any U.S. state;
+- Enter restricted or licensed areas (e.g., National Park guided-tour
+  zones) in a paid guide capacity.
+
+If a Traveler or a Local is unsure whether a particular activity at a
+particular location requires licensing in their jurisdiction, they
+should consult local regulations before booking or accepting. The
+Company reserves the right to remove any Local or content that suggests
+licensed-guide status or that conducts paid activities requiring a
+license without one.
+
+### 14.2 No professional travel, legal, medical, or safety advice
+
+Information shared by Locals (recommendations, directions, opinions
+about restaurants, neighborhoods, attractions, transportation, etc.) is
+**personal opinion, not professional advice**. Travelers are solely
+responsible for their own travel decisions, safety, health,
+transportation, and compliance with local laws. The Company does not
+endorse, certify, or verify any specific recommendation made by a
+Local.
 
 ## 15. Limitation of liability
 

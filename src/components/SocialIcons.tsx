@@ -32,9 +32,17 @@ export function SocialIcons({
 }: SocialIconsProps) {
   const links: SocialLink[] = [];
 
+  // Backwards-compat: instagramHandle / twitterHandle / snapchatHandle used to
+  // be just the handle ("@you"); the apply form now collects full URLs. If
+  // the stored value starts with http we treat it as a URL, else as a handle.
+  const asUrl = (value: string, prefix: string) =>
+    /^https?:\/\//i.test(value)
+      ? value
+      : `${prefix}${value.replace(/^@/, "")}`;
+
   if (instagramHandle) {
     links.push({
-      href: `https://instagram.com/${instagramHandle.replace(/^@/, "")}`,
+      href: asUrl(instagramHandle, "https://instagram.com/"),
       label: "Instagram",
       Icon: InstagramGlyph,
       color: "#E1306C",
@@ -58,7 +66,7 @@ export function SocialIcons({
   }
   if (twitterHandle) {
     links.push({
-      href: `https://x.com/${twitterHandle.replace(/^@/, "")}`,
+      href: asUrl(twitterHandle, "https://x.com/"),
       label: "X",
       Icon: XGlyph,
       color: "#FFFFFF",
@@ -66,7 +74,7 @@ export function SocialIcons({
   }
   if (snapchatHandle) {
     links.push({
-      href: `https://www.snapchat.com/add/${snapchatHandle.replace(/^@/, "")}`,
+      href: asUrl(snapchatHandle, "https://www.snapchat.com/add/"),
       label: "Snapchat",
       Icon: SnapchatGlyph,
       color: "#FFFC00",

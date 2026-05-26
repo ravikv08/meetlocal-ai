@@ -36,7 +36,9 @@ interface ChatRoomProps {
   currentUserName: string;
   currentUserImage: string | null;
   counterpart: Counterpart;
-  role: "traveler" | "local";
+  role: "traveler" | "local" | "admin";
+  /** Admin viewers see the thread but can't send, report, or trigger actions. */
+  readOnly?: boolean;
   initialMessages: ChatMessage[];
   /** Server-rendered action bar (Accept / Decline / Mark complete / Review). */
   actionBar?: React.ReactNode;
@@ -61,6 +63,7 @@ export function ChatRoom(props: ChatRoomProps) {
     currentUserId,
     counterpart,
     role,
+    readOnly = false,
     initialMessages,
     actionBar,
   } = props;
@@ -140,7 +143,13 @@ export function ChatRoom(props: ChatRoomProps) {
       {/* Header */}
       <div className="flex items-center gap-3.5 border-b border-line bg-bg px-6 py-4">
         <Link
-          href={role === "traveler" ? `/booking/${bookingId}/confirmed` : "/admin"}
+          href={
+            role === "traveler"
+              ? `/booking/${bookingId}/confirmed`
+              : role === "admin"
+                ? "/admin"
+                : "/host"
+          }
           className="flex h-9 w-9 items-center justify-center rounded-full border border-line-2 bg-surface"
         >
           <ArrowLeft size={15} />
@@ -152,30 +161,54 @@ export function ChatRoom(props: ChatRoomProps) {
             <span className="h-1.5 w-1.5 rounded-full bg-good" />
           </div>
           <div className="font-mono text-xs text-text-dim">
-            {role === "traveler" ? "Your local" : "Your traveler"}
+            {role === "admin"
+              ? "Admin view · read-only"
+              : role === "traveler"
+                ? "Your local"
+                : "Your traveler"}
           </div>
         </div>
-        {/* Safety report button — opens an inline modal that emails safety inbox */}
-        <ReportUserButton
-          reportedUserId={counterpart.id}
-          reportedUserName={counterpart.name}
-          bookingId={bookingId}
-        />
+        {/* Safety report button — opens an inline modal that emails safety inbox.
+            Admins are already on the safety side of the conversation, so they
+            don't need to report themselves. */}
+        {!readOnly && (
+          <ReportUserButton
+            reportedUserId={counterpart.id}
+            reportedUserName={counterpart.name}
+            bookingId={bookingId}
+          />
+        )}
       </div>
 
-      {/* Booking summary card */}
+      {/* Booking summary card. When no meeting spot was pre-picked at booking
+          time we coral-tint the card and prompt the pair to decide here —
+          the Starbucks Rule still applies as a written hint. */}
       <div className="border-b border-line px-6 pb-4 pt-4">
-        <div className="flex items-center gap-3.5 rounded-2xl border border-line-2 bg-surface p-3.5">
+        <div
+          className={
+            "flex items-center gap-3.5 rounded-2xl border p-3.5 " +
+            (meetingSpotName
+              ? "border-line-2 bg-surface"
+              : "border-coral/40 bg-coral/[0.04]")
+          }
+        >
           <div className="grad-sunset flex h-11 w-11 items-center justify-center rounded-xl text-white">
             <MapPin size={18} />
           </div>
           <div className="flex-1">
             <div className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
-              {statusLabel[bookingStatus]} · {meetingSpotName ?? "Spot TBD"}
+              {statusLabel[bookingStatus]} {meetingSpotName ? "at" : "—"}{" "}
+              {meetingSpotName ?? "decide a meeting spot together"}
             </div>
             <div className="mt-0.5 text-sm font-semibold">
-              {slotLabel} · {hours}h · {formatPrice(totalAmount)}
+              {slotLabel}, {hours}h, {formatPrice(totalAmount)}
             </div>
+            {!meetingSpotName && (
+              <div className="mt-1 text-[11px] leading-relaxed text-text-dim">
+                Starbucks Rule: pick a public, well-lit place for the first
+                meet.
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -240,7 +273,7 @@ export function ChatRoom(props: ChatRoomProps) {
       </div>
 
       {/* Quick prompts */}
-      {messages.length < 3 && (
+      {!readOnly && messages.length < 3 && (
         <div className="scroll-hide flex gap-2 overflow-x-auto px-6 pb-3">
           {QUICK_PROMPTS.map((p) => (
             <button
@@ -254,36 +287,43 @@ export function ChatRoom(props: ChatRoomProps) {
         </div>
       )}
 
-      {/* Composer */}
-      <div className="border-t border-line px-6 py-4">
-        <div className="flex items-center gap-2.5 rounded-full border border-line-2 bg-surface py-1.5 pl-5 pr-1.5">
-          <button className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-text-dim transition hover:text-text">
-            <Plus size={15} />
-          </button>
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                send();
-              }
-            }}
-            placeholder="Message…"
-            className="flex-1 bg-transparent text-sm outline-none"
-          />
-          <button
-            onClick={send}
-            disabled={!draft.trim() || isPending}
-            className={
-              "flex h-9 w-9 items-center justify-center rounded-full text-white transition " +
-              (draft.trim() ? "grad-sunset" : "bg-surface-2 text-text-muted")
-            }
-          >
-            <Send size={15} />
-          </button>
+      {/* Composer — hidden for admin viewers. We replace it with a status strip
+          so the bottom of the screen doesn't look broken / cropped. */}
+      {readOnly ? (
+        <div className="border-t border-line bg-surface-2 px-6 py-3 text-center font-mono text-[11px] uppercase tracking-wider text-text-muted">
+          Admin observer · sending disabled
         </div>
-      </div>
+      ) : (
+        <div className="border-t border-line px-6 py-4">
+          <div className="flex items-center gap-2.5 rounded-full border border-line-2 bg-surface py-1.5 pl-5 pr-1.5">
+            <button className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-text-dim transition hover:text-text">
+              <Plus size={15} />
+            </button>
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  send();
+                }
+              }}
+              placeholder="Message…"
+              className="flex-1 bg-transparent text-sm outline-none"
+            />
+            <button
+              onClick={send}
+              disabled={!draft.trim() || isPending}
+              className={
+                "flex h-9 w-9 items-center justify-center rounded-full text-white transition " +
+                (draft.trim() ? "grad-sunset" : "bg-surface-2 text-text-muted")
+              }
+            >
+              <Send size={15} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

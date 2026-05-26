@@ -33,7 +33,7 @@ const PILLARS = [
   {
     icon: Wallet,
     t: "You're never charged unless they accept",
-    d: "Your card is authorized when you book — but not charged. The local has 14 minutes to accept. If they decline or don't respond, the hold is released and you pay nothing. Real charge only happens after your local accepts.",
+    d: "Your card is authorized when you book — but not charged. The local has 30 minutes to accept. If they decline or don't respond, the hold is released and you pay nothing. Real charge only happens after your local accepts.",
   },
   {
     icon: Star,

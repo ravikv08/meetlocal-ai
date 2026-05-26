@@ -1,10 +1,16 @@
-// v1 launch markets — founder's network lives here.
-// Order matters: this is the order surfaced in city pickers.
+// v1 launch market — San Francisco only.
+// Scoped down 2026-05-24 to a single city: founder lives in SFO, has 10
+// friends as recruitable locals, and one-city focus is the right MVP
+// posture (Airbnb did SF, Uber did SF; you only spread once a beachhead
+// is at ~20 active locals + 200 completed meetups). Miami is V2 (Akhil
+// is the planned beachhead there; he stays in 'pending' until V2 ships).
+// Tampa + Portland (ME) deferred indefinitely until demand signals.
+// Slug stays "bay-area" so existing DB rows + bookmark URLs keep working;
+// the display name (and all hardcoded marketing copy) was tightened to
+// "San Francisco" on 2026-05-25 — investors and travelers respond more
+// concretely to a specific city than to a multi-county region.
 export const CITIES = [
-  { slug: "miami", name: "Miami", state: "FL", tz: "America/New_York" },
-  { slug: "tampa", name: "Tampa", state: "FL", tz: "America/New_York" },
-  { slug: "bay-area", name: "Bay Area", state: "CA", tz: "America/Los_Angeles" },
-  { slug: "portland-me", name: "Portland", state: "ME", tz: "America/New_York" },
+  { slug: "bay-area", name: "San Francisco", state: "CA", tz: "America/Los_Angeles" },
 ] as const;
 
 export type CitySlug = (typeof CITIES)[number]["slug"];

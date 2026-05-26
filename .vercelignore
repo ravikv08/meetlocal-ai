@@ -1,0 +1,10 @@
+# Local-only media masters at repo root. These are gitignored too (.gitignore
+# entries for /meetlocal/, /meetlocalai/, *.mov), but `.gitignore` doesn't
+# control what `vercel build --prebuilt` sees on the local machine, so without
+# this file the .mp4/.mov files get traced into every serverless function and
+# we blow past Vercel's 250 MB per-function bundle ceiling at "Deploying
+# outputs..." with a silent BUILD_ERROR. Anything under public/ is the
+# intentional, served-to-the-browser copy and should NOT be ignored.
+meetlocal/
+meetlocalai/
+reels/

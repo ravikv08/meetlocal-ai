@@ -1,11 +1,10 @@
 import { notFound } from "next/navigation";
-import { ShieldCheck } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { HostTrustPanel } from "@/components/HostTrustPanel";
 import { CredentialsCard } from "@/components/CredentialsCard";
 import { GuestFavoriteReviews } from "@/components/GuestFavoriteReviews";
-import { CITIES, RESIDENCY, type CitySlug } from "@/lib/cities";
+import { CITIES, type CitySlug } from "@/lib/cities";
 import { getLocalById, listMeetingSpots } from "@/lib/queries";
 import { BookingPanel } from "./BookingPanel";
 
@@ -26,7 +25,6 @@ export default async function LocalPage({ params, searchParams }: LocalPageProps
   const cityName = CITIES.find((c) => c.slug === local.city)?.name ?? local.city;
   const cityState = CITIES.find((c) => c.slug === local.city)?.state ?? "";
   const name = local.user.name ?? "Local";
-  const residency = RESIDENCY[local.residency];
 
   const spotsRaw = await listMeetingSpots(local.city as CitySlug);
   const spots = spotsRaw.map((s) => ({
@@ -58,6 +56,7 @@ export default async function LocalPage({ params, searchParams }: LocalPageProps
             rating={local.rating ?? null}
             yearsHosting={local.yearsHosting}
             yearsInCity={local.yearsInCity}
+            ratePerHour={local.ratePerHour}
             responseRate={local.responseRate}
             responseTimeMinutes={local.responseTimeMinutes}
             idVerified={local.idVerified}
@@ -73,23 +72,20 @@ export default async function LocalPage({ params, searchParams }: LocalPageProps
             }}
           />
 
-          {/* Trust badges (residency + verifications) */}
-          <div className="-mt-6 flex flex-wrap gap-2">
-            <Badge>
-              <ShieldCheck size={13} /> {residency.label}
-              <span className="text-text-muted">· {local.yearsInCity}y in {cityName}</span>
-            </Badge>
-            {local.idVerified && (
-              <Badge>
-                <ShieldCheck size={13} /> ID verified
-              </Badge>
-            )}
-            {local.bgChecked && (
-              <Badge>
-                <ShieldCheck size={13} /> Background checked
-              </Badge>
-            )}
-          </div>
+          {/* Founding badge — kept as its own moment since it's promotional,
+              not a duplicate. Residency + years-in-city + ID/background
+              were removed (duplicated the stat strip + pills inside
+              HostTrustPanel). */}
+          {local.isFounding && (
+            <div className="-mt-6">
+              <span
+                className="grad-sunset inline-flex items-center gap-1.5 rounded-full px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-wider text-white shadow-[0_8px_20px_rgba(255,106,61,0.35)]"
+                title="Founding 100 local — among the first vetted hosts in this city"
+              >
+                ★ Founding local
+              </span>
+            </div>
+          )}
 
           {/* About */}
           <section>
@@ -159,10 +155,3 @@ export default async function LocalPage({ params, searchParams }: LocalPageProps
   );
 }
 
-function Badge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-line-2 bg-surface px-3 py-1.5 text-xs font-medium text-text-dim">
-      {children}
-    </span>
-  );
-}

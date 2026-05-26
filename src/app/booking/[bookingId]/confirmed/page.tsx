@@ -11,7 +11,7 @@ interface ConfirmedPageProps {
 }
 
 // Booking confirmation — "request sent" framing rather than "you're charged"
-// because the local has 14 minutes to accept first. Uses the dark theme that
+// because the local has 30 minutes to accept first. Uses the dark theme that
 // matches the Discover/home surface.
 export default async function BookingConfirmedPage({ params }: ConfirmedPageProps) {
   const { bookingId } = await params;
@@ -55,7 +55,7 @@ export default async function BookingConfirmedPage({ params }: ConfirmedPageProp
           className="animate-ml-fadeup mt-3 leading-relaxed text-text-dim"
           style={{ animationDelay: "0.1s" }}
         >
-          {localFirstName} has <b className="text-text">14 minutes</b> to accept. If they
+          {localFirstName} has <b className="text-text">30 minutes</b> to accept. If they
           can&rsquo;t, we&rsquo;ll match you with another local automatically.
         </p>
 

@@ -55,23 +55,35 @@ export function SearchBar({
 }: SearchBarProps) {
   const router = useRouter();
 
-  const [city, setCity] = useState<string | null>(defaultCity);
+  // Pre-fill city when there's only one launch market — first-time visitors
+  // shouldn't have to make a choice that has only one option.
+  const initialCity = defaultCity ?? (cities.length === 1 ? cities[0].slug : null);
+  const [city, setCity] = useState<string | null>(initialCity);
   const [when, setWhen] = useState<string | null>(defaultWhen);
   const [selectedVibes, setSelectedVibes] = useState<string[]>(defaultVibes);
   const [open, setOpen] = useState<OpenStep>(null);
 
-  const isComplete = !!(city && when && selectedVibes.length > 0);
+  // Reverted to 3-of-3 gate on 2026-05-25 per founder's call: no profiles
+  // shown until the visitor commits city + date + vibe. Clicking Find when
+  // any are missing pops open the first unfinished field.
+  const canSubmit = !!(city && when && selectedVibes.length > 0);
 
   const submit = () => {
-    if (!isComplete) {
-      if (!city) setOpen("city");
-      else if (!when) setOpen("when");
-      else setOpen("vibe");
+    if (!city) {
+      setOpen("city");
+      return;
+    }
+    if (!when) {
+      setOpen("when");
+      return;
+    }
+    if (selectedVibes.length === 0) {
+      setOpen("vibe");
       return;
     }
     const params = new URLSearchParams();
-    params.set("city", city!);
-    params.set("when", when!);
+    params.set("city", city);
+    params.set("when", when);
     params.set("vibes", selectedVibes.join(","));
     router.push(`/?${params.toString()}`);
     setOpen(null);
@@ -267,10 +279,10 @@ export function SearchBar({
                 <button
                   type="button"
                   onClick={submit}
-                  disabled={!isComplete}
+                  disabled={!canSubmit}
                   className={
                     "rounded-full px-4 py-2 text-xs font-semibold text-white transition outline-none " +
-                    (isComplete
+                    (canSubmit
                       ? "grad-sunset"
                       : "cursor-not-allowed bg-surface-2 text-text-muted")
                   }
@@ -285,15 +297,15 @@ export function SearchBar({
 
           <button
             onClick={submit}
-            disabled={!isComplete}
+            disabled={!canSubmit}
             className={
               "ml-auto flex min-w-[140px] items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold outline-none transition " +
-              (isComplete
+              (canSubmit
                 ? "grad-sunset text-white shadow-[0_10px_30px_rgba(255,106,61,0.35)] hover:opacity-95"
                 : "cursor-not-allowed border border-coral/30 bg-surface-2 text-coral/60")
             }
             title={
-              isComplete
+              canSubmit
                 ? "Find locals"
                 : "Pick a city, date, and vibe to enable search"
             }

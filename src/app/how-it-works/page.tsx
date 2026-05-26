@@ -40,7 +40,7 @@ const TRAVELER_STEPS = [
   {
     n: "03",
     t: "Send a request — you're not charged yet",
-    d: "Pick a start time and how many hours (1–6). Your card is authorized but not charged. Your local has 14 minutes to accept. If they decline or don't respond, the hold is released and you can request another local.",
+    d: "Pick a start time and how many hours (1–6). Your card is authorized but not charged. Your local has 30 minutes to accept. If they decline or don't respond, the hold is released and you can request another local.",
     icon: Hourglass,
   },
   {
@@ -94,7 +94,7 @@ const LOCAL_STEPS = [
 const STATS = [
   { k: "4", v: "launch cities" },
   { k: "1:1", v: "every meet" },
-  { k: "14 min", v: "accept window" },
+  { k: "30 min", v: "accept window" },
   { k: "Two-way", v: "reviews" },
 ];
 
@@ -235,7 +235,7 @@ export default async function HowItWorksPage({
             />
             <RoadmapCard
               t="Auto-rematch on timeout"
-              d="If the requested local doesn&rsquo;t accept within 14 min, surface other available locals in the same city automatically."
+              d="If the requested local doesn&rsquo;t accept within 30 min, surface other available locals in the same city automatically."
             />
             <RoadmapCard
               t="Live trip tracking"

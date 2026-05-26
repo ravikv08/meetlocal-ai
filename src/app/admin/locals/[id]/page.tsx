@@ -122,16 +122,85 @@ export default async function AdminLocalReviewPage({ params }: ReviewPageProps) 
             </div>
           </div>
 
+          {/* Stripe Identity verification card. Shown when the local ran the
+              hosted flow at /api/identity/start. Includes a deep link into the
+              Stripe Dashboard for the founder to inspect document images,
+              selfie-match score, fraud signals etc. — those don't (and shouldn't)
+              come back to our servers per Stripe's data-residency model. */}
+          {local.stripeIdentityVerificationId && (
+            <div
+              className={
+                "mt-5 flex flex-wrap items-center gap-3 rounded-2xl border p-4 " +
+                (local.idVerified
+                  ? "border-good/40 bg-good/5"
+                  : "border-amber/40 bg-amber/5")
+              }
+            >
+              <div
+                className={
+                  "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl " +
+                  (local.idVerified
+                    ? "bg-good/15 text-good"
+                    : "bg-amber/15 text-amber")
+                }
+              >
+                <ShieldCheck size={16} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-display text-sm font-semibold">
+                  {local.idVerified
+                    ? "Verified via Stripe Identity"
+                    : "Stripe Identity in progress"}
+                </div>
+                <div className="mt-0.5 font-mono text-[11px] text-text-muted">
+                  Session: {local.stripeIdentityVerificationId}
+                </div>
+                {!local.idVerified && (
+                  <div className="mt-1 text-xs text-text-dim">
+                    Webhook hasn&rsquo;t fired yet. Check the session on Stripe
+                    to see the verification status, or flip the ID-verified
+                    flag manually below if Stripe shows it as verified.
+                  </div>
+                )}
+              </div>
+              <a
+                href={(() => {
+                  // Mode-aware: test sessions live under /test/, live under /.
+                  // If STRIPE_SECRET_KEY isn't set, fall back to /test/ since
+                  // that's the only place a test-mode session id (vs_1T…)
+                  // resolves; in live mode the same id 404s.
+                  const isTest =
+                    !process.env.STRIPE_SECRET_KEY ||
+                    process.env.STRIPE_SECRET_KEY.startsWith("sk_test_");
+                  return `https://dashboard.stripe.com/${isTest ? "test/" : ""}identity/verification-sessions/${local.stripeIdentityVerificationId}`;
+                })()}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border border-line-2 bg-surface px-4 py-2 text-sm font-medium transition hover:bg-surface-2"
+              >
+                Open in Stripe →
+              </a>
+            </div>
+          )}
+
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <Photo
               label="Live selfie"
               url={local.selfieUrl}
-              empty="No selfie submitted"
+              empty={
+                local.stripeIdentityVerificationId
+                  ? "Captured via Stripe Identity (see card above)"
+                  : "No selfie submitted"
+              }
             />
             <Photo
               label="Government-issued ID"
               url={local.governmentIdUrl}
-              empty="No ID submitted"
+              empty={
+                local.stripeIdentityVerificationId
+                  ? "Captured via Stripe Identity (see card above)"
+                  : "No ID submitted"
+              }
             />
           </div>
 
@@ -162,6 +231,16 @@ export default async function AdminLocalReviewPage({ params }: ReviewPageProps) 
               currentlyOn={local.bgChecked}
               onLabel="✓ Mark background checked"
               offLabel="Unmark background"
+            />
+            {/* Founding 100 program — flip to give this local 90% take rate
+                (vs 78% standard) on future bookings. Snapshotted per booking
+                at creation, so historical bookings keep their original cut. */}
+            <FlagToggleForm
+              id={local.id}
+              flag="isFounding"
+              currentlyOn={local.isFounding}
+              onLabel="★ Mark as Founding 100 (90% cut)"
+              offLabel="Remove Founding (back to 78%)"
             />
           </div>
           <p className="mt-3 text-xs text-text-muted">
@@ -382,7 +461,7 @@ function FlagToggleForm({
   offLabel,
 }: {
   id: string;
-  flag: "idVerified" | "bgChecked";
+  flag: "idVerified" | "bgChecked" | "isFounding";
   currentlyOn: boolean;
   onLabel: string;
   offLabel: string;

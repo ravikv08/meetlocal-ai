@@ -129,9 +129,19 @@ model LocalProfile {
   // Stripe Connect account for payouts; populated when local completes onboarding
   stripeAccountId  String?
   payoutsEnabled   Boolean  @default(false)
+  // Stripe Identity verification session id. Populated when the local
+  // starts identity verification via the hosted flow. The webhook handler
+  // looks up LocalProfile by this id when `identity.verification_session.
+  // verified` fires and flips idVerified=true.
+  stripeIdentityVerificationId String? @unique
   // Trust signals (founder-managed for v1; AI-driven later)
   idVerified       Boolean  @default(false)
   bgChecked        Boolean  @default(false)
+  // Founding 100 program — first ~100 approved locals per city keep 90% of
+  // each booking (vs the 78% standard cut) and get a Founding badge. Founder
+  // flips this manually during /admin review for now; auto-set logic (count
+  // active locals in city < 100) can come later.
+  isFounding       Boolean  @default(false)
   // Identity verification artifacts — collected on application, reviewed by
   // founder before flipping idVerified=true. Never rendered publicly.
   dateOfBirth      DateTime?
@@ -283,6 +293,29 @@ model WebhookEvent {
   processedAt DateTime @default(now())
 
   @@index([processedAt])
+}
+
+// Email leads captured from the homepage (exit-intent modal, "notify me"
+// CTAs on coming-soon empty states, etc.). One row per submission — same
+// email submitting twice creates two rows so we can see frequency. Sync
+// to Resend audience or export to CSV when the list is worth nurturing.
+model Lead {
+  id          String   @id @default(cuid())
+  email       String
+  // Free-text source label so we can A/B which capture surfaces work.
+  // Examples: "exit-intent-home", "waitlist-empty-state", "footer-newsletter".
+  source      String?
+  // Marketing attribution at the moment of capture (cookie-stored UTMs).
+  utmSource   String?
+  utmCampaign String?
+  utmMedium   String?
+  // City the lead expressed interest in (auto-set from a city picker, or
+  // inferred from CITIES[0] when there's only one launch market).
+  city        String?
+  createdAt   DateTime @default(now())
+
+  @@index([email])
+  @@index([createdAt])
 }
 
 // Generic feedback / survey table — Sean Ellis PMF survey ("how would you

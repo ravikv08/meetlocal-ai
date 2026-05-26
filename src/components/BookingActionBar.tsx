@@ -29,7 +29,7 @@ export function BookingActionBar({
     return (
       <Banner tone="amber">
         <div className="flex-1">
-          <strong className="text-text">New request · 14 min to respond</strong>
+          <strong className="text-text">New request · 30 min to respond</strong>
           <p className="mt-1 text-sm text-text-dim">
             {hasStripePayment
               ? "Payment is authorized. Accept to capture; decline to release the hold."
@@ -65,7 +65,7 @@ export function BookingActionBar({
         <div className="flex-1">
           <strong className="text-text">Request sent · awaiting accept</strong>
           <p className="mt-1 text-sm text-text-dim">
-            Your local has 14 minutes. We&rsquo;ll re-route automatically if they
+            Your local has 30 minutes. We&rsquo;ll re-route automatically if they
             don&rsquo;t respond.
           </p>
         </div>

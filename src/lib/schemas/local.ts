@@ -29,7 +29,14 @@ export const LOCAL_STATUS_VALUES = [
 ] as const;
 export type LocalStatusLiteral = (typeof LOCAL_STATUS_VALUES)[number];
 
-export const VERIFICATION_FLAG_VALUES = ["idVerified", "bgChecked"] as const;
+// "Flags" the founder can flip on a LocalProfile from the admin review page.
+// isFounding is a program toggle (90% take rate) rather than a verification
+// signal — grouped here only because they share the same toggle plumbing.
+export const VERIFICATION_FLAG_VALUES = [
+  "idVerified",
+  "bgChecked",
+  "isFounding",
+] as const;
 export type VerificationFlag = (typeof VERIFICATION_FLAG_VALUES)[number];
 
 // Shared "core" fields between the apply flow and admin-create. Money is in
@@ -67,12 +74,12 @@ export const LocalApplicationSchema = LocalProfileCoreSchema.extend({
         (Date.now() - d.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
       return years >= 18 && years <= 110;
     }, "You must be 18+ with a valid date of birth."),
-  governmentIdUrl: z
-    .string()
-    .min(1, "Upload a photo of your government-issued ID."),
-  selfieUrl: z
-    .string()
-    .min(1, "Take a live selfie so we can match you to your ID."),
+  // ID + selfie are now collected post-application via Stripe Identity
+  // (hosted flow at /api/identity/start). Kept as optional fields here for
+  // backward compat and the rare case where Stripe is offline — the apply
+  // form falls back to manual upload when STRIPE_SECRET_KEY isn't set.
+  governmentIdUrl: z.string().optional().default(""),
+  selfieUrl: z.string().optional().default(""),
   instagramHandle: z.string().nullable().optional(),
   twitterHandle: z.string().nullable().optional(),
   snapchatHandle: z.string().nullable().optional(),

@@ -37,7 +37,7 @@ venturer, or franchisee of the Company. The Contractor:
 The Company:
 - Operates a technology platform that connects Locals with Travelers
 - Sets baseline quality and safety standards (e.g., vetting, ToS)
-- Sets a 14-minute response window for booking requests
+- Sets a 30-minute response window for booking requests
 - Charges a platform fee
 - Provides access to payment processing (Stripe)
 

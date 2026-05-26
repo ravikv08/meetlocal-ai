@@ -11,6 +11,9 @@ interface ApplyFormProps {
   cities: { slug: string; name: string }[];
   categories: { id: string; label: string }[];
   currentName: string;
+  /** When true, hide the selfie + ID upload UI — those will be captured
+   *  post-submit via Stripe Identity instead. */
+  useStripeIdentity?: boolean;
 }
 
 const RESIDENCY_OPTIONS = [
@@ -33,7 +36,12 @@ function maxDobToday(): string {
   return d.toISOString().slice(0, 10);
 }
 
-export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
+export function ApplyForm({
+  cities,
+  categories,
+  currentName,
+  useStripeIdentity = false,
+}: ApplyFormProps) {
   const [pickedTags, setPickedTags] = useState<string[]>([]);
   const [pickedLangs, setPickedLangs] = useState<string[]>(["EN"]);
   const [agreedIC, setAgreedIC] = useState(false);
@@ -219,11 +227,9 @@ export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
       {/* 04. Identity & age verification */}
       <Section num="04" title="Verify your identity">
         <p className="-mt-2 mb-4 text-sm text-text-dim">
-          Two-step verification, like Uber. We compare your live selfie
-          against the ID you upload to confirm you&rsquo;re a real person.
-          Both photos are reviewed privately and never appear on your public
-          profile — travelers only see a green &ldquo;ID verified&rdquo; badge
-          once we&rsquo;ve checked.
+          {useStripeIdentity
+            ? "We use Stripe Identity (the same service Coinbase and DoorDash use) to confirm your ID. You'll do this after submitting the form — takes about 2 minutes, all on stripe.com, your photos never touch our servers."
+            : "Two-step verification, like Uber. We compare your live selfie against the ID you upload to confirm you're a real person. Both photos are reviewed privately and never appear on your public profile — travelers only see a green “ID verified” badge once we've checked."}
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Date of birth">
@@ -244,21 +250,25 @@ export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
             />
           </Field>
         </div>
-        <div className="mt-6">
-          <LiveSelfieCapture name="selfieUrl" />
-        </div>
-        <div className="mt-6">
-          <PhotoUpload
-            name="governmentIdUrl"
-            label="Government-issued ID (passport, driver's license)"
-            variant="dark"
-          />
-          <p className="mt-2 text-xs text-text-muted">
-            Take a clear photo of the front of your ID. Cover any sensitive
-            numbers if you&rsquo;d like — we only need name, photo, and date
-            of birth visible.
-          </p>
-        </div>
+        {!useStripeIdentity && (
+          <>
+            <div className="mt-6">
+              <LiveSelfieCapture name="selfieUrl" />
+            </div>
+            <div className="mt-6">
+              <PhotoUpload
+                name="governmentIdUrl"
+                label="Government-issued ID (passport, driver's license)"
+                variant="dark"
+              />
+              <p className="mt-2 text-xs text-text-muted">
+                Take a clear photo of the front of your ID. Cover any
+                sensitive numbers if you&rsquo;d like — we only need name,
+                photo, and date of birth visible.
+              </p>
+            </div>
+          </>
+        )}
       </Section>
 
       {/* 05. Pricing */}
@@ -284,22 +294,25 @@ export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
         </Field>
       </Section>
 
-      {/* 06. Social links — public, shown on profile so travelers can verify */}
+      {/* 06. Social links — public, shown on profile so travelers can verify.
+          All fields are full profile URLs (no more @handle pickers) so what
+          the local pastes is exactly what travelers click. */}
       <Section num="06" title="Verify yourself on the open web">
         <p className="-mt-2 mb-4 text-sm text-text-dim">
-          Optional but strongly recommended. Travelers see these as clickable
-          links on your profile so they can confirm you&rsquo;re a real person
-          before booking.
+          Optional but strongly recommended. Paste the full URL to your public
+          profile. Travelers click these on your profile to confirm
+          you&rsquo;re a real person before booking.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Instagram handle">
+          <Field label="Instagram profile URL">
             <input
               name="instagramHandle"
-              placeholder="@yourhandle"
+              type="url"
+              placeholder="https://instagram.com/yourhandle"
               className={inputClass}
             />
           </Field>
-          <Field label="Facebook URL">
+          <Field label="Facebook profile URL">
             <input
               name="facebookUrl"
               type="url"
@@ -307,14 +320,15 @@ export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
               className={inputClass}
             />
           </Field>
-          <Field label="X / Twitter handle">
+          <Field label="X / Twitter profile URL">
             <input
               name="twitterHandle"
-              placeholder="@yourhandle"
+              type="url"
+              placeholder="https://x.com/yourhandle"
               className={inputClass}
             />
           </Field>
-          <Field label="LinkedIn URL">
+          <Field label="LinkedIn profile URL">
             <input
               name="linkedinUrl"
               type="url"
@@ -322,14 +336,15 @@ export function ApplyForm({ cities, categories, currentName }: ApplyFormProps) {
               className={inputClass}
             />
           </Field>
-          <Field label="Snapchat handle">
+          <Field label="Snapchat profile URL">
             <input
               name="snapchatHandle"
-              placeholder="@yourhandle"
+              type="url"
+              placeholder="https://snapchat.com/add/yourhandle"
               className={inputClass}
             />
           </Field>
-          <Field label="Luma URL">
+          <Field label="Luma profile URL">
             <input
               name="lumaUrl"
               type="url"

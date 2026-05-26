@@ -5,7 +5,13 @@ import { stripe } from "@/lib/stripe";
 // configured window. Designed to be called from a cron route handler.
 // Returns the number cancelled + the IDs for logging.
 
-const WINDOW_MS = 14 * 60 * 1000; // 14 minutes — must match the UI promise
+// Accept window in minutes. Bumped from 14 → 30 on 2026-05-24 for v1 launch:
+// thin local supply means accept-rate matters more than speed. Tighten back
+// when there are 5+ active locals per city competing for requests. Any UI
+// copy that mentions the window number must match this value — sweep with
+// `grep -rn "30 min\|30 minute"` if you change it.
+export const ACCEPT_WINDOW_MINUTES = 30;
+const WINDOW_MS = ACCEPT_WINDOW_MINUTES * 60 * 1000;
 
 export async function expireStaleRequestedBookings(
   now: Date = new Date(),
