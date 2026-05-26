@@ -179,8 +179,9 @@ export default async function Home({ searchParams }: HomeProps) {
     </figure>
   );
 
-  // Compact trust strip under the search — three ✓ items, spaced by whitespace
-  // rather than dots. Single trust expression on the page (less is more).
+  // Compact trust strip under the search — two ✓ items, spaced by whitespace.
+  // Dropped the "From $25/hr" line so the page stays valid as we expand to
+  // other states / countries where local rates vary widely.
   const heroTrustStrip = (
     <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 font-mono text-[11px] uppercase tracking-[0.12em] text-text-dim">
       <span className="inline-flex items-center gap-1.5">
@@ -188,9 +189,6 @@ export default async function Home({ searchParams }: HomeProps) {
       </span>
       <span className="inline-flex items-center gap-1.5">
         <Check size={11} className="text-coral" /> Card charged only on accept
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        <Check size={11} className="text-coral" /> From $25/hr
       </span>
     </div>
   );

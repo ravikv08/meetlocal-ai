@@ -180,19 +180,35 @@ export function ChatRoom(props: ChatRoomProps) {
         )}
       </div>
 
-      {/* Booking summary card */}
+      {/* Booking summary card. When no meeting spot was pre-picked at booking
+          time we coral-tint the card and prompt the pair to decide here —
+          the Starbucks Rule still applies as a written hint. */}
       <div className="border-b border-line px-6 pb-4 pt-4">
-        <div className="flex items-center gap-3.5 rounded-2xl border border-line-2 bg-surface p-3.5">
+        <div
+          className={
+            "flex items-center gap-3.5 rounded-2xl border p-3.5 " +
+            (meetingSpotName
+              ? "border-line-2 bg-surface"
+              : "border-coral/40 bg-coral/[0.04]")
+          }
+        >
           <div className="grad-sunset flex h-11 w-11 items-center justify-center rounded-xl text-white">
             <MapPin size={18} />
           </div>
           <div className="flex-1">
             <div className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
-              {statusLabel[bookingStatus]} · {meetingSpotName ?? "Spot TBD"}
+              {statusLabel[bookingStatus]} {meetingSpotName ? "at" : "—"}{" "}
+              {meetingSpotName ?? "decide a meeting spot together"}
             </div>
             <div className="mt-0.5 text-sm font-semibold">
-              {slotLabel} · {hours}h · {formatPrice(totalAmount)}
+              {slotLabel}, {hours}h, {formatPrice(totalAmount)}
             </div>
+            {!meetingSpotName && (
+              <div className="mt-1 text-[11px] leading-relaxed text-text-dim">
+                Starbucks Rule: pick a public, well-lit place for the first
+                meet.
+              </div>
+            )}
           </div>
         </div>
       </div>

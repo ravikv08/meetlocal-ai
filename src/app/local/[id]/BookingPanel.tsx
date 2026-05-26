@@ -71,8 +71,10 @@ export function BookingPanel({
   const [slot, setSlot] = useState<string>("10:00");
   const [hours, setHours] = useState<number>(3);
   const endTime = addHoursToSlot(slot, hours);
-  const defaultSpot = spots.find((s) => s.popular) ?? spots[0] ?? null;
-  const [spotId, setSpotId] = useState<string | null>(defaultSpot?.id ?? null);
+  // Meeting spot is OPTIONAL — traveler can pre-pick a vetted public spot
+  // or skip and decide with the local in chat. Default = null (skip) so we
+  // don't push a choice the traveler hasn't made.
+  const [spotId, setSpotId] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [showNote, setShowNote] = useState(false);
   const [openPicker, setOpenPicker] = useState<"date" | "spot" | null>(null);
@@ -223,9 +225,12 @@ export function BookingPanel({
         </p>
       </div>
 
-      {/* Meeting spot — Starbucks Rule */}
+      {/* Meeting spot — optional. Default is "decide in chat" so the
+          traveler isn't forced to commit to a spot they don't yet know.
+          The Starbucks Rule still applies; we hint it under the picker
+          and reinforce it in the chat thread when no spot is set. */}
       <div className="border-b border-line p-4">
-        <Label icon={<MapPin size={13} />}>Where you&apos;ll meet</Label>
+        <Label icon={<MapPin size={13} />}>Where you&apos;ll meet (optional)</Label>
         <button
           type="button"
           onClick={() => setOpenPicker(openPicker === "spot" ? null : "spot")}
@@ -236,12 +241,12 @@ export function BookingPanel({
           </div>
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-medium">
-              {pickedSpot?.name ?? "Pick a meeting spot"}
+              {pickedSpot?.name ?? `Decide in chat with ${localFirstName}`}
             </div>
             <div className="truncate text-xs text-text-dim">
               {pickedSpot
-                ? `${pickedSpot.area} · ${pickedSpot.hours}`
-                : "Public, well-lit, vetted"}
+                ? `${pickedSpot.area}, ${pickedSpot.hours}`
+                : "Or tap to pre-pick a vetted public spot"}
             </div>
           </div>
           <ChevronDown
@@ -259,11 +264,38 @@ export function BookingPanel({
 
         {openPicker === "spot" && (
           <div className="mt-2 max-h-72 overflow-y-auto rounded-2xl border border-line-2 bg-surface-2 p-1.5">
-            {spots.length === 0 && (
-              <div className="px-3 py-4 text-center text-sm text-text-dim">
-                No vetted spots in this city yet.
+            {/* "Decide in chat" option at the top — always available, always
+                the default. Clicking clears any pre-picked spot. */}
+            <button
+              type="button"
+              onClick={() => {
+                setSpotId(null);
+                setOpenPicker(null);
+              }}
+              className={
+                "flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition " +
+                (spotId === null ? "bg-coral/10" : "hover:bg-bg-2")
+              }
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-bg-2 text-coral">
+                <ShieldCheck size={15} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium">
+                  Decide in chat with {localFirstName}
+                </div>
+                <div className="text-xs text-text-dim">
+                  Most travelers pick this. You&rsquo;ll work it out together.
+                </div>
+              </div>
+            </button>
+
+            {spots.length > 0 && (
+              <div className="my-1.5 px-3 font-mono text-[10px] uppercase tracking-wider text-text-muted">
+                Or pre-pick a vetted spot
               </div>
             )}
+
             {spots.map((s) => {
               const on = s.id === spotId;
               return (
@@ -292,7 +324,7 @@ export function BookingPanel({
                       )}
                     </div>
                     <div className="text-xs text-text-dim">
-                      {s.area} · {s.hours}
+                      {s.area}, {s.hours}
                     </div>
                   </div>
                 </button>
