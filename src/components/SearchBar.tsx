@@ -56,27 +56,35 @@ export function SearchBar({
   const router = useRouter();
 
   // Pre-fill city when there's only one launch market — first-time visitors
-  // shouldn't have to make a choice that has only one option. When + vibes
-  // are now optional refinements, not pre-search blockers (when only
-  // round-trips into the booking form; it doesn't filter locals).
+  // shouldn't have to make a choice that has only one option.
   const initialCity = defaultCity ?? (cities.length === 1 ? cities[0].slug : null);
   const [city, setCity] = useState<string | null>(initialCity);
   const [when, setWhen] = useState<string | null>(defaultWhen);
   const [selectedVibes, setSelectedVibes] = useState<string[]>(defaultVibes);
   const [open, setOpen] = useState<OpenStep>(null);
 
-  // Only city is required to submit. Vibes/when are optional refinements.
-  const canSubmit = !!city;
+  // Reverted to 3-of-3 gate on 2026-05-25 per founder's call: no profiles
+  // shown until the visitor commits city + date + vibe. Clicking Find when
+  // any are missing pops open the first unfinished field.
+  const canSubmit = !!(city && when && selectedVibes.length > 0);
 
   const submit = () => {
     if (!city) {
       setOpen("city");
       return;
     }
+    if (!when) {
+      setOpen("when");
+      return;
+    }
+    if (selectedVibes.length === 0) {
+      setOpen("vibe");
+      return;
+    }
     const params = new URLSearchParams();
     params.set("city", city);
-    if (when) params.set("when", when);
-    if (selectedVibes.length > 0) params.set("vibes", selectedVibes.join(","));
+    params.set("when", when);
+    params.set("vibes", selectedVibes.join(","));
     router.push(`/?${params.toString()}`);
     setOpen(null);
   };

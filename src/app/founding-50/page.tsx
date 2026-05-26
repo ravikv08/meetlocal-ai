@@ -42,7 +42,7 @@ const PERKS = [
 ];
 
 const REQUIREMENTS = [
-  "Born, raised, or rooted (10+ years) in Miami or the Bay Area",
+  "Born, raised, or rooted (10+ years) in San Francisco or Miami",
   "Pass identity verification (government ID + live selfie)",
   "Pass a founder review of your bio, photos, and social profiles",
   "Be 18+ and able to legally work as an independent contractor in the US",

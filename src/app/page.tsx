@@ -54,15 +54,17 @@ export default async function Home({ searchParams }: HomeProps) {
     .map((s) => s.trim())
     .filter((s) => VALID_VIBES.has(s)) as CategoryId[];
 
-  // Search is "ready" the moment a city is selected. Vibes are optional
-  // refinement chips; `when` only round-trips into the booking form (doesn't
-  // narrow locals). One-field search is the launch-week conversion lever —
-  // every additional pre-search filter is ~20% drop-off.
-  const isReady = !!cityParam;
+  // Search is "ready" only when the visitor has explicitly picked all 3
+  // filters (city + when + vibe). Reverted from the 1-field-search version
+  // on 2026-05-25 per the founder's call: no locals shown until the visitor
+  // has expressed real intent, so the page doesn't feel like a browse-y
+  // marketplace before they've committed. The SearchBar enforces the same
+  // 3-of-3 gate before allowing submit.
+  const isReady = !!(cityParam && whenParam && vibeParams.length > 0);
   const locals = isReady
     ? await listActiveLocals({
         city: cityParam,
-        vibes: vibeParams.length > 0 ? vibeParams : undefined,
+        vibes: vibeParams,
       })
     : [];
 
@@ -129,8 +131,8 @@ export default async function Home({ searchParams }: HomeProps) {
         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-good" />
       </span>
       {realActiveCount >= 1
-        ? `${realActiveCount} founding ${realActiveCount === 1 ? "local" : "locals"} live in the Bay Area`
-        : "Launching this week in the Bay Area"}
+        ? `${realActiveCount} founding ${realActiveCount === 1 ? "local" : "locals"} live in San Francisco`
+        : "Launching this week in San Francisco"}
     </div>
   );
 
@@ -150,7 +152,7 @@ export default async function Home({ searchParams }: HomeProps) {
       quote:
         "I had two hours before my conference. Sara took me to a coffee roaster, a bookstore, and a rooftop I'd never have known about. Best two hours of the trip.",
       name: "James",
-      where: "visited Oakland",
+      where: "visited SF",
     },
     {
       quote:
@@ -254,36 +256,11 @@ export default async function Home({ searchParams }: HomeProps) {
       {/* Stories strip — only renders if there are unexpired stories */}
       <StoriesRow />
 
-      {/* Featured locals — shows the actual roster (photo'd, in-CITIES) once
-          we have at least 2. With fewer than 2 we render nothing here; the
-          live-launch pill in the hero already conveys "coming soon" so a
-          second CTA below the fold was duplicative. */}
-      {!isReady && featuredLocals.length >= 2 && (
-        <section className="relative px-5 pb-10 pt-4 sm:px-10 sm:pb-12 lg:px-14">
-            <div className="mb-5 flex items-baseline justify-between">
-              <div>
-                <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
-                  Founder-vetted Bay Area locals
-                </div>
-                <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">
-                  Meet a few of our locals
-                </h2>
-              </div>
-              <div className="font-mono text-xs uppercase tracking-wider text-text-dim">
-                Every local hand-picked. We turn away 9 of 10 applicants.
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-              {featuredLocals.map((local) => (
-                <LocalCard
-                  key={local.id}
-                  local={local}
-                  whenParam={whenParam ?? undefined}
-                />
-              ))}
-            </div>
-          </section>
-        )}
+      {/* Featured locals — INTENTIONALLY NOT RENDERED on the pre-search
+          home. Founder's call (2026-05-25): no profile cards visible until
+          the visitor has explicitly picked city + date + vibe and clicked
+          Find. The /how-it-works section below carries the page while the
+          visitor hasn't committed to filters. */}
 
       {!isReady && <HowItWorksSlim />}
 
@@ -489,10 +466,10 @@ function FeaturedLocalsComingSoon() {
     <section className="relative px-5 pb-10 pt-4 sm:px-10 sm:pb-12 lg:px-14">
       <div className="mx-auto max-w-4xl rounded-3xl border border-line-2 bg-surface/80 p-10 text-center backdrop-blur">
         <div className="font-mono text-xs uppercase tracking-[0.18em] text-coral">
-          ◆ Recruiting Founding locals in the Bay Area
+          ◆ Recruiting Founding locals in San Francisco
         </div>
         <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-          The first Bay Area locals
+          The first San Francisco locals
           <br />
           go live this week.
         </h2>

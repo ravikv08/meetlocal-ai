@@ -105,8 +105,8 @@ export function ExitIntentEmailCapture({ source, city }: Props) {
               You&rsquo;re on the list.
             </h2>
             <p className="mt-2 text-sm text-text-dim">
-              We&rsquo;ll email you the moment a Bay Area local in your vibe
-              goes live.
+              We&rsquo;ll email you the moment a San Francisco local in your
+              vibe goes live.
             </p>
           </div>
         ) : (
@@ -116,7 +116,7 @@ export function ExitIntentEmailCapture({ source, city }: Props) {
               Wait — one thing
             </div>
             <h2 className="mt-3 font-display text-2xl font-semibold leading-tight tracking-tight">
-              First Bay Area locals
+              First San Francisco locals
               <br />
               go live this week.
             </h2>

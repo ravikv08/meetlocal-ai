@@ -64,20 +64,22 @@ export function LocalCard({
         </span>
       )}
 
-      {/* Circular avatar — 80px (was 96px) for the narrower 4-5-up grid. */}
-      <div className="relative h-20 w-20 shrink-0">
+      {/* Circular avatar — 96px (bigger so the face reads at any grid size).
+          The narrower 4-5-up grid means the avatar still doesn't dominate;
+          a 96px photo in a ~200px-wide card is the Airbnb / LinkedIn ratio. */}
+      <div className="relative h-24 w-24 shrink-0">
         {photoSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={photoSrc}
             alt={name}
-            className="h-20 w-20 rounded-full object-cover ring-2 ring-line-2 ring-offset-2 ring-offset-surface"
+            className="h-24 w-24 rounded-full object-cover ring-2 ring-line-2 ring-offset-2 ring-offset-surface"
             style={{ objectPosition: "center top" }}
           />
         ) : (
           <div
             aria-label={name}
-            className="grad-sunset flex h-20 w-20 items-center justify-center rounded-full font-display text-xl font-semibold text-white ring-2 ring-line-2 ring-offset-2 ring-offset-surface"
+            className="grad-sunset flex h-24 w-24 items-center justify-center rounded-full font-display text-2xl font-semibold text-white ring-2 ring-line-2 ring-offset-2 ring-offset-surface"
           >
             {initials}
           </div>
@@ -92,8 +94,9 @@ export function LocalCard({
         )}
       </div>
 
-      {/* Name + location — tighter block, no extra mt below location so the
-          tagline sits closer. */}
+      {/* Name + location — direct child of card, tight rhythm. No tagline
+          block now: bio was repetitive of what the local's profile page
+          shows. Tighter cards = more locals visible per scroll. */}
       <div className="mt-2.5">
         <div className="font-display text-base font-semibold leading-tight tracking-tight text-text">
           {name}
@@ -104,15 +107,10 @@ export function LocalCard({
         </div>
       </div>
 
-      {/* Tagline — 2-line clamp; min-h keeps a 1-line card the same height as
-          a 2-line card so the stat row aligns across the row. */}
-      <p className="mt-2 line-clamp-2 min-h-[28px] text-[12px] leading-snug text-text-dim">
-        {local.tagline}
-      </p>
-
       {/* Stat row — 3 cells. Values are coral-tinted (the brand "live" color)
-          so they pop against muted labels and the rest of the card. */}
-      <div className="mt-2.5 grid w-full grid-cols-3 divide-x divide-line-2 rounded-lg border border-line-2 bg-bg-2/60 py-1.5">
+          so they pop against muted labels. mt-2 sits closer to the location
+          line now that the tagline doesn't separate them. */}
+      <div className="mt-2 grid w-full grid-cols-3 divide-x divide-line-2 rounded-lg border border-line-2 bg-bg-2/60 py-1.5">
         <Stat
           value={
             typeof local.rating === "number" ? (
