@@ -8,13 +8,14 @@ import {
   Hourglass,
   Handshake,
   ArrowRight,
+  Check,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { LocalCard } from "@/components/LocalCard";
 import { SearchBar } from "@/components/SearchBar";
 import { StoriesRow } from "@/components/StoriesRow";
-import { HeroStoryVideo } from "@/components/HeroStoryVideo";
+import { Starfield } from "@/components/Starfield";
 import { ExitIntentEmailCapture } from "@/components/ExitIntentEmailCapture";
 import { formatRelative } from "@/lib/date-utils";
 import {
@@ -119,16 +120,18 @@ export default async function Home({ searchParams }: HomeProps) {
     />
   );
 
-  const subhead = (
-    <div className="max-w-[560px] space-y-3">
-      <p className="font-display text-2xl font-semibold leading-tight tracking-tight text-text">
-        Land in a new city. Leave with a friend in it.
-      </p>
-      <p className="text-lg leading-relaxed text-text-dim">
-        Within hours, a vetted local opens doors no guidebook can — the
-        spots, the shortcuts, and the stories that make a city{" "}
-        <em className="grad-text not-italic font-semibold">yours</em>.
-      </p>
+  // Honest live-launch pill — replaces the "6 locals online" fake stat from
+  // the reference design. Real number now; auto-updates as locals onboard.
+  const realActiveCount = featuredLocals.length;
+  const livePill = (
+    <div className="inline-flex items-center gap-2 rounded-full border border-line-2 bg-bg-2/80 px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-text-dim backdrop-blur">
+      <span className="relative flex h-1.5 w-1.5">
+        <span className="animate-ml-pulse absolute inline-flex h-full w-full rounded-full bg-good opacity-75" />
+        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-good" />
+      </span>
+      {realActiveCount >= 1
+        ? `Live in Bay Area · ${realActiveCount} founding local${realActiveCount === 1 ? "" : "s"} active`
+        : "Launching this week · Bay Area"}
     </div>
   );
 
@@ -163,7 +166,7 @@ export default async function Home({ searchParams }: HomeProps) {
     year: "numeric",
   });
   const heroTestimonial = (
-    <figure className="relative max-w-[560px] rounded-2xl border border-line-2 bg-surface/90 p-5 shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur">
+    <figure className="relative mx-auto max-w-[560px] rounded-2xl border border-line-2 bg-surface/90 p-5 text-left shadow-[0_20px_50px_rgba(0,0,0,0.35)] backdrop-blur">
       <div className="absolute -top-2 left-5 font-display text-5xl leading-none text-coral/40">
         &ldquo;
       </div>
@@ -177,17 +180,20 @@ export default async function Home({ searchParams }: HomeProps) {
     </figure>
   );
 
-  // Price anchor — kills the silent "how expensive is this?" objection.
-  // The number is the lowest active rate (defaults to $25 if none active).
-  // Card-not-charged-until-accept is the second-most-asked question.
-  const priceAnchor = (
-    <div className="flex flex-wrap items-center gap-2 font-mono text-[11px] uppercase tracking-[0.14em] text-text-muted">
-      <Wallet size={12} className="text-coral" />
-      <span>
-        From <span className="font-semibold text-text">$25/hr</span>
+  // Compact trust strip under the search — three ✓ items, single line.
+  // Replaces both the older standalone TrustStrip and the old priceAnchor;
+  // one trust expression per page (less is more).
+  const heroTrustStrip = (
+    <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 font-mono text-[11px] uppercase tracking-[0.12em] text-text-dim">
+      <span className="inline-flex items-center gap-1.5">
+        <Check size={11} className="text-coral" /> 9 of 10 applicants rejected
       </span>
-      <span className="text-line-2">·</span>
-      <span>Card not charged until your local accepts</span>
+      <span className="inline-flex items-center gap-1.5">
+        <Check size={11} className="text-coral" /> Card charged only on accept
+      </span>
+      <span className="inline-flex items-center gap-1.5">
+        <Check size={11} className="text-coral" /> From $25/hr
+      </span>
     </div>
   );
 
@@ -195,61 +201,59 @@ export default async function Home({ searchParams }: HomeProps) {
     <div className="relative overflow-x-hidden">
       <SiteHeader />
 
-      {/* HERO — calm, confident inspiration moment. NO search bar here on
-          purpose: the Apple/Stanford-design rhythm is inspiration first, intent
-          second, action third. The search lives below the trust strip so a
-          first-time visitor reads the value prop and the safety promises BEFORE
-          being asked to commit to filters. The user can still jump straight to
-          search by scrolling — but the page invites them to read first. */}
-      <section className="relative px-5 pb-8 pt-12 sm:px-10 sm:pb-10 sm:pt-16 lg:px-14 lg:pt-20">
-        <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-stretch lg:gap-12">
-          <div className="flex flex-col gap-5 sm:gap-7">
-            <h1 className="font-display text-[40px] font-bold leading-[1.02] tracking-tight sm:text-6xl sm:leading-[0.98] lg:text-[80px] lg:leading-[0.94] lg:tracking-[-2.5px]">
-              Every city
-              <br />
-              has <span className="grad-text">a friend</span>
-              <br />
-              you haven&apos;t met.
-            </h1>
-            {subhead}
-            {heroTestimonial}
-            {priceAnchor}
-          </div>
-          <HeroStoryVideo
-            src="/video/story-loop.mp4"
-            className="aspect-video w-full lg:self-center"
-          />
+      {/* HERO — Apple-grade single moment. Centered, one column, calm.
+          Starfield background gives the "constellation of locals across a
+          city" metaphor without animation cost or hydration risk. Order:
+          pill → headline → sub → search → micro trust strip → testimonial.
+          No video, no separate Find section, no full-width TrustStrip — one
+          breath. */}
+      <section className="relative overflow-hidden px-5 pb-14 pt-14 sm:px-10 sm:pb-20 sm:pt-20 lg:px-14 lg:pt-24">
+        {/* Starfield is decorative; absolutely-positioned behind content. */}
+        <Starfield />
+        {/* Soft radial coral glow centered behind the headline — gives the
+            "warm campfire in the night" energy that distinguishes us from
+            cold-tech homepages. */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0"
+          style={{
+            background:
+              "radial-gradient(700px 400px at 50% 30%, rgba(255,106,61,0.18), transparent 60%), radial-gradient(900px 500px at 50% 80%, rgba(255,46,120,0.10), transparent 60%)",
+          }}
+        />
+
+        <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-7 text-center">
+          {livePill}
+
+          <h1 className="font-display text-[42px] font-bold leading-[1.02] tracking-tight sm:text-6xl sm:leading-[0.98] lg:text-[80px] lg:leading-[0.94] lg:tracking-[-2.5px]">
+            Every city has{" "}
+            <span className="grad-text italic">a friend</span>{" "}
+            you haven&apos;t met.
+          </h1>
+
+          <p className="max-w-xl text-lg leading-relaxed text-text-dim sm:text-xl">
+            A vetted local opens doors no guidebook can — within{" "}
+            <span className="text-text">hours</span>, not weeks.
+          </p>
+
+          {/* Search bar — anchored directly under the value prop so the
+              "intent" moment is part of the hero, not a separate section. */}
+          <div className="mt-3 w-full">{searchBar}</div>
+
+          {heroTrustStrip}
         </div>
       </section>
-
-      {/* Trust strip — sits between the inspirational hero and the action
-          (search). Four policy promises seal the "can I trust this?" question
-          before the visitor commits to filters. */}
-      <TrustStrip />
 
       {/* Stories strip — only renders if there are unexpired stories */}
       <StoriesRow />
 
-      {/* SEARCH — the "intent" moment. Anchored mid-page, centered, with a
-          clear label so it reads as the call-to-action, not chrome. Results
-          (or featured-locals / coming-soon) render directly below this. */}
-      <section
-        id="find"
-        className="relative px-5 pt-10 sm:px-10 sm:pt-14 lg:px-14"
-      >
-        <div className="mx-auto max-w-3xl text-center">
-          <div className="font-mono text-xs uppercase tracking-[0.18em] text-coral">
-            ◆ Find your local
-          </div>
-          <h2 className="mt-3 font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl">
-            Pick a vibe and a date.{" "}
-            <span className="text-text-dim">
-              We&rsquo;ll match you with someone who knows the city.
-            </span>
-          </h2>
-        </div>
-        <div className="mt-7 flex justify-center">{searchBar}</div>
-      </section>
+      {/* Single testimonial below the hero — rotating per-request from the
+          TESTIMONIALS array. Centered card gives it room to breathe. */}
+      {!isReady && (
+        <section className="relative px-5 pb-2 pt-2 sm:px-10 sm:pb-4 lg:px-14">
+          <div className="mx-auto max-w-2xl">{heroTestimonial}</div>
+        </section>
+      )}
 
       {/* Featured locals — shows the actual roster (photo'd, in-CITIES) once
           we have at least 2. With fewer than 2 we hide the grid entirely and
