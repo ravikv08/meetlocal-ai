@@ -120,8 +120,8 @@ export default async function Home({ searchParams }: HomeProps) {
     />
   );
 
-  // Honest live-launch pill — replaces the "6 locals online" fake stat from
-  // the reference design. Real number now; auto-updates as locals onboard.
+  // Honest live-launch pill. No dot separators — single phrase reads as one
+  // breath, more elegant than "X · Y" chip syntax.
   const realActiveCount = featuredLocals.length;
   const livePill = (
     <div className="inline-flex items-center gap-2 rounded-full border border-line-2 bg-bg-2/80 px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-[0.14em] text-text-dim backdrop-blur">
@@ -130,8 +130,8 @@ export default async function Home({ searchParams }: HomeProps) {
         <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-good" />
       </span>
       {realActiveCount >= 1
-        ? `Live in Bay Area · ${realActiveCount} founding local${realActiveCount === 1 ? "" : "s"} active`
-        : "Launching this week · Bay Area"}
+        ? `${realActiveCount} founding ${realActiveCount === 1 ? "local" : "locals"} live in the Bay Area`
+        : "Launching this week in the Bay Area"}
     </div>
   );
 
@@ -175,16 +175,15 @@ export default async function Home({ searchParams }: HomeProps) {
       </blockquote>
       <figcaption className="mt-3 flex items-center gap-2 font-mono text-[11px] uppercase tracking-wider text-text-dim">
         <span className="h-1 w-1 rounded-full bg-coral" />
-        {pick.name} · {pick.where} · {dateLabel}
+        {pick.name}, {pick.where}, {dateLabel}
       </figcaption>
     </figure>
   );
 
-  // Compact trust strip under the search — three ✓ items, single line.
-  // Replaces both the older standalone TrustStrip and the old priceAnchor;
-  // one trust expression per page (less is more).
+  // Compact trust strip under the search — three ✓ items, spaced by whitespace
+  // rather than dots. Single trust expression on the page (less is more).
   const heroTrustStrip = (
-    <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 font-mono text-[11px] uppercase tracking-[0.12em] text-text-dim">
+    <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2 font-mono text-[11px] uppercase tracking-[0.12em] text-text-dim">
       <span className="inline-flex items-center gap-1.5">
         <Check size={11} className="text-coral" /> 9 of 10 applicants rejected
       </span>
@@ -222,19 +221,32 @@ export default async function Home({ searchParams }: HomeProps) {
           }}
         />
 
-        <div className="relative mx-auto flex max-w-3xl flex-col items-center gap-7 text-center">
+        <div className="relative mx-auto flex max-w-4xl flex-col items-center gap-7 text-center">
           {livePill}
 
+          {/* Original 3-line typography — restored per user request. Three
+              line-breaks give the headline its monumental "Apple-keynote"
+              presence; collapsing to a single flowing line lost the rhythm. */}
           <h1 className="font-display text-[42px] font-bold leading-[1.02] tracking-tight sm:text-6xl sm:leading-[0.98] lg:text-[80px] lg:leading-[0.94] lg:tracking-[-2.5px]">
-            Every city has{" "}
-            <span className="grad-text italic">a friend</span>{" "}
+            Every city
+            <br />
+            has <span className="grad-text">a friend</span>
+            <br />
             you haven&apos;t met.
           </h1>
 
-          <p className="max-w-xl text-lg leading-relaxed text-text-dim sm:text-xl">
-            A vetted local opens doors no guidebook can — within{" "}
-            <span className="text-text">hours</span>, not weeks.
-          </p>
+          {/* Two-paragraph sub stack — restored. The first is the emotional
+              promise; the second is the proof. Both centered. */}
+          <div className="max-w-2xl space-y-4">
+            <p className="font-display text-2xl font-semibold leading-tight tracking-tight text-text sm:text-3xl">
+              Land in a new city. Leave with a friend in it.
+            </p>
+            <p className="text-lg leading-relaxed text-text-dim">
+              Within hours, a vetted local opens doors no guidebook can — the
+              spots, the shortcuts, and the stories that make a city{" "}
+              <em className="grad-text not-italic font-semibold">yours</em>.
+            </p>
+          </div>
 
           {/* Search bar — anchored directly under the value prop so the
               "intent" moment is part of the hero, not a separate section. */}
@@ -265,7 +277,7 @@ export default async function Home({ searchParams }: HomeProps) {
             <div className="mb-5 flex items-baseline justify-between">
               <div>
                 <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
-                  Bay Area · Founder-vetted
+                  Founder-vetted Bay Area locals
                 </div>
                 <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">
                   Meet a few of our locals
@@ -295,35 +307,25 @@ export default async function Home({ searchParams }: HomeProps) {
           ("2 launch cities", "3+ vetted locals") advertise smallness. Bring
           back once the numbers are impressive. */}
 
-      {/* Results — shown once a city is set. Vibe + when render in the
-          header only if the user picked them, so a bare /?city=bay-area
-          shows the whole roster without phantom "Locals for  on  in …" copy. */}
+      {/* Results — shown once a city is set. The heading is intentionally
+          warm + friendly ("A few friends you could meet soon!") rather than
+          a clinical filter recap. The chips below show what we filtered on
+          for the user to verify / refine. */}
       {isReady && (
         <section className="px-5 pb-10 pt-6 sm:px-10 sm:pb-14 lg:px-14">
-          <div className="mb-6 flex items-baseline justify-between">
-            <div>
-              <h2 className="font-display text-4xl font-semibold tracking-tight">
-                {vibeLabel ? (
-                  <>
-                    Locals for{" "}
-                    <em className="grad-text not-italic">{vibeLabel}</em>
-                  </>
-                ) : (
-                  <>All locals</>
-                )}
-                {whenLabel && (
-                  <>
-                    {" on "}
-                    <em className="grad-text not-italic">{whenLabel}</em>
-                  </>
-                )}
-                {" in "}
-                <em className="grad-text not-italic">{activeCity?.name}</em>
-              </h2>
-              <div className="mt-1.5 font-mono text-sm text-text-dim">
-                {locals.length} {locals.length === 1 ? "match" : "matches"} ·
-                vetted by founder
-              </div>
+          <div className="mb-6">
+            <h2 className="font-display text-4xl font-semibold tracking-tight">
+              A few <em className="grad-text not-italic">friends</em> you could
+              meet soon
+            </h2>
+            <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 font-mono text-xs uppercase tracking-wider text-text-dim">
+              <span>
+                {locals.length} {locals.length === 1 ? "match" : "matches"}{" "}
+                in {activeCity?.name}
+              </span>
+              {vibeLabel && <span>for {vibeLabel}</span>}
+              {whenLabel && <span>on {whenLabel}</span>}
+              <span>founder-vetted</span>
             </div>
           </div>
 
@@ -503,7 +505,7 @@ function FeaturedLocalsComingSoon() {
     <section className="relative px-5 pb-10 pt-4 sm:px-10 sm:pb-12 lg:px-14">
       <div className="mx-auto max-w-4xl rounded-3xl border border-line-2 bg-surface/80 p-10 text-center backdrop-blur">
         <div className="font-mono text-xs uppercase tracking-[0.18em] text-coral">
-          ◆ Bay Area · Recruiting Founding locals
+          ◆ Recruiting Founding locals in the Bay Area
         </div>
         <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
           The first Bay Area locals
