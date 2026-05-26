@@ -46,12 +46,13 @@ vi.mock('next/image', () => ({
 }))
 
 // ── Browser APIs not in jsdom ────────────────────────────────────────────
-// react-aria-components uses ResizeObserver
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
-}))
+// react-aria-components uses `new ResizeObserver(cb)` — must be a class, not a factory fn
+class ResizeObserverStub {
+  observe = vi.fn()
+  unobserve = vi.fn()
+  disconnect = vi.fn()
+}
+global.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver
 
 // react-aria-components uses matchMedia for responsive popover placement
 Object.defineProperty(window, 'matchMedia', {
