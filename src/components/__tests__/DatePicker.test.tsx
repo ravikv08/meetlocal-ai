@@ -1,11 +1,9 @@
 import { describe, it, expect, vi, beforeAll, afterAll } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { fireEvent } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
 import { DatePicker } from '@/components/DatePicker'
 
 // Fix the system clock so calendar renders a known month.
-// userEvent v14 + fake timers: use { delay: null } to bypass internal setTimeout.
 const FIXED_DATE = new Date('2026-06-10T12:00:00Z')
 
 beforeAll(() => {
@@ -16,9 +14,6 @@ beforeAll(() => {
 afterAll(() => {
   vi.useRealTimers()
 })
-
-// userEvent setup with delay:null avoids setTimeout hangs under fake timers
-const user = userEvent.setup({ delay: null, advanceTimers: (ms) => vi.advanceTimersByTime(ms) })
 
 describe('DatePicker', () => {
   it('renders a calendar grid', () => {

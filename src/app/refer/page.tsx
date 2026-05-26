@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Gift, ArrowRight, Heart, Wallet, Sparkles } from "lucide-react";
+import { Heart, Wallet, Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ReferralLink } from "./ReferralLink";

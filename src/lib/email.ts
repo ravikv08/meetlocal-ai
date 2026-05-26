@@ -22,7 +22,6 @@ interface SendEmailInput {
 
 export async function sendEmail({ to, subject, html, text }: SendEmailInput) {
   if (!resend) {
-    // eslint-disable-next-line no-console
     console.warn(`[email] would send → ${to} · ${subject} (RESEND_API_KEY not set)`);
     return { skipped: true as const };
   }
@@ -30,7 +29,6 @@ export async function sendEmail({ to, subject, html, text }: SendEmailInput) {
     const result = await resend.emails.send({ from: FROM, to, subject, html, text });
     return { skipped: false as const, ...result };
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error("[email] send failed:", err);
     return { skipped: true as const, error: (err as Error).message };
   }

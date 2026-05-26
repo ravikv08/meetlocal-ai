@@ -31,7 +31,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // Dev fallback: log the link AND write it to a temp file the
         // check-email page reads so we can render a one-click sign-in button.
         if (process.env.NODE_ENV !== "production") {
-          // eslint-disable-next-line no-console
           console.log(`\n🔗 Magic link for ${identifier}:\n${url}\n`);
           writeDevMagicLink({ identifier, url });
         }

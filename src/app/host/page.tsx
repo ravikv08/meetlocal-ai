@@ -70,7 +70,9 @@ export default async function HostPage() {
   // dashboard so they can toggle back on and watch their stats.)
   const me = session.user.id;
   const cityName = CITIES.find((c) => c.slug === profile.city)?.name ?? profile.city;
+  // eslint-disable-next-line react-hooks/purity -- server component, runs once per request
   const sevenDaysAgo = new Date(Date.now() - 7 * 86400_000);
+  // eslint-disable-next-line react-hooks/purity -- server component, runs once per request
   const thirtyDaysAgo = new Date(Date.now() - 30 * 86400_000);
   const isPaused = profile.status === "paused";
 
@@ -165,6 +167,7 @@ export default async function HostPage() {
     bs.reduce((n, b) => n + takeFor(b), 0);
   // Window slices from the single allCompleted query — avoids 4 round-trips
   // and lets us sum takes (subtotal - platformFee) per booking honestly.
+  // eslint-disable-next-line react-hooks/purity -- server component, runs once per request
   const lastWeekStart = new Date(Date.now() - 14 * 86400_000);
   const thisWeekRows = allCompleted.filter(
     (b) => b.completedAt && b.completedAt >= sevenDaysAgo,
@@ -197,10 +200,12 @@ export default async function HostPage() {
 
   // Build a 7-bucket sparkline of take-per-day for the past week.
   const buckets = Array.from({ length: 7 }).map(() => 0);
+  // eslint-disable-next-line react-hooks/purity -- server component, runs once per request
+  const nowMs = Date.now();
   for (const r of thisWeekRows) {
     if (!r.completedAt) continue;
     const days = Math.floor(
-      (Date.now() - new Date(r.completedAt).getTime()) / 86400_000,
+      (nowMs - new Date(r.completedAt).getTime()) / 86400_000,
     );
     if (days >= 0 && days < 7) buckets[6 - days] += takeFor(r);
   }

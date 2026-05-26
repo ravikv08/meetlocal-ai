@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Design-canvas is a standalone design tool, not production Next.js code
+    "design-source/**",
   ]),
 ]);
 

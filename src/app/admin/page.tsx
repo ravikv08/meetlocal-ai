@@ -42,6 +42,7 @@ export default async function AdminPage() {
       },
     }),
     prisma.message.count({
+      // eslint-disable-next-line react-hooks/purity -- server component, runs once per request
       where: { createdAt: { gte: new Date(Date.now() - 7 * 86400_000) } },
     }),
     // Pending local applications — surface on the dashboard so the founder

@@ -115,7 +115,6 @@ function Reel({
       />
       {/* Video backdrop — muted + playsInline so mobile browsers will autoplay.
           object-cover fills the section without distorting the 9:16 source. */}
-      {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
       <video
         src={videoSrc}
         autoPlay

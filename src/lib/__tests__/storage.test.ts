@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 
-const { mockUpload, mockGetPublicUrl, mockFrom, mockSupabase } = vi.hoisted(() => {
+const { mockUpload, mockFrom, mockSupabase } = vi.hoisted(() => {
   const mockUpload = vi.fn().mockResolvedValue({ error: null })
   const mockGetPublicUrl = vi.fn().mockReturnValue({
     data: { publicUrl: 'https://example.supabase.co/storage/v1/object/public/profile-photos/user-1/1234567890.jpg' },
@@ -12,7 +12,7 @@ const { mockUpload, mockGetPublicUrl, mockFrom, mockSupabase } = vi.hoisted(() =
   const mockSupabase = {
     storage: { from: mockFrom },
   }
-  return { mockUpload, mockGetPublicUrl, mockFrom, mockSupabase }
+  return { mockUpload, mockFrom, mockSupabase }
 })
 
 vi.mock('@/lib/supabase-server', () => ({

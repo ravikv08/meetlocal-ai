@@ -166,6 +166,7 @@ export default async function Home({ searchParams }: HomeProps) {
       where: "visited SF",
     },
   ];
+  // eslint-disable-next-line react-hooks/purity -- server component, runs once per request
   const pick = TESTIMONIALS[Math.floor(Math.random() * TESTIMONIALS.length)];
   const dateLabel = new Date().toLocaleString("en-US", {
     month: "short",
