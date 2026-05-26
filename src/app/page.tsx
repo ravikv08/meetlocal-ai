@@ -204,7 +204,7 @@ export default async function Home({ searchParams }: HomeProps) {
           rendering as oversized blobs). Order: pill → headline → sub →
           search → micro trust strip. No video, no separate Find section,
           no full-width TrustStrip — one breath. */}
-      <section className="relative overflow-hidden px-5 pb-14 pt-14 sm:px-10 sm:pb-20 sm:pt-20 lg:px-14 lg:pt-24">
+      <section className="relative overflow-hidden px-5 pb-10 pt-4 sm:px-10 sm:pb-14 sm:pt-6 lg:px-14 lg:pt-8">
         {/* Soft radial coral glow centered behind the headline — gives the
             "warm campfire in the night" energy that distinguishes us from
             cold-tech homepages. */}
@@ -217,7 +217,7 @@ export default async function Home({ searchParams }: HomeProps) {
           }}
         />
 
-        <div className="relative mx-auto flex max-w-4xl flex-col items-center gap-7 text-center">
+        <div className="relative mx-auto flex max-w-4xl flex-col items-center gap-5 text-center sm:gap-6">
           {livePill}
 
           {/* Two-line headline. "Every city has a friend" lands on line 1 so
