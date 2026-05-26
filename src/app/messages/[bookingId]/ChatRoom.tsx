@@ -314,6 +314,7 @@ export function ChatRoom(props: ChatRoomProps) {
             <button
               onClick={send}
               disabled={!draft.trim() || isPending}
+              aria-label="Send"
               className={
                 "flex h-9 w-9 items-center justify-center rounded-full text-white transition " +
                 (draft.trim() ? "grad-sunset" : "bg-surface-2 text-text-muted")
