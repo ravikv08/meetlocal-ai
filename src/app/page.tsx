@@ -66,10 +66,20 @@ export default async function Home({ searchParams }: HomeProps) {
       })
     : [];
 
-  // Pre-search browse experience: show 6 active locals from across all cities
-  // so first-time visitors see real supply quality before committing to a
-  // search. Skipped when a search is active to keep the results focused.
-  const featuredLocals = isReady ? [] : (await listActiveLocals()).slice(0, 6);
+  // Pre-search browse experience: show up to 6 active locals from the launch
+  // cities ONLY, and only ones with a real profile photo. Both filters are
+  // load-bearing — the home grid is the marketplace's trust surface, so a
+  // photo-less or wrong-city local leaking in damages everyone's reputation.
+  // If the filter drops the count below 2 we hide the section entirely
+  // (better an honest "coming soon" than a thin grid).
+  const featuredLocals = isReady
+    ? []
+    : (
+        await listActiveLocals({
+          cities: CITIES.map((c) => c.slug) as CitySlug[],
+          hasPhoto: true,
+        })
+      ).slice(0, 6);
 
   // Per-city counts for the city showcase. Real numbers, not aspirational.
   const cityCountsRaw = isReady
@@ -213,44 +223,50 @@ export default async function Home({ searchParams }: HomeProps) {
         </div>
       </section>
 
-      {/* Featured locals — moved ABOVE trust strip so visitors see real faces
-          before policy promises (Airbnb pattern: "show the product, then the
-          proof"). Hidden once the user has a city set so they get a clean
-          results view instead. */}
-      {!isReady && featuredLocals.length > 0 && (
-        <section className="relative px-5 pb-10 pt-4 sm:px-10 sm:pb-12 lg:px-14">
-          <div className="mb-5 flex items-baseline justify-between">
-            <div>
-              <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
-                Bay Area · Founder-vetted
-              </div>
-              <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">
-                Meet a few of our locals
-              </h2>
-            </div>
-            <div className="font-mono text-xs uppercase tracking-wider text-text-dim">
-              Every local hand-picked. We turn away 9 of 10 applicants.
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {featuredLocals.map((local) => (
-              <LocalCard
-                key={local.id}
-                local={local}
-                whenParam={whenParam ?? undefined}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Trust strip — moved BELOW featured locals so visitors see real faces
-          first. Answers the "can I trust this?" question after they've seen
-          the people. Each badge maps to a real shipped feature. */}
+      {/* Trust strip — moved BACK ABOVE featured locals on the senior-designer
+          review (2026-05-25). For a trust-category MVP the four policy
+          promises seal the deal "at intent moment" right under the search bar,
+          before a visitor scrolls into faces. Once we have 20+ real photo'd
+          locals, "product before proof" wins; pre-launch, proof-before-product
+          beats a thin grid. */}
       <TrustStrip />
 
       {/* Stories strip — only renders if there are unexpired stories */}
       <StoriesRow />
+
+      {/* Featured locals — shows the actual roster (photo'd, in-CITIES) once
+          we have at least 2. With fewer than 2 we hide the grid entirely and
+          show an honest "coming soon" CTA. A 1-card grid signals weakness
+          worse than no grid at all (senior-designer feedback). */}
+      {!isReady &&
+        (featuredLocals.length >= 2 ? (
+          <section className="relative px-5 pb-10 pt-4 sm:px-10 sm:pb-12 lg:px-14">
+            <div className="mb-5 flex items-baseline justify-between">
+              <div>
+                <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
+                  Bay Area · Founder-vetted
+                </div>
+                <h2 className="mt-1 font-display text-3xl font-semibold tracking-tight">
+                  Meet a few of our locals
+                </h2>
+              </div>
+              <div className="font-mono text-xs uppercase tracking-wider text-text-dim">
+                Every local hand-picked. We turn away 9 of 10 applicants.
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {featuredLocals.map((local) => (
+                <LocalCard
+                  key={local.id}
+                  local={local}
+                  whenParam={whenParam ?? undefined}
+                />
+              ))}
+            </div>
+          </section>
+        ) : (
+          <FeaturedLocalsComingSoon />
+        ))}
 
       {!isReady && <HowItWorksSlim />}
 
@@ -346,24 +362,31 @@ function TrustStrip() {
 }
 
 function HowItWorksSlim() {
+  // Step 02 is the conversion-moment ("card authorized but not charged" is
+  // the sentence that turns browsers into bookers) so it gets a coral-tinted
+  // background + an explicit "magic moment" eyebrow per the senior-designer
+  // review. 01 and 03 stay subdued so 02 reads as the hero card.
   const steps = [
     {
       icon: Search,
       n: "01",
       t: "Tell us where you're landing",
       d: "City, date, and a vibe — food, music, history, hidden spots. 15 seconds.",
+      hero: false,
     },
     {
       icon: Hourglass,
       n: "02",
-      t: "Send a request",
-      d: "Your card is authorized but not charged. Your local has 30 minutes to accept.",
+      t: "Send a request — no charge",
+      d: "Your card is authorized but not charged. Your local has 30 minutes to accept; if they don't, the hold drops off automatically.",
+      hero: true,
     },
     {
       icon: Handshake,
       n: "03",
       t: "Meet at a public, vetted spot",
       d: "Our Starbucks Rule. Wrap up with a two-way review when you're done.",
+      hero: false,
     },
   ];
   return (
@@ -391,8 +414,25 @@ function HowItWorksSlim() {
             return (
               <div
                 key={s.n}
-                className="rounded-2xl border border-line bg-surface p-6"
+                className={
+                  s.hero
+                    ? "relative rounded-2xl border border-coral/40 p-6 shadow-[0_20px_50px_rgba(255,106,61,0.18)]"
+                    : "rounded-2xl border border-line bg-surface p-6"
+                }
+                style={
+                  s.hero
+                    ? {
+                        background:
+                          "linear-gradient(160deg, rgba(255,106,61,0.13), rgba(255,46,120,0.08) 60%, rgba(28,23,19,1) 100%)",
+                      }
+                    : undefined
+                }
               >
+                {s.hero && (
+                  <div className="absolute -top-2.5 left-5 inline-flex items-center gap-1 rounded-full bg-coral px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white shadow-[0_4px_12px_rgba(255,106,61,0.45)]">
+                    ★ The magic moment
+                  </div>
+                )}
                 <div className="flex items-start justify-between">
                   <div className="grad-sunset flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-[0_10px_24px_rgba(255,106,61,0.25)]">
                     <Icon size={18} />
@@ -401,15 +441,62 @@ function HowItWorksSlim() {
                     {s.n}
                   </div>
                 </div>
-                <h3 className="mt-4 font-display text-lg font-semibold tracking-tight">
+                <h3
+                  className={
+                    "mt-4 font-display font-semibold tracking-tight " +
+                    (s.hero ? "text-xl" : "text-lg")
+                  }
+                >
                   {s.t}
                 </h3>
-                <p className="mt-2 text-sm leading-relaxed text-text-dim">
+                <p
+                  className={
+                    "mt-2 leading-relaxed " +
+                    (s.hero ? "text-[15px] text-text" : "text-sm text-text-dim")
+                  }
+                >
                   {s.d}
                 </p>
               </div>
             );
           })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Honest empty state for the featured-locals strip. Shown when fewer than 2
+// photo'd locals exist in the launch cities — a 1-card grid signals
+// pre-launch weakness worse than no grid at all.
+function FeaturedLocalsComingSoon() {
+  return (
+    <section className="relative px-5 pb-10 pt-4 sm:px-10 sm:pb-12 lg:px-14">
+      <div className="mx-auto max-w-4xl rounded-3xl border border-line-2 bg-surface/80 p-10 text-center backdrop-blur">
+        <div className="font-mono text-xs uppercase tracking-[0.18em] text-coral">
+          ◆ Bay Area · Recruiting Founding locals
+        </div>
+        <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+          The first Bay Area locals
+          <br />
+          go live this week.
+        </h2>
+        <p className="mx-auto mt-4 max-w-xl text-text-dim">
+          We&rsquo;re hand-picking each one. First 100 keep <b className="text-text">90%</b> of every booking and a Founding badge on their profile. Apply tonight; we email within 24h.
+        </p>
+        <div className="mt-7 inline-flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/become-a-local"
+            className="grad-sunset inline-flex items-center gap-2 rounded-full px-6 py-3.5 text-sm font-semibold text-white shadow-[0_20px_60px_rgba(255,106,61,0.32)]"
+          >
+            Claim a Founding spot <ArrowRight size={14} />
+          </Link>
+          <Link
+            href="/how-it-works"
+            className="inline-flex items-center gap-2 rounded-full border border-line-2 bg-surface px-6 py-3.5 text-sm font-medium text-text"
+          >
+            How it works
+          </Link>
         </div>
       </div>
     </section>
