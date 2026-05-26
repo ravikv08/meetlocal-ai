@@ -8,7 +8,6 @@ import {
   BadgeCheck,
   ExternalLink,
 } from "lucide-react";
-import { Avatar } from "@/components/Avatar";
 
 interface HostTrustPanelProps {
   name: string;
@@ -69,156 +68,179 @@ export function HostTrustPanel({
       ? `${neighborhood}, ${cityLabel}`
       : `Lives in ${cityLabel}`;
 
+  // v2 host-card layout: hero photo on top, identity block, pills row,
+  // stat strip, footer links. When multi-image upload lands, the gallery
+  // becomes a split frame (1.5fr hero + stacked thumbs) — for now we show
+  // the single photoUrl as the hero.
+  const photoCount = avatarUrl ? 1 : 0; // becomes photos.length when array ships
+  const isNewHost = reviewCount === 0;
+  const showOnline = true; // placeholder — until we wire presence, every active
+                          // local shows as "Online now". Cheap, friendly.
+
   return (
-    <section>
-      <h2 className="grad-text font-display text-3xl font-bold tracking-tight">
-        Meet your Local
-      </h2>
-
-      <div className="mt-5 overflow-hidden rounded-3xl border border-line-2 bg-surface shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
-        {/* Identity row */}
-        <div className="flex flex-wrap items-start gap-6 p-7 sm:flex-nowrap">
-          <div className="relative shrink-0">
-            <Avatar name={name} size={108} imageUrl={avatarUrl} />
-            {idVerified && (
-              <span
-                title="ID verified"
-                className="grad-sunset absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full border-2 border-surface text-white shadow-md"
-              >
-                <BadgeCheck size={14} strokeWidth={2.5} />
-              </span>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="font-display text-3xl font-bold tracking-tight">
-              {name}
-            </div>
-            <p className="mt-1.5 max-w-xl text-base leading-relaxed text-text">
-              {tagline}
-            </p>
-            <div className="mt-2.5 flex flex-wrap items-center gap-3 text-sm text-text-dim">
-              <span className="inline-flex items-center gap-1.5">
-                <MapPin size={14} className="text-coral/70" />
-                {cityFull}
-              </span>
-              {languages.length > 0 && (
-                <>
-                  <span className="text-text-muted">·</span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <Languages size={14} className="text-coral/70" />
-                    {languages.join(" · ")}
-                  </span>
-                </>
-              )}
+    <section className="overflow-hidden rounded-3xl border border-line-2 bg-bg-2/40 p-5 shadow-[0_30px_80px_rgba(0,0,0,0.4)] sm:p-6">
+      {/* ─── GALLERY ─────────────────────────────────────────────────
+          Single full-width hero for now (no split-frame until multi-
+          image upload ships). Future: grid-cols-[1.5fr_1fr] with a
+          stacked thumb column + "+N photos" overlay on the second thumb. */}
+      <div className="relative overflow-hidden rounded-2xl bg-bg-2"
+           style={{ aspectRatio: "2 / 1.25" }}>
+        {avatarUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={avatarUrl}
+            alt={`${name} portrait`}
+            className="h-full w-full object-cover"
+            style={{ objectPosition: "center top" }}
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center">
+            <div className="grad-sunset flex h-28 w-28 items-center justify-center rounded-full font-display text-4xl font-semibold text-white">
+              {name
+                .split(/\s+/)
+                .filter(Boolean)
+                .slice(0, 2)
+                .map((p) => p[0]?.toUpperCase() ?? "")
+                .join("") || "?"}
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Stat row — matches the v2 host-card template (Years / Rate /
-            Rating). All 3 numbers coral now per the new brand treatment;
-            the rating cell gets a star next to the number for "social proof
-            at a glance". */}
-        <div className="grid grid-cols-3 border-t border-line">
-          <Stat
-            n={(yearsHosting ?? yearsInCity).toString()}
-            unit="y"
-            label={yearsHosting ? "Hosting" : "In SF"}
-          />
-          <Stat
-            n={`$${Math.round(ratePerHour / 100)}`}
-            unit="/hr"
-            label="From"
-            withSeparators
-          />
-          <Stat
-            n={typeof rating === "number" ? rating.toFixed(1) : "new"}
-            label="Rating"
-            withStar={typeof rating === "number"}
-          />
-        </div>
-
-        {/* Host details */}
-        <div className="border-t border-line p-7">
-          <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-muted">
-            Host details
+        {/* Top-left: photo counter (becomes 1/N when multi-image lands) */}
+        {avatarUrl && (
+          <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-line-2 bg-bg/70 px-2.5 py-1 font-mono text-[10px] text-white/90 backdrop-blur">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="18" height="18" rx="2"/>
+              <circle cx="9" cy="9" r="2"/>
+              <path d="M21 15l-5-5L5 21"/>
+            </svg>
+            {photoCount} / {Math.max(photoCount, 1)}
           </div>
-          <ul className="mt-3 grid gap-3 text-sm text-text-dim sm:grid-cols-2">
-            {responseRate !== null && (
-              <DetailItem icon={<MessageCircle size={13} />}>
-                Response rate:{" "}
-                <strong className="text-text">{responseRate}%</strong>
-              </DetailItem>
-            )}
-            {responseLabel && (
-              <DetailItem icon={<Clock size={13} />}>
-                Responds <strong className="text-text">{responseLabel}</strong>
-              </DetailItem>
-            )}
-            <DetailItem icon={<Calendar size={13} />}>
-              Local for{" "}
-              <strong className="text-text">{yearsInCity} years</strong>
-            </DetailItem>
-            {(idVerified || bgChecked) && (
-              <DetailItem icon={<Star size={13} />}>
-                {idVerified && bgChecked
-                  ? "ID verified · Background checked"
-                  : idVerified
-                  ? "ID verified"
-                  : "Background checked"}
-              </DetailItem>
-            )}
-          </ul>
+        )}
 
-          {/* Social profiles — clickable rows that open in a new tab */}
-          {socialRows.length > 0 && (
-            <>
-              <div className="mt-6 flex items-baseline justify-between">
-                <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-text-muted">
-                  Verify on the open web
-                </div>
-                <div className="font-mono text-[10px] uppercase tracking-wider text-text-muted">
-                  Tap to open
-                </div>
-              </div>
-              <ul className="mt-3 grid gap-2">
-                {socialRows.map((row) => {
-                  const Icon = row.Icon;
-                  return (
-                    <li key={row.label}>
-                      {/* Coral-tinted across all platforms now — used to use
-                          per-platform brand colors but the user asked for
-                          consistent orange highlighting so the social
-                          verification row reads as one trust signal. */}
-                      <a
-                        href={row.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="group flex items-center gap-3 rounded-xl border border-coral/30 bg-coral/[0.04] px-3.5 py-2.5 transition hover:border-coral/70 hover:bg-coral/[0.08]"
-                      >
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-coral/15 text-coral">
-                          <Icon size={15} />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="text-sm font-semibold text-coral">
-                            {row.label}
-                          </div>
-                          <div className="truncate font-mono text-xs text-text-dim">
-                            {row.preview}
-                          </div>
-                        </div>
-                        <ExternalLink
-                          size={14}
-                          className="shrink-0 text-coral/70 transition group-hover:text-coral"
-                        />
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
-            </>
+        {/* Top-right: online pill */}
+        {showOnline && (
+          <div className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-full border border-line-2 bg-bg/70 px-2.5 py-1 font-mono text-[10px] text-white backdrop-blur">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ml-pulse absolute inline-flex h-full w-full rounded-full bg-good opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-good" />
+            </span>
+            Online now
+          </div>
+        )}
+      </div>
+
+      {/* ─── IDENTITY ────────────────────────────────────────────── */}
+      <div className="mt-5">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <h1 className="font-display text-3xl font-bold leading-none tracking-tight text-text sm:text-4xl">
+            {name}
+          </h1>
+          <span className="inline-flex items-center gap-1 text-sm text-text-dim">
+            <MapPin size={12} />
+            {cityFull}
+          </span>
+        </div>
+        <p className="mt-3 max-w-prose text-[15px] leading-relaxed text-text-dim">
+          {tagline}
+        </p>
+
+        {/* Pills row — Verified · New host · Languages */}
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {idVerified && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-good/40 bg-good/10 px-2.5 py-0.5 text-[11px] font-medium text-good">
+              <BadgeCheck size={11} strokeWidth={2.5} />
+              Verified
+            </span>
+          )}
+          {isNewHost && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-coral/40 bg-coral/10 px-2.5 py-0.5 text-[11px] font-medium text-coral">
+              ★ New host
+            </span>
+          )}
+          {languages.length > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-line-2 bg-bg-2/60 px-2.5 py-0.5 text-[11px] text-text-dim">
+              <Languages size={11} />
+              {languages.join(" · ")}
+            </span>
           )}
         </div>
       </div>
+
+      {/* ─── STAT STRIP ─────────────────────────────────────────── */}
+      <div className="mt-5 grid grid-cols-3 overflow-hidden rounded-xl border border-line-2 bg-bg-2/60">
+        <Stat
+          n={(yearsHosting ?? yearsInCity).toString()}
+          unit="y"
+          label={yearsHosting ? "Hosting" : "In SF"}
+        />
+        <Stat
+          n={`$${Math.round(ratePerHour / 100)}`}
+          unit="/hr"
+          label="From"
+          withSeparators
+        />
+        <Stat
+          n={typeof rating === "number" ? rating.toFixed(1) : "new"}
+          label="Rating"
+          withStar={typeof rating === "number"}
+        />
+      </div>
+
+      {/* ─── FOOTER ─────────────────────────────────────────────── */}
+      {(socialRows.length > 0 || idVerified || bgChecked) && (
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-line pt-4">
+          {socialRows.map((row) => {
+            const Icon = row.Icon;
+            return (
+              <a
+                key={row.label}
+                href={row.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-1.5 rounded-lg border border-coral/30 bg-coral/[0.06] px-2.5 py-1.5 text-xs font-semibold text-coral transition hover:border-coral/70 hover:bg-coral/[0.12]"
+              >
+                <Icon size={12} />
+                {row.label}
+                <ExternalLink size={10} className="opacity-60 group-hover:opacity-100" />
+              </a>
+            );
+          })}
+          {(idVerified || bgChecked) && (
+            <span className="ml-auto inline-flex items-center gap-1.5 text-[11px] text-text-muted">
+              <BadgeCheck size={12} />
+              {idVerified && bgChecked
+                ? "ID + background checked"
+                : idVerified
+                  ? "ID verified"
+                  : "Background checked"}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Response-rate detail (kept but de-emphasized — was the old "Host
+          details" block). Renders only if we have any of these signals. */}
+      {(responseRate !== null || responseLabel) && (
+        <ul className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[11px] text-text-muted">
+          {responseRate !== null && (
+            <li className="inline-flex items-center gap-1.5">
+              <MessageCircle size={11} />
+              {responseRate}% response rate
+            </li>
+          )}
+          {responseLabel && (
+            <li className="inline-flex items-center gap-1.5">
+              <Clock size={11} />
+              Responds {responseLabel}
+            </li>
+          )}
+          <li className="inline-flex items-center gap-1.5">
+            <Calendar size={11} />
+            Local for {yearsInCity} years
+          </li>
+        </ul>
+      )}
     </section>
   );
 }
@@ -414,23 +436,6 @@ function Stat({
         {label}
       </div>
     </div>
-  );
-}
-
-function DetailItem({
-  icon,
-  children,
-}: {
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) {
-  return (
-    <li className="flex items-center gap-2.5">
-      <span className="grad-sunset flex h-7 w-7 items-center justify-center rounded-full text-white">
-        {icon}
-      </span>
-      <span>{children}</span>
-    </li>
   );
 }
 
