@@ -96,9 +96,15 @@ export async function getLocalById(id: string) {
   };
 }
 
+// Meeting-spot kinds we surface to travelers. Hotels were excluded on
+// 2026-05-25 — implied bar/lobby setting tested poorly. Coffee shops,
+// plazas, museum cafés and bookstores remain (all daytime, public,
+// well-lit, low-pressure). Adjust here to add/remove in one place.
+const ALLOWED_SPOT_KINDS = ["coffee", "plaza", "museum", "book", "station"] as const;
+
 export async function listMeetingSpots(city: CitySlug) {
   return prisma.meetingSpot.findMany({
-    where: { city },
+    where: { city, kind: { in: [...ALLOWED_SPOT_KINDS] } },
     orderBy: [{ popular: "desc" }, { name: "asc" }],
   });
 }

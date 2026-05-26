@@ -20,10 +20,8 @@ interface SpotsPageProps {
 const CATS = [
   { id: "all", label: "All spots" },
   { id: "coffee", label: "Coffee" },
-  { id: "hotel", label: "Hotel lobbies" },
   { id: "plaza", label: "Public squares" },
   { id: "museum", label: "Museum cafés" },
-  { id: "restaurant", label: "Restaurants" },
 ] as const;
 
 const CAT_COLOR: Record<string, string> = {

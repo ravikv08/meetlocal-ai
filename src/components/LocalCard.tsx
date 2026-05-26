@@ -51,42 +51,40 @@ export function LocalCard({
   return (
     <Link
       href={href}
-      className="group relative flex flex-col items-center rounded-3xl border border-line bg-surface px-6 pb-5 pt-8 text-center transition hover:border-coral/40 hover:shadow-[0_20px_60px_rgba(0,0,0,0.35)]"
+      className="group relative flex flex-col items-center rounded-2xl border border-line bg-surface px-4 pb-3 pt-5 text-center transition hover:border-coral/40 hover:shadow-[0_16px_40px_rgba(0,0,0,0.32)]"
     >
-      {/* Top-right Founding badge — only shown when applicable, doesn't
-          take vertical space when absent (absolute positioning). */}
+      {/* Top-right Founding badge — absolute so it doesn't take vertical space
+          when absent. */}
       {local.isFounding && (
         <span
-          className="absolute right-4 top-4 inline-flex items-center rounded-full bg-coral/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-coral"
+          className="absolute right-3 top-3 inline-flex items-center rounded-full bg-coral/15 px-2 py-0.5 font-mono text-[9px] font-semibold uppercase tracking-wider text-coral"
           title="Founding 100 local — keeps 90% of every booking"
         >
           ★ Founding
         </span>
       )}
 
-      {/* Circular avatar — 128px fixed for grid consistency. object-position
-          top so faces stay framed; falls back to gradient + initials when
-          the local has no photo. */}
-      <div className="relative h-32 w-32 shrink-0">
+      {/* Circular avatar — 96px (was 128px) for the slimmer card. */}
+      <div className="relative h-24 w-24 shrink-0">
         {photoSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={photoSrc}
             alt={name}
-            className="h-32 w-32 rounded-full object-cover ring-2 ring-line-2 ring-offset-2 ring-offset-surface"
+            className="h-24 w-24 rounded-full object-cover ring-2 ring-line-2 ring-offset-2 ring-offset-surface"
             style={{ objectPosition: "center top" }}
           />
         ) : (
           <div
             aria-label={name}
-            className="grad-sunset flex h-32 w-32 items-center justify-center rounded-full font-display text-3xl font-semibold text-white ring-2 ring-line-2 ring-offset-2 ring-offset-surface"
+            className="grad-sunset flex h-24 w-24 items-center justify-center rounded-full font-display text-2xl font-semibold text-white ring-2 ring-line-2 ring-offset-2 ring-offset-surface"
           >
             {initials}
           </div>
         )}
         {local.idVerified && (
           <span
-            className="absolute bottom-0 right-0 flex h-6 w-6 items-center justify-center rounded-full bg-good text-white ring-2 ring-surface"
+            className="absolute bottom-0 right-0 flex h-5 w-5 items-center justify-center rounded-full bg-good text-[10px] text-white ring-2 ring-surface"
             title="ID verified"
           >
             ✓
@@ -94,31 +92,32 @@ export function LocalCard({
         )}
       </div>
 
-      {/* Name + location. Fixed min-height on the wrapper keeps cards aligned
-          regardless of name length. */}
-      <div className="mt-5 min-h-[68px]">
-        <div className="font-display text-xl font-semibold leading-tight tracking-tight text-text">
+      {/* Name + location — tighter block, no extra mt below location so the
+          tagline sits closer. */}
+      <div className="mt-3">
+        <div className="font-display text-lg font-semibold leading-tight tracking-tight text-text">
           {name}
         </div>
-        <div className="mt-1 flex items-center justify-center gap-1 text-sm text-text-dim">
-          <MapPin size={12} />
+        <div className="mt-0.5 flex items-center justify-center gap-1 text-xs text-text-dim">
+          <MapPin size={11} />
           {local.neighborhood ? `${local.neighborhood}, ${cityName}` : cityName}
         </div>
       </div>
 
-      {/* Tagline — 2-line clamp so card heights don't drift. */}
-      <p className="mt-2 line-clamp-2 min-h-[40px] text-sm leading-snug text-text-dim">
+      {/* Tagline — 2-line clamp; min-h keeps a 1-line card the same height as
+          a 2-line card so the stat row aligns across the row. */}
+      <p className="mt-2 line-clamp-2 min-h-[34px] text-[13px] leading-snug text-text-dim">
         {local.tagline}
       </p>
 
-      {/* Stat row — always 3 cells (rating / yrs in city / rate). When the
-          local has no reviews yet we render "new" so the grid stays uniform. */}
-      <div className="mt-5 grid w-full grid-cols-3 divide-x divide-line-2 rounded-2xl border border-line-2 bg-bg-2/60 py-2.5">
+      {/* Stat row — 3 cells. Values are coral-tinted (the brand "live" color)
+          so they pop against muted labels and the rest of the card. */}
+      <div className="mt-3 grid w-full grid-cols-3 divide-x divide-line-2 rounded-xl border border-line-2 bg-bg-2/60 py-2">
         <Stat
           value={
             typeof local.rating === "number" ? (
               <span className="inline-flex items-center gap-1">
-                <Star size={11} className="fill-amber text-amber" />
+                <Star size={10} className="fill-coral text-coral" />
                 {local.rating.toFixed(1)}
               </span>
             ) : (
@@ -153,11 +152,11 @@ function Stat({
   label: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center px-2">
-      <div className="font-display text-sm font-semibold leading-tight text-text">
+    <div className="flex flex-col items-center justify-center px-1">
+      <div className="font-display text-[13px] font-semibold leading-tight text-coral">
         {value}
       </div>
-      <div className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-text-muted">
+      <div className="mt-0.5 font-mono text-[9px] uppercase tracking-wider text-text-muted">
         {label}
       </div>
     </div>
