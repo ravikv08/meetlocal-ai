@@ -79,6 +79,7 @@ export function BookingPanel({
   const [showNote, setShowNote] = useState(false);
   const [openPicker, setOpenPicker] = useState<"date" | "spot" | null>(null);
   const [isPending, startTransition] = useTransition();
+  const [bookingError, setBookingError] = useState<string | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
   // Outside-click to close any open inline picker
@@ -113,9 +114,13 @@ export function BookingPanel({
     fd.set("slot", slot);
     if (spotId) fd.set("spotId", spotId);
     if (note.trim()) fd.set("travelerNote", note.trim());
+    setBookingError(null);
     startTransition(async () => {
-      // Server action redirects (Stripe Checkout or /booking/[id]/confirmed)
-      await createBooking(fd);
+      try {
+        await createBooking(fd);
+      } catch {
+        setBookingError("Something went wrong. Please try again.");
+      }
     });
   };
 
@@ -386,6 +391,11 @@ export function BookingPanel({
 
       {/* CTA + trust */}
       <div className="space-y-3 p-4">
+        {bookingError && (
+          <p role="alert" className="text-sm text-magenta">
+            {bookingError}
+          </p>
+        )}
         <button
           type="button"
           onClick={submit}
