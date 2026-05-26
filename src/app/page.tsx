@@ -273,7 +273,7 @@ export default async function Home({ searchParams }: HomeProps) {
                 Every local hand-picked. We turn away 9 of 10 applicants.
               </div>
             </div>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {featuredLocals.map((local) => (
                 <LocalCard
                   key={local.id}
@@ -319,7 +319,7 @@ export default async function Home({ searchParams }: HomeProps) {
               vibeLabel={vibeLabel ?? "this vibe"}
             />
           ) : (
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
               {locals.map((local) => (
                 <LocalCard
                   key={local.id}
