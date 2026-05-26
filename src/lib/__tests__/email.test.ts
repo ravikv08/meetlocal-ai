@@ -9,13 +9,12 @@ import {
   magicLinkTemplate,
 } from '@/lib/email'
 
-vi.mock('resend', () => ({
-  Resend: vi.fn().mockImplementation(() => ({
-    emails: {
-      send: vi.fn().mockResolvedValue({ id: 'email-123' }),
-    },
-  })),
-}))
+vi.mock('resend', () => {
+  class MockResend {
+    emails = { send: vi.fn().mockResolvedValue({ id: 'email-123' }) }
+  }
+  return { Resend: MockResend }
+})
 
 describe('isEmailConfigured', () => {
   it('returns false when RESEND_API_KEY is not set', () => {
@@ -31,6 +30,20 @@ describe('sendEmail', () => {
       html: '<p>hi</p>',
     })
     expect(result).toEqual({ skipped: true })
+  })
+
+  it('calls resend.emails.send and returns result when API key is set', async () => {
+    vi.stubEnv('RESEND_API_KEY', 'test-key-123')
+    vi.resetModules()
+    const { sendEmail: sendEmailConfigured } = await import('@/lib/email')
+    const result = await sendEmailConfigured({
+      to: 'user@example.com',
+      subject: 'Test',
+      html: '<p>hi</p>',
+    })
+    expect(result).toMatchObject({ skipped: false })
+    vi.unstubAllEnvs()
+    vi.resetModules()
   })
 })
 
