@@ -15,7 +15,8 @@ vi.mock('next/navigation', () => ({
     refresh: vi.fn(),
   }),
   usePathname: vi.fn().mockReturnValue('/'),
-  useSearchParams: vi.fn().mockReturnValue(new URLSearchParams()),
+  // Cast to ReadonlyURLSearchParams — App Router's actual return type
+  useSearchParams: vi.fn().mockReturnValue(new URLSearchParams() as ReturnType<typeof import('next/navigation').useSearchParams>),
 }))
 
 // next/link — render as plain <a> (no router context needed)
