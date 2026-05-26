@@ -255,21 +255,12 @@ export default async function Home({ searchParams }: HomeProps) {
       {/* Stories strip — only renders if there are unexpired stories */}
       <StoriesRow />
 
-      {/* Single testimonial below the hero — rotating per-request from the
-          TESTIMONIALS array. Centered card gives it room to breathe. */}
-      {!isReady && (
-        <section className="relative px-5 pb-2 pt-2 sm:px-10 sm:pb-4 lg:px-14">
-          <div className="mx-auto max-w-2xl">{heroTestimonial}</div>
-        </section>
-      )}
-
       {/* Featured locals — shows the actual roster (photo'd, in-CITIES) once
-          we have at least 2. With fewer than 2 we hide the grid entirely and
-          show an honest "coming soon" CTA. A 1-card grid signals weakness
-          worse than no grid at all (senior-designer feedback). */}
-      {!isReady &&
-        (featuredLocals.length >= 2 ? (
-          <section className="relative px-5 pb-10 pt-4 sm:px-10 sm:pb-12 lg:px-14">
+          we have at least 2. With fewer than 2 we render nothing here; the
+          live-launch pill in the hero already conveys "coming soon" so a
+          second CTA below the fold was duplicative. */}
+      {!isReady && featuredLocals.length >= 2 && (
+        <section className="relative px-5 pb-10 pt-4 sm:px-10 sm:pb-12 lg:px-14">
             <div className="mb-5 flex items-baseline justify-between">
               <div>
                 <div className="font-mono text-xs uppercase tracking-[0.12em] text-text-muted">
@@ -293,9 +284,7 @@ export default async function Home({ searchParams }: HomeProps) {
               ))}
             </div>
           </section>
-        ) : (
-          <FeaturedLocalsComingSoon />
-        ))}
+        )}
 
       {!isReady && <HowItWorksSlim />}
 
