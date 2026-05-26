@@ -13,12 +13,12 @@ const mockStripe = vi.hoisted(() => ({
 }))
 vi.mock('@/lib/stripe', () => ({ stripe: mockStripe }))
 
-import { expireStaleRequestedBookings } from '@/lib/bookings-cron'
+import { expireStaleRequestedBookings, ACCEPT_WINDOW_MINUTES } from '@/lib/bookings-cron'
 
-const WINDOW_MS = 14 * 60 * 1000
+const WINDOW_MS = ACCEPT_WINDOW_MINUTES * 60 * 1000
 
 describe('expireStaleRequestedBookings', () => {
-  it('queries for requested bookings older than 14 minutes', async () => {
+  it(`queries for requested bookings older than ${ACCEPT_WINDOW_MINUTES} minutes`, async () => {
     const now = new Date('2025-06-15T12:00:00Z')
     mockPrisma.booking.findMany.mockResolvedValue([])
 

@@ -2,10 +2,10 @@ import { describe, it, expect } from 'vitest'
 import { LocalApplicationSchema, SetLocalStatusSchema, SetVerificationFlagSchema } from '@/lib/schemas/local'
 
 const validApplication = {
-  city: 'miami',
-  neighborhood: 'Wynwood',
-  tagline: 'Your Miami insider guide',
-  bio: 'I have lived in Miami for 10 years and know all the hidden gems in the city.',
+  city: 'bay-area',
+  neighborhood: 'Mission District',
+  tagline: 'Your SF insider guide',
+  bio: 'I have lived in San Francisco for 10 years and know all the hidden gems in the city.',
   ratePerHourDollars: 50,
   residency: 'rooted' as const,
   yearsInCity: 10,
