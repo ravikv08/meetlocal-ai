@@ -15,7 +15,6 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { LocalCard } from "@/components/LocalCard";
 import { SearchBar } from "@/components/SearchBar";
 import { StoriesRow } from "@/components/StoriesRow";
-import { Starfield } from "@/components/Starfield";
 import { ExitIntentEmailCapture } from "@/components/ExitIntentEmailCapture";
 import { formatRelative } from "@/lib/date-utils";
 import {
@@ -201,14 +200,11 @@ export default async function Home({ searchParams }: HomeProps) {
       <SiteHeader />
 
       {/* HERO — Apple-grade single moment. Centered, one column, calm.
-          Starfield background gives the "constellation of locals across a
-          city" metaphor without animation cost or hydration risk. Order:
-          pill → headline → sub → search → micro trust strip → testimonial.
-          No video, no separate Find section, no full-width TrustStrip — one
-          breath. */}
+          Pure dark + warm coral radial glow only (starfield removed — was
+          rendering as oversized blobs). Order: pill → headline → sub →
+          search → micro trust strip. No video, no separate Find section,
+          no full-width TrustStrip — one breath. */}
       <section className="relative overflow-hidden px-5 pb-14 pt-14 sm:px-10 sm:pb-20 sm:pt-20 lg:px-14 lg:pt-24">
-        {/* Starfield is decorative; absolutely-positioned behind content. */}
-        <Starfield />
         {/* Soft radial coral glow centered behind the headline — gives the
             "warm campfire in the night" energy that distinguishes us from
             cold-tech homepages. */}
@@ -217,7 +213,7 @@ export default async function Home({ searchParams }: HomeProps) {
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              "radial-gradient(700px 400px at 50% 30%, rgba(255,106,61,0.18), transparent 60%), radial-gradient(900px 500px at 50% 80%, rgba(255,46,120,0.10), transparent 60%)",
+              "radial-gradient(700px 400px at 50% 30%, rgba(255,106,61,0.16), transparent 60%), radial-gradient(900px 500px at 50% 80%, rgba(255,46,120,0.08), transparent 60%)",
           }}
         />
 
