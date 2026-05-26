@@ -230,18 +230,14 @@ export default async function Home({ searchParams }: HomeProps) {
             you haven&apos;t met.
           </h1>
 
-          {/* Two-paragraph sub stack — restored. The first is the emotional
-              promise; the second is the proof. Both centered. */}
-          <div className="max-w-2xl space-y-4">
-            <p className="font-display text-2xl font-semibold leading-tight tracking-tight text-text sm:text-3xl">
-              Land in a new city. Leave with a friend in it.
-            </p>
-            <p className="text-lg leading-relaxed text-text-dim">
-              Within hours, a vetted local opens doors no guidebook can — the
-              spots, the shortcuts, and the stories that make a city{" "}
-              <em className="grad-text not-italic font-semibold">yours</em>.
-            </p>
-          </div>
+          {/* Single-sentence sub — collapsed from the two-paragraph stack on
+              2026-05-25 per founder's call. Less is more; "yours" stays as
+              the gradient brand-moment. */}
+          <p className="max-w-2xl text-lg leading-relaxed text-text-dim sm:text-xl">
+            Within hours, a vetted local opens the doors, shortcuts, and
+            stories that make a new city{" "}
+            <em className="grad-text not-italic font-semibold">yours</em>.
+          </p>
 
           {/* Search bar — direct child of the items-center flex column so it
               centers without needing a wrapper. (The wrapper's w-full was
