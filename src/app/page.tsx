@@ -9,6 +9,11 @@ import {
   Handshake,
   ArrowRight,
   Check,
+  MapPin,
+  CreditCard,
+  Flame,
+  Clock,
+  Zap,
 } from "lucide-react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
@@ -350,33 +355,10 @@ function TrustStrip() {
 }
 
 function HowItWorksSlim() {
-  // Step 02 is the conversion-moment ("card authorized but not charged" is
-  // the sentence that turns browsers into bookers) so it gets a coral-tinted
-  // background + an explicit "magic moment" eyebrow per the senior-designer
-  // review. 01 and 03 stay subdued so 02 reads as the hero card.
-  const steps = [
-    {
-      icon: Search,
-      n: "01",
-      t: "Tell us where you're landing",
-      d: "City, date, and a vibe — food, music, history, hidden spots. 15 seconds.",
-      hero: false,
-    },
-    {
-      icon: Hourglass,
-      n: "02",
-      t: "Send a request — no charge",
-      d: "Your card is authorized but not charged. Your local has 30 minutes to accept; if they don't, the hold drops off automatically.",
-      hero: true,
-    },
-    {
-      icon: Handshake,
-      n: "03",
-      t: "Meet at a public, vetted spot",
-      d: "Our Starbucks Rule. Wrap up with a two-way review when you're done.",
-      hero: false,
-    },
-  ];
+  // Step 02 ("Send the request — we hold but don't charge") is the
+  // conversion moment, so it's coral-bordered with a RISK-FREE flag chip
+  // and an in-copy coral highlight on the trust phrase. Steps 01 and 03
+  // stay neutral with grey square icons + tag chips.
   return (
     <section className="relative px-5 py-10 sm:px-10 sm:py-14 lg:px-14">
       <div className="mx-auto max-w-6xl">
@@ -396,61 +378,138 @@ function HowItWorksSlim() {
             See full walkthrough <ArrowRight size={13} />
           </Link>
         </div>
+
         <div className="mt-7 grid gap-4 md:grid-cols-3">
-          {steps.map((s) => {
-            const Icon = s.icon;
-            return (
-              <div
-                key={s.n}
-                className={
-                  s.hero
-                    ? "relative rounded-2xl border border-coral/40 p-6 shadow-[0_20px_50px_rgba(255,106,61,0.18)]"
-                    : "rounded-2xl border border-line bg-surface p-6"
-                }
-                style={
-                  s.hero
-                    ? {
-                        background:
-                          "linear-gradient(160deg, rgba(255,106,61,0.13), rgba(255,46,120,0.08) 60%, rgba(28,23,19,1) 100%)",
-                      }
-                    : undefined
-                }
-              >
-                {s.hero && (
-                  <div className="absolute -top-2.5 left-5 inline-flex items-center gap-1 rounded-full bg-coral px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white shadow-[0_4px_12px_rgba(255,106,61,0.45)]">
-                    ★ The magic moment
-                  </div>
-                )}
-                <div className="flex items-start justify-between">
-                  <div className="grad-sunset flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-[0_10px_24px_rgba(255,106,61,0.25)]">
-                    <Icon size={18} />
-                  </div>
-                  <div className="font-mono text-xs tracking-wider text-text-muted">
-                    {s.n}
-                  </div>
-                </div>
-                <h3
-                  className={
-                    "mt-4 font-display font-semibold tracking-tight " +
-                    (s.hero ? "text-xl" : "text-lg")
-                  }
-                >
-                  {s.t}
-                </h3>
-                <p
-                  className={
-                    "mt-2 leading-relaxed " +
-                    (s.hero ? "text-[15px] text-text" : "text-sm text-text-dim")
-                  }
-                >
-                  {s.d}
-                </p>
-              </div>
-            );
-          })}
+          {/* 01 — pick city + vibe */}
+          <StepCard
+            n="01"
+            icon={<MapPin size={16} />}
+            title="Pick your city and vibe"
+            body="Where, when, and what you're into. Coffee, music, hidden spots, anything."
+            chips={[{ icon: <Clock size={11} />, label: "15 seconds" }]}
+          />
+
+          {/* 02 — magic moment (coral-bordered, RISK-FREE flag) */}
+          <StepCard
+            hero
+            flag="risk-free"
+            n="02"
+            icon={<CreditCard size={16} />}
+            title="Send the request"
+            body={
+              <>
+                <span className="font-semibold text-coral">
+                  We hold your card but don&rsquo;t charge it.
+                </span>{" "}
+                Your local has 30 minutes to accept.
+              </>
+            }
+            chips={[
+              { icon: <Zap size={11} />, label: "~12 min reply" },
+              { icon: <Check size={11} />, label: "Cancel anytime" },
+            ]}
+          />
+
+          {/* 03 — meet somewhere public */}
+          <StepCard
+            n="03"
+            icon={<Coffee size={16} />}
+            title="Meet somewhere public"
+            body="A café, a park, a museum — never a private home. Two-way review when you're done."
+            chips={[
+              { icon: <ShieldCheck size={11} />, label: "Public-first, always" },
+            ]}
+          />
         </div>
       </div>
     </section>
+  );
+}
+
+interface StepChip {
+  icon: React.ReactNode;
+  label: string;
+}
+
+function StepCard({
+  n,
+  icon,
+  title,
+  body,
+  chips,
+  hero = false,
+  flag,
+}: {
+  n: string;
+  icon: React.ReactNode;
+  title: string;
+  body: React.ReactNode;
+  chips?: StepChip[];
+  hero?: boolean;
+  flag?: "risk-free";
+}) {
+  return (
+    <div
+      className={
+        hero
+          ? "relative rounded-2xl border border-coral/40 p-6 shadow-[0_20px_50px_rgba(255,106,61,0.18)]"
+          : "rounded-2xl border border-line bg-surface p-6"
+      }
+      style={
+        hero
+          ? {
+              background:
+                "linear-gradient(160deg, rgba(255,106,61,0.10), rgba(255,46,120,0.05) 60%, rgba(28,23,19,1) 100%)",
+            }
+          : undefined
+      }
+    >
+      {flag === "risk-free" && (
+        <div className="absolute -top-2.5 left-5 inline-flex items-center gap-1 rounded-full bg-coral px-2.5 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-white shadow-[0_4px_12px_rgba(255,106,61,0.45)]">
+          <Flame size={10} /> Risk-free
+        </div>
+      )}
+      <div className="flex items-start justify-between">
+        {/* Small neutral square icon — matches the new design. Hero step
+            keeps the grad-sunset accent so it still pops. */}
+        <div
+          className={
+            hero
+              ? "grad-sunset flex h-9 w-9 items-center justify-center rounded-lg text-white shadow-[0_10px_24px_rgba(255,106,61,0.25)]"
+              : "flex h-9 w-9 items-center justify-center rounded-lg bg-bg-2 text-text-dim"
+          }
+        >
+          {icon}
+        </div>
+        <div className="font-mono text-xs tracking-wider text-text-muted">
+          {n}
+        </div>
+      </div>
+      <h3 className="mt-4 font-display text-lg font-semibold tracking-tight">
+        {title}
+      </h3>
+      <p
+        className={
+          "mt-2 text-sm leading-relaxed " + (hero ? "text-text" : "text-text-dim")
+        }
+      >
+        {body}
+      </p>
+
+      {chips && chips.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-2">
+          {chips.map((c, i) => (
+            <span
+              key={i}
+              className="inline-flex items-center gap-1 rounded-md border border-line-2 bg-bg-2/70 px-2 py-1 text-[11px] text-text-dim"
+            >
+              {c.icon}
+              {c.label}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
