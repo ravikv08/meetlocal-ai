@@ -1,30 +1,27 @@
-// tests/e2e/apply-local.spec.ts
 import { test, expect } from '@playwright/test'
 
 test.describe('Become a local — apply flow', () => {
-  test('apply page is reachable from /become-a-local', async ({ page }) => {
-    await page.goto('/become-a-local')
-    // Should show a page (not 404)
-    await expect(page.locator('body')).not.toContainText('404')
-    await expect(page.locator('body')).not.toContainText('Not Found')
+  test('apply page renders the application form heading', async ({ page }) => {
+    await page.goto('/become-a-local/apply')
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 8_000 })
   })
 
-  test('/become-a-local/apply shows a form', async ({ page }) => {
+  test('apply page has at least 3 form inputs', async ({ page }) => {
     await page.goto('/become-a-local/apply')
-    // The apply form has many inputs — neighborhood, tagline, etc.
-    await expect(page.locator('input, textarea').first()).toBeVisible({ timeout: 10_000 })
+    const inputs = page.locator('input, select, textarea')
+    await expect(inputs.first()).toBeVisible({ timeout: 8_000 })
+    expect(await inputs.count()).toBeGreaterThanOrEqual(3)
   })
 
-  test('apply form shows validation errors when submitted empty without IC agreement', async ({ page }) => {
+  test('submitting an empty form shows a validation error', async ({ page }) => {
     await page.goto('/become-a-local/apply')
-    // ApplyForm validates: tags must be picked and IC agreement must be checked
-    // Clicking submit without tags triggers setError("Pick at least one thing...")
-    // The error div uses class text-magenta on the form
-    const submitBtn = page.getByRole('button', { name: /submit application/i })
-    if (await submitBtn.isVisible()) {
-      await submitBtn.click()
-      // Error message renders in a div — check the page stays on /apply
-      await expect(page).toHaveURL(/apply/)
-    }
+    // Submit without filling anything — button is disabled without IC agreement,
+    // so submit the form directly to trigger validation
+    await page.evaluate(() => {
+      const form = document.querySelector('form')
+      if (form) form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    })
+    // An inline error should appear about tags
+    await expect(page.getByText(/pick at least one/i)).toBeVisible({ timeout: 4_000 })
   })
 })
