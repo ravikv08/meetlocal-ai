@@ -53,7 +53,7 @@ const EARNINGS_ROWS = [
     valueClass: "text-coral",
   },
   { label: "Your cut — standard", value: "80%" },
-  { label: "Payout schedule", value: "Weekly · Mondays" },
+  { label: "Payout schedule", value: "Weekly, Mondays" },
   { label: "Sign-on bonus", value: "$200 after 5 meetups" },
 ];
 
@@ -89,7 +89,7 @@ export default async function BecomeALocalPage() {
       {/* ───────────── HERO ─────────────
           Two-column on lg+; stacks on mobile. Left = pitch. Right = earnings
           card. Slightly biased toward the left col so the headline breathes. */}
-      <section className="relative mx-auto max-w-6xl px-6 pb-16 pt-20 sm:px-10 lg:px-14 lg:pt-24">
+      <section className="relative mx-auto max-w-6xl px-6 pb-10 pt-6 sm:px-10 sm:pb-14 sm:pt-10 lg:px-14 lg:pt-12">
         <div className="grid items-start gap-10 lg:grid-cols-[1.4fr_1fr] lg:gap-12">
           {/* LEFT — Pitch */}
           <div>
@@ -142,7 +142,7 @@ export default async function BecomeALocalPage() {
               <span className="grad-text">$1,840</span>
             </div>
             <div className="mt-3 text-sm text-text-dim">
-              per month · 12 meetups · ~4 hrs/wk
+              per month, 12 meetups, ~4 hrs/wk
             </div>
 
             <div className="mt-7 grid gap-0">
@@ -174,7 +174,7 @@ export default async function BecomeALocalPage() {
       {/* ───────────── REAL LOCALS ─────────────
           Three quote cards with city-tinted avatar rings + monthly earnings.
           Single source of truth in REAL_LOCALS above. */}
-      <section className="relative mx-auto max-w-6xl px-6 pb-20 sm:px-10 lg:px-14">
+      <section className="relative mx-auto max-w-6xl px-6 pb-12 sm:px-10 sm:pb-14 lg:px-14">
         <h2 className="font-display text-4xl font-bold tracking-tight sm:text-5xl">
           Real locals. Real earnings.
         </h2>
@@ -200,7 +200,7 @@ export default async function BecomeALocalPage() {
                     {l.name}
                   </div>
                   <div className="font-mono text-[11px] uppercase tracking-wider text-text-muted">
-                    {l.city} · {l.neighborhood}
+                    {l.city}, {l.neighborhood}
                   </div>
                 </div>
               </div>
@@ -220,7 +220,7 @@ export default async function BecomeALocalPage() {
           scrolls here. Anchor id keeps deep links / shared URLs working. */}
       <section
         id="how-it-works"
-        className="relative mx-auto max-w-6xl px-6 pb-32 sm:px-10 lg:px-14"
+        className="relative mx-auto max-w-6xl px-6 pb-16 sm:px-10 sm:pb-20 lg:px-14"
       >
         <div className="font-mono text-xs uppercase tracking-[0.18em] text-text-muted">
           How approval works
