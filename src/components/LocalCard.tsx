@@ -51,7 +51,7 @@ export function LocalCard({
   return (
     <Link
       href={href}
-      className="group relative flex flex-col items-center rounded-2xl border border-line bg-surface px-3 pb-2.5 pt-4 text-center transition hover:border-coral/40 hover:shadow-[0_16px_40px_rgba(0,0,0,0.32)]"
+      className="group relative flex flex-col items-center rounded-2xl border border-line bg-surface px-2 pb-2 pt-3.5 text-center transition hover:border-coral/40 hover:shadow-[0_16px_40px_rgba(0,0,0,0.32)]"
     >
       {/* Top-right Founding badge — absolute so it doesn't take vertical space
           when absent. */}
@@ -108,9 +108,10 @@ export function LocalCard({
       </div>
 
       {/* Stat row — 3 cells. Values are coral-tinted (the brand "live" color)
-          so they pop against muted labels. mt-2 sits closer to the location
-          line now that the tagline doesn't separate them. */}
-      <div className="mt-2 grid w-full grid-cols-3 divide-x divide-line-2 rounded-lg border border-line-2 bg-bg-2/60 py-1.5">
+          so they pop against muted labels. Tight py-1 + cell px-0.5 so the
+          numbers sit close to the dividers, no dead air around short values
+          like "5y". */}
+      <div className="mt-2 grid w-full grid-cols-3 divide-x divide-line-2 rounded-lg border border-line-2 bg-bg-2/60 py-1">
         <Stat
           value={
             typeof local.rating === "number" ? (
@@ -145,7 +146,7 @@ function Stat({
   label: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center px-1">
+    <div className="flex flex-col items-center justify-center px-0.5 py-1">
       <div className="font-display text-[12px] font-semibold leading-tight text-coral">
         {value}
       </div>
