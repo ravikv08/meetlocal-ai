@@ -298,7 +298,7 @@ export default async function Home({ searchParams }: HomeProps) {
               vibeLabel={vibeLabel ?? "this vibe"}
             />
           ) : (
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
               {locals.map((local) => (
                 <LocalCard
                   key={local.id}

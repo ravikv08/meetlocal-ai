@@ -64,22 +64,22 @@ export function LocalCard({
         </span>
       )}
 
-      {/* Circular avatar — 96px (bigger so the face reads at any grid size).
-          The narrower 4-5-up grid means the avatar still doesn't dominate;
-          a 96px photo in a ~200px-wide card is the Airbnb / LinkedIn ratio. */}
-      <div className="relative h-24 w-24 shrink-0">
+      {/* Circular avatar — 80px, photo fills the circle edge-to-edge (no
+          ring-offset gap). Thin ring-1 outline only. Smaller avatar lets the
+          whole card be ~35% narrower. */}
+      <div className="relative h-20 w-20 shrink-0">
         {photoSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={photoSrc}
             alt={name}
-            className="h-24 w-24 rounded-full object-cover ring-2 ring-line-2 ring-offset-2 ring-offset-surface"
+            className="h-20 w-20 rounded-full object-cover ring-1 ring-line-2"
             style={{ objectPosition: "center top" }}
           />
         ) : (
           <div
             aria-label={name}
-            className="grad-sunset flex h-24 w-24 items-center justify-center rounded-full font-display text-2xl font-semibold text-white ring-2 ring-line-2 ring-offset-2 ring-offset-surface"
+            className="grad-sunset flex h-20 w-20 items-center justify-center rounded-full font-display text-xl font-semibold text-white ring-1 ring-line-2"
           >
             {initials}
           </div>
@@ -146,7 +146,7 @@ function Stat({
   label: string;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center px-0.5 py-1">
+    <div className="flex flex-col items-center justify-center py-1">
       <div className="font-display text-[12px] font-semibold leading-tight text-coral">
         {value}
       </div>
