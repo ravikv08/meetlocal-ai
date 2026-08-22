@@ -173,6 +173,77 @@ describe('acceptBookingByUser', () => {
       acceptBookingByUser({ ...ctx, actorUserId: 'admin-user', isAdmin: true }),
     ).resolves.not.toThrow()
   })
+
+  it('guards the transition on status="requested" so concurrent accepts cannot double-confirm', async () => {
+    mockPrisma.booking.findUnique.mockResolvedValue({ ...baseBooking, status: 'requested' })
+    mockPrisma.booking.update.mockResolvedValue({ ...baseBooking, status: 'confirmed' })
+
+    await acceptBookingByUser(ctx)
+
+    // The compound where is the concurrency guard — both actors pass the app-level
+    // status check, but only one update can match.
+    expect(mockPrisma.booking.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'booking-1', status: 'requested' },
+      }),
+    )
+  })
+
+  it('translates the P2025 race loss into a conflict error', async () => {
+    mockPrisma.booking.findUnique.mockResolvedValue({ ...baseBooking, status: 'requested' })
+    mockPrisma.booking.update.mockRejectedValue(
+      Object.assign(new Error('Record to update not found.'), { code: 'P2025' }),
+    )
+
+    await expect(acceptBookingByUser(ctx)).rejects.toThrow(
+      'Booking no longer available to accept',
+    )
+    // The loser of the race must never capture the payment.
+    expect(mockStripe.paymentIntents.capture).not.toHaveBeenCalled()
+  })
+
+  it('rethrows non-P2025 update errors unchanged', async () => {
+    mockPrisma.booking.findUnique.mockResolvedValue({ ...baseBooking, status: 'requested' })
+    const boom = new Error('connection refused')
+    mockPrisma.booking.update.mockRejectedValue(boom)
+
+    await expect(acceptBookingByUser(ctx)).rejects.toThrow('connection refused')
+  })
+
+  it('captures the Stripe PaymentIntent after confirming when one exists', async () => {
+    mockPrisma.booking.findUnique.mockResolvedValue({
+      ...baseBooking,
+      status: 'requested',
+      stripePaymentIntentId: 'pi_xyz',
+    })
+    mockPrisma.booking.update.mockResolvedValue({ ...baseBooking, status: 'confirmed' })
+
+    await acceptBookingByUser(ctx)
+
+    expect(mockStripe.paymentIntents.capture).toHaveBeenCalledWith('pi_xyz')
+  })
+
+  it('does not capture when Stripe was not used for the booking', async () => {
+    mockPrisma.booking.findUnique.mockResolvedValue({ ...baseBooking, status: 'requested' })
+    mockPrisma.booking.update.mockResolvedValue({ ...baseBooking, status: 'confirmed' })
+
+    await acceptBookingByUser(ctx)
+
+    expect(mockStripe.paymentIntents.capture).not.toHaveBeenCalled()
+  })
+
+  it('swallows a Stripe capture failure instead of failing the accept', async () => {
+    mockPrisma.booking.findUnique.mockResolvedValue({
+      ...baseBooking,
+      status: 'requested',
+      stripePaymentIntentId: 'pi_fail',
+    })
+    mockPrisma.booking.update.mockResolvedValue({ ...baseBooking, status: 'confirmed' })
+    mockStripe.paymentIntents.capture.mockRejectedValueOnce(new Error('card_error'))
+
+    await expect(acceptBookingByUser(ctx)).resolves.toMatchObject({ status: 'confirmed' })
+    expect(mockPrisma.booking.update).toHaveBeenCalled()
+  })
 })
 
 describe('declineBookingByUser', () => {

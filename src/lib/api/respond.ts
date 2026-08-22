@@ -106,6 +106,13 @@ export function handleError(err: unknown) {
         { status: 403 },
       );
     }
+    // Lost an optimistic-concurrency race (e.g. concurrent accept) — 409.
+    if (lower.includes("no longer available")) {
+      return NextResponse.json(
+        { error: { message: msg, code: "conflict" } },
+        { status: 409 },
+      );
+    }
     if (lower.includes("not found") || lower.includes("not available")) {
       return NextResponse.json(
         { error: { message: msg, code: "not_found" } },

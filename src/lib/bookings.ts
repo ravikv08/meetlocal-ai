@@ -140,10 +140,22 @@ export async function acceptBookingByUser(ctx: BookingActorContext) {
     throw new Error(`Cannot accept a booking that is ${booking.status}`);
   }
 
-  const updated = await prisma.booking.update({
-    where: { id: booking.id, status: "requested" },
-    data: { status: "confirmed", acceptedAt: new Date() },
-  });
+  // The status guard in the where clause makes the requested → confirmed
+  // transition atomic. If another actor won the race, Prisma throws P2025
+  // (record not found for the compound where) — surface that as a conflict
+  // instead of a 500.
+  let updated;
+  try {
+    updated = await prisma.booking.update({
+      where: { id: booking.id, status: "requested" },
+      data: { status: "confirmed", acceptedAt: new Date() },
+    });
+  } catch (err) {
+    if ((err as { code?: string } | null)?.code === "P2025") {
+      throw new Error("Booking no longer available to accept");
+    }
+    throw err;
+  }
 
   // Capture the authorized Stripe payment (if Stripe was used). Only after
   // the row transitioned to `confirmed` — a failed capture is logged and
