@@ -116,19 +116,21 @@ async function loadActionableBooking({
 }: BookingActorContext) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    include: {
-      traveler: { select: { id: true, name: true, email: true } },
-      local: {
-        include: { user: { select: { id: true, name: true, email: true } } },
-      },
+    select: {
+      id: true,
+      status: true,
+      stripePaymentIntentId: true,
+      travelerId: true,
+      local: { select: { userId: true, status: true } },
     },
   });
   if (!booking) throw new Error("booking not found");
 
+  const isTraveler = booking.travelerId === actorUserId;
   const isLocal = booking.local.userId === actorUserId;
-  if (!isLocal && !isAdmin) throw new Error("forbidden");
+  if (!isTraveler && !isLocal && !isAdmin) throw new Error("forbidden");
 
-  return { booking, isLocal };
+  return { booking, isLocal, isTraveler };
 }
 
 export async function acceptBookingByUser(ctx: BookingActorContext) {
@@ -138,9 +140,14 @@ export async function acceptBookingByUser(ctx: BookingActorContext) {
     throw new Error(`Cannot accept a booking that is ${booking.status}`);
   }
 
-  // Capture the authorized Stripe payment (if Stripe was used). Failures are
-  // logged but don't block the accept — the booking record is the source of
-  // truth and the founder can reconcile manually.
+  const updated = await prisma.booking.update({
+    where: { id: booking.id, status: "requested" },
+    data: { status: "confirmed", acceptedAt: new Date() },
+  });
+
+  // Capture the authorized Stripe payment (if Stripe was used). Only after
+  // the row transitioned to `confirmed` — a failed capture is logged and
+  // reconciled manually rather than blocking the accept.
   if (booking.stripePaymentIntentId && stripe) {
     try {
       await stripe.paymentIntents.capture(booking.stripePaymentIntentId);
@@ -149,17 +156,20 @@ export async function acceptBookingByUser(ctx: BookingActorContext) {
     }
   }
 
-  const updated = await prisma.booking.update({
-    where: { id: booking.id },
-    data: { status: "confirmed", acceptedAt: new Date() },
+  const traveler = await prisma.user.findUnique({
+    where: { id: booking.travelerId },
+    select: { name: true, email: true },
   });
-
-  if (booking.traveler.email) {
+  const localUser = await prisma.user.findUnique({
+    where: { id: booking.local.userId },
+    select: { name: true },
+  });
+  if (traveler?.email) {
     await sendEmail({
-      to: booking.traveler.email,
+      to: traveler.email,
       ...bookingAcceptedTemplate({
-        travelerName: booking.traveler.name ?? "there",
-        localName: booking.local.user.name ?? "your local",
+        travelerName: traveler.name ?? "there",
+        localName: localUser?.name ?? "your local",
         bookingId: booking.id,
       }),
     });

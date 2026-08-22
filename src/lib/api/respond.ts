@@ -124,8 +124,10 @@ export function handleError(err: unknown) {
         { status: 400 },
       );
     }
+    // Unknown internal errors must not leak internals to the client.
+    console.error("[api] unhandled error:", err);
     return NextResponse.json(
-      { error: { message: msg, code: "server_error" } },
+      { error: { message: "server error", code: "server_error" } },
       { status: 500 },
     );
   }

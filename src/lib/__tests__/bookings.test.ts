@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest'
 const mockPrisma = vi.hoisted(() => ({
   localProfile: { findUnique: vi.fn() },
   booking: { create: vi.fn(), findUnique: vi.fn(), update: vi.fn() },
+  user: { findUnique: vi.fn().mockResolvedValue({ name: 'Sam', email: 'sam@example.com' }) },
 }))
 vi.mock('@/lib/prisma', () => ({ prisma: mockPrisma }))
 
